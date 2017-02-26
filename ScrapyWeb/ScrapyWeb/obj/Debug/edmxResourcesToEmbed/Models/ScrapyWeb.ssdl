@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="ScrapyWebModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="TweetSet">
+    <Key>
+      <PropertyRef Name="Tweet_Id" />
+    </Key>
+    <Property Name="Tweet_Id" Type="varchar" MaxLength="150" Nullable="false" />
+    <Property Name="TweetText" Type="nvarchar" MaxLength="150" Nullable="false" />
+    <Property Name="DateDownload" Type="datetime" Nullable="false" />
+    <Property Name="DateCreated" Type="datetime" />
+    <Property Name="HashTags" Type="nvarchar" MaxLength="150" />
+    <Property Name="Mentions" Type="nvarchar" MaxLength="150" />
+    <Property Name="UserId" Type="varchar" MaxLength="50" />
+    <Property Name="ScreenName" Type="nvarchar" MaxLength="50" />
+    <Property Name="FollowersCount" Type="int" />
+    <Property Name="FriendsCouunt" Type="int" />
+    <Property Name="PlaceName" Type="varchar" MaxLength="50" />
+    <Property Name="PlaceId" Type="varchar" MaxLength="50" />
+    <Property Name="LatLong" Type="varchar" MaxLength="100" />
+    <Property Name="Language" Type="varchar" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="TwitterApplications">
+    <Key>
+      <PropertyRef Name="ApplicationId" />
+    </Key>
+    <Property Name="ApplicationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ApplicationName" Type="varchar" MaxLength="150" Nullable="false" />
+    <Property Name="ConsumerKey" Type="varchar" MaxLength="150" Nullable="false" />
+    <Property Name="ConsumerSecret" Type="varchar" MaxLength="150" Nullable="false" />
+    <Property Name="AccessToken" Type="varchar" MaxLength="150" Nullable="false" />
+    <Property Name="AccessTokenSecret" Type="varchar" MaxLength="150" Nullable="false" />
+  </EntityType>
+  <EntityContainer Name="ScrapyWebModelStoreContainer">
+    <EntitySet Name="TweetSet" EntityType="Self.TweetSet" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="TwitterApplications" EntityType="Self.TwitterApplications" Schema="dbo" store:Type="Tables" />
+  </EntityContainer>
+</Schema>
