@@ -4,6 +4,17 @@
     <EntitySetMapping Name="TweetSets">
       <EntityTypeMapping TypeName="ScrapyWebModel.TweetSet">
         <MappingFragment StoreEntitySet="TweetSet">
+          <ScalarProperty Name="Language" ColumnName="Language" />
+          <ScalarProperty Name="LatLong" ColumnName="LatLong" />
+          <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
+          <ScalarProperty Name="PlaceName" ColumnName="PlaceName" />
+          <ScalarProperty Name="FriendsCouunt" ColumnName="FriendsCouunt" />
+          <ScalarProperty Name="FollowersCount" ColumnName="FollowersCount" />
+          <ScalarProperty Name="ScreenName" ColumnName="ScreenName" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="Mentions" ColumnName="Mentions" />
+          <ScalarProperty Name="HashTags" ColumnName="HashTags" />
+          <ScalarProperty Name="DateCreated" ColumnName="DateCreated" />
           <ScalarProperty Name="Tweet_Id" ColumnName="Tweet_Id" />
           <ScalarProperty Name="TweetText" ColumnName="TweetText" />
           <ScalarProperty Name="DateDownload" ColumnName="DateDownload" />

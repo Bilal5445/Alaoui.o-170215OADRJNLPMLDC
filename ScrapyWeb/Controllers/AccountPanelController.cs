@@ -15,16 +15,29 @@ namespace ScrapyWeb.Controllers
         public ActionResult Index()
         {
             List<TwitterApplication> _appList = new List<TwitterApplication>() ;
-            //clBusiness.getTwitterApplications( ref _appList);
-            return View(_appList); 
+            clBusiness.getTwitterApplications(ref _appList);
+
+                      return View(_appList); 
         }
+        [HttpGet]
         public ActionResult AddApplication()
         {
 
             return View();
 
         }
+        [HttpPost]
+        public ActionResult AddApplication(TwitterApplication app)
+        {
+            string error="";
+            clBusiness.AddAplication(app, ref error);
+            if (string.IsNullOrEmpty(error))
+            {
+                return RedirectToAction("Index");
+            }
+            return View(app);
 
+        }
         //
         // GET: /AccountPanel/Details/5
 

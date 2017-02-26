@@ -5,8 +5,19 @@
       <PropertyRef Name="Tweet_Id" />
     </Key>
     <Property Name="Tweet_Id" Type="varchar" MaxLength="150" Nullable="false" />
-    <Property Name="TweetText" Type="varchar" MaxLength="150" Nullable="false" />
+    <Property Name="TweetText" Type="nvarchar" MaxLength="150" Nullable="false" />
     <Property Name="DateDownload" Type="datetime" Nullable="false" />
+    <Property Name="DateCreated" Type="datetime" />
+    <Property Name="HashTags" Type="nvarchar" MaxLength="150" />
+    <Property Name="Mentions" Type="nvarchar" MaxLength="150" />
+    <Property Name="UserId" Type="varchar" MaxLength="50" />
+    <Property Name="ScreenName" Type="nvarchar" MaxLength="50" />
+    <Property Name="FollowersCount" Type="int" />
+    <Property Name="FriendsCouunt" Type="int" />
+    <Property Name="PlaceName" Type="varchar" MaxLength="50" />
+    <Property Name="PlaceId" Type="varchar" MaxLength="50" />
+    <Property Name="LatLong" Type="varchar" MaxLength="100" />
+    <Property Name="Language" Type="varchar" MaxLength="50" />
   </EntityType>
   <EntityType Name="TwitterApplications">
     <Key>

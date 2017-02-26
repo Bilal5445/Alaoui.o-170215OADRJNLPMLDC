@@ -17,5 +17,16 @@ namespace ScrapyWeb.Models
         public string Tweet_Id { get; set; }
         public string TweetText { get; set; }
         public System.DateTime DateDownload { get; set; }
+        public Nullable<System.DateTime> DateCreated { get; set; }
+        public string HashTags { get; set; }
+        public string Mentions { get; set; }
+        public string UserId { get; set; }
+        public string ScreenName { get; set; }
+        public Nullable<int> FollowersCount { get; set; }
+        public Nullable<int> FriendsCouunt { get; set; }
+        public string PlaceName { get; set; }
+        public string PlaceId { get; set; }
+        public string LatLong { get; set; }
+        public string Language { get; set; }
     }
 }

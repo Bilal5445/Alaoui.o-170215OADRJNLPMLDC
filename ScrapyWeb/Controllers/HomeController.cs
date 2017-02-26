@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using ScrapyWeb.Business;
+using ScrapyWeb.Models;
 
 namespace ScrapyWeb.Controllers
 {
@@ -11,16 +13,18 @@ namespace ScrapyWeb.Controllers
         public ActionResult Index()
         {
             ViewBag.Message = "";
-
+            var TweetSets=new List<TweetSet>();
+            clBusiness.getDownloadedTweetSets(ref TweetSets);
+            ViewBag.TweetSets = TweetSets;
             return View();
         }
 
-        //public ActionResult About()
-        //{
-        //    ViewBag.Message = "Your app description page.";
+        public ActionResult FetchData()
+        {
+            clBusiness.searchInTwitter();
 
-        //    return View();
-        //}
+            return RedirectToAction("Index");
+        }
 
         //public ActionResult Contact()
         //{

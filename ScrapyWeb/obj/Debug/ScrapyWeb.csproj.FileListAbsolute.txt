@@ -14,7 +14,6 @@ H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\Microsoft.Data
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\Microsoft.Web.Infrastructure.dll
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\Microsoft.Web.Mvc.FixedDisplayModes.dll
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\Microsoft.Web.WebPages.OAuth.dll
-H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\Newtonsoft.Json.dll
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\System.Net.Http.Formatting.dll
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\System.Spatial.dll
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\System.Web.Helpers.dll
@@ -31,7 +30,6 @@ H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\WebGrease.dll
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\WebMatrix.Data.dll
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\WebMatrix.WebData.dll
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\EntityFramework.xml
-H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\Newtonsoft.Json.xml
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\System.Net.Http.Formatting.xml
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\System.Web.Helpers.xml
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\System.Web.Http.xml
@@ -81,6 +79,6 @@ H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\ko\System.Spat
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\ru\System.Spatial.resources.dll
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\zh-Hans\System.Spatial.resources.dll
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\bin\zh-Hant\System.Spatial.resources.dll
-H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\obj\Debug\ScrapyWeb.csprojResolveAssemblyReference.cache
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\obj\Debug\ScrapyWeb.dll
 H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\obj\Debug\ScrapyWeb.pdb
+H:\Company Related\UpWork\ScrappyWeb\Code\ScrapyWeb\ScrapyWeb\obj\Debug\ScrapyWeb.csprojResolveAssemblyReference.cache

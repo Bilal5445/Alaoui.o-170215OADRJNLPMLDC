@@ -754,3 +754,46 @@ tr.pager td {
             margin: 0;
         }
 }
+
+.users {
+  table-layout:fixed  ;
+  width:100%;
+  white-space: nowrap;
+  font-size:12px;
+  overflow-x:scroll;
+}
+tbody { display:normal; }
+
+/* Column widths are based on these cells */
+.row-ID {
+  width: 20%;
+}
+.row-name {
+  width: 40%;
+}
+.row-Tweet {
+  width: 60%;
+}
+.row-job {
+  width: 30%;
+}
+.row-email {
+  width: 20%;
+}
+.users td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.users th {
+  background: darkblue;
+  color: white;
+}
+.users td,
+.users th {
+  text-align: left;
+  padding: 5px 10px;
+}
+.users tr:nth-child(even) {
+  background: lightblue;
+}
