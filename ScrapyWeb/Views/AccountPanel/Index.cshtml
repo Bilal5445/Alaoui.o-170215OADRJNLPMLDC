@@ -1,0 +1,41 @@
+﻿@model List<ScrapyWeb.Models.TwitterApplication>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div>
+   @Html.ActionLink("Add Application", "AddApplication", "AccountPanel")
+    <h2>Twitter Applications</h2>
+    <table>
+        <thead>
+            <tr>
+                <th width="20%">App Name</th>
+                <th width="20%">Consumer Key</th>
+                <th width="20%">Consumer Secret</th>
+                <th width="20%">Access Token</th>
+                <th width="20%">Token Secret</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+                @foreach (var app in Model)
+                {
+                    <tr>
+                        <td>
+                        @app.ApplicationName
+                        </td>
+                        <td>@app.ConsumerKey</td>
+                        <td>@app.ConsumerSecret</td>
+                        <td>@app.AccessToken</td>
+                        <td>@app.AccessTokenSecret</td>
+                    </tr> 
+                }
+            
+        </tbody>
+
+    </table>
+</div>
