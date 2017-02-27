@@ -18,6 +18,10 @@ namespace ScrapyWeb.Business
     public class clBusiness
     {
         
+        /// <summary>
+        /// Get Twitter Applications from DB for Listing
+        /// </summary>
+        /// <param name="_appList"></param>
         public static void getTwitterApplications(ref List<TwitterApplication> _appList)
         {
 
@@ -30,12 +34,15 @@ namespace ScrapyWeb.Business
 
             }
         }
+        /// <summary>
+        /// It Will Search for Tweets
+        /// </summary>
         public static void searchInTwitter()
         {
             try
             {
                 string URL = Util.getKeyValueFromAppSetting("resource_url");
-                Search searchTwitter = new Search
+                Search searchTwitter = new Search()
                 {
                     Latitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Latitude")),
                     Longitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Longitude")),
@@ -88,6 +95,11 @@ namespace ScrapyWeb.Business
                 context.SaveChanges();
             }
         }
+        /// <summary>
+        /// This method is used to extract the tweet attributes from JObject.
+        /// </summary>
+        /// <param name="jobj"></param>
+        /// <param name="tweet"></param>
         static void getTweetFromJObj(dynamic jobj, ref ScrapyWeb.Models.TweetSet tweet)
         {
 
@@ -133,6 +145,11 @@ namespace ScrapyWeb.Business
 
  
         }
+
+        /// <summary>
+        /// get Application from Config
+        /// </summary>
+        /// <returns></returns>
         public static ScrapyWeb.Models.TwitterApplication getApplicationDetails()
         {
            
@@ -147,6 +164,12 @@ namespace ScrapyWeb.Business
           
  
         }
+        /// <summary>
+        /// Create Request Object and Oath Header for Twitter API Search
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="search"></param>
+        /// <returns></returns>
         static WebRequest CreateOauthAndRequest(TwitterApplication app, Search search)
         {
             //oauth application keys
@@ -170,8 +193,15 @@ namespace ScrapyWeb.Business
 
 
             // create oauth signature
-            var baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
+            var baseFormat = "";
+            if (!string.IsNullOrEmpty(search.Since_Id))
+            {
+                baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
+                            "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}&result_type=mixed&since_id="+search.Since_Id;//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
+            }
+            else baseFormat="geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
                             "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}&result_type=mixed";//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
+
 
             var baseString = string.Format(baseFormat,
                                         oauth_consumer_key,
@@ -213,7 +243,12 @@ namespace ScrapyWeb.Business
 
 
             ServicePointManager.Expect100Continue = false;
-            var URL = search.URL + "?geocode="+geocode + "&result_type=mixed";
+             var URL="";
+             if (!string.IsNullOrEmpty(search.Since_Id))
+             {
+                 URL = search.URL + "?geocode=" + geocode + "&result_type=mixed&since_id=" + search.Since_Id;
+             }
+             else URL = search.URL + "?geocode=" + geocode + "&result_type=mixed";
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
             request.Headers.Add("Authorization", authHeader);
             request.Method = "GET";
@@ -221,6 +256,12 @@ namespace ScrapyWeb.Business
             return request;
 
         }
+
+        /// <summary>
+        /// Add Twitter Application to Database
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="error"></param>
         public static void AddAplication(TwitterApplication app,ref string error)
         {
             try
@@ -240,6 +281,11 @@ namespace ScrapyWeb.Business
  
             }
         }
+
+        /// <summary>
+        /// Get Downloaded Tweets from Database
+        /// </summary>
+        /// <param name="_tweetList"></param>
         public static void getDownloadedTweetSets(ref List<TweetSet> _tweetList)
         {
 
@@ -250,6 +296,23 @@ namespace ScrapyWeb.Business
                                       .ToList();
 
             }
+        }
+
+        /// <summary>
+        /// Get Twitter Id from DB for Since_Id param
+        /// </summary>
+        /// <returns></returns>
+        public static string getSinceIdFromTweetSets()
+        {
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            {
+                var topTweet = (from tweet in context.TweetSets
+                            orderby tweet.Tweet_Id descending
+                            select tweet).Take(1);
+                return topTweet.FirstOrDefault<TweetSet>().Tweet_Id;
+
+            }
+ 
         }
 
 
