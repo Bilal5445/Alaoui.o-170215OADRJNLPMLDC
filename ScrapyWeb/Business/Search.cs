@@ -14,6 +14,7 @@ namespace ScrapyWeb.Business
         public int Radius { get; set; }
         public string URL { get; set; }
         public string Since_Id { get; set; }
+        public string Count_toSearch { get; set; }
         public Search()
         {
             getSinceId();

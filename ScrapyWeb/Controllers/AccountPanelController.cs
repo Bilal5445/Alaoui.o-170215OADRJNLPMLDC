@@ -20,8 +20,13 @@ namespace ScrapyWeb.Controllers
                       return View(_appList); 
         }
         [HttpGet]
-        public ActionResult AddApplication()
+        public ActionResult AddApplication(int id=0)
         {
+            if (id > 0)
+            {
+             var app=   clBusiness.GetApplication(id);
+             return View(app);
+            }
 
             return View();
 
@@ -38,90 +43,30 @@ namespace ScrapyWeb.Controllers
             return View(app);
 
         }
-        //
-        // GET: /AccountPanel/Details/5
-
-        public ActionResult Details(int id)
+       
+        [HttpGet]
+        public ActionResult FetchTwitterData(int?id)
         {
-            return View();
+            ViewBag.AppId = id;
+
+            return View(clBusiness.getSearchCriteria());
         }
-
-        //
-        // GET: /AccountPanel/Create
-
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        //
-        // POST: /AccountPanel/Create
-
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public ActionResult FetchTwitterData(Search search,int id)
         {
-            try
+            @ViewBag.Message = "";
+            string Error = string.Empty;
+            clBusiness.searchInTwitter(id,search,ref Error);
+            if (string.IsNullOrEmpty(Error))
+                return RedirectToAction("Index", "Home");
+            else
             {
-                // TODO: Add insert logic here
+                @ViewBag.Message = Error;
+                return View(search);
 
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
             }
         }
+       
 
-        //
-        // GET: /AccountPanel/Edit/5
-
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        //
-        // POST: /AccountPanel/Edit/5
-
-        [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
-        {
-            try
-            {
-                // TODO: Add update logic here
-
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        //
-        // GET: /AccountPanel/Delete/5
-
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        //
-        // POST: /AccountPanel/Delete/5
-
-        [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
-        }
     }
 }

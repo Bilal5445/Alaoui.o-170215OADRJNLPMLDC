@@ -13,7 +13,7 @@
     <div>
         <table class="users">
             <thead>
-                <tr>
+                <tr><th class="row-1 row-ID">Action</th>
                     <th class="row-1 row-ID">App Name</th>
                     <th class="row-2 row-name">Consumer Key</th>
                     <th class="row-3 row-job">Consumer Secret</th>
@@ -26,6 +26,10 @@
                 @foreach (var app in Model)
                 {
                     <tr>
+                        <td>@Html.ActionLink("Edit","AddApplication","AccountPanel",new {id=app.ApplicationId},null)&nbsp;
+                        @Html.ActionLink("Fetch Data", "FetchTwitterData", "AccountPanel", new { id = app.ApplicationId }, null)
+                         </td>
+                        
                         <td>
                             @app.ApplicationName
                         </td>

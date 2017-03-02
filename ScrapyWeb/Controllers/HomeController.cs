@@ -21,7 +21,7 @@ namespace ScrapyWeb.Controllers
 
         public ActionResult FetchData()
         {
-            clBusiness.searchInTwitter();
+           // clBusiness.getFacebookGroupFeed();
 
             return RedirectToAction("Index");
         }
