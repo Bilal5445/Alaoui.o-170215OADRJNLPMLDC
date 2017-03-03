@@ -338,10 +338,17 @@ namespace ScrapyWeb.Business
             if (!string.IsNullOrEmpty(search.Since_Id))
             {
                 baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
+                // baseFormat = "query=morocco&granularity=country&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
                             "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}&result_type=mixed&since_id=" + search.Since_Id;// +"&count=" + search.Count_toSearch;//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
             }
-            else baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
+            else
+            {
+                baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
+                // baseFormat = "query=morocco&granularity=country&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
                             "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}&result_type=mixed";//&count=" + search.Count_toSearch;//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
+            }
+
+            // geo / search.json ? query = France & granularity = country
 
             var baseString = string.Format(baseFormat,
                                         oauth_consumer_key,
@@ -349,8 +356,8 @@ namespace ScrapyWeb.Business
                                         oauth_signature_method,
                                         oauth_timestamp,
                                         oauth_token,
-                                        oauth_version,
-                                        Uri.EscapeDataString(geocode)
+                                        oauth_version/**/,
+                                        Uri.EscapeDataString(geocode)/**/
                                         );
 
             baseString = string.Concat("GET&", Uri.EscapeDataString(search.URL), "&", Uri.EscapeDataString(baseString));
