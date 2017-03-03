@@ -9,7 +9,7 @@
                 <h2>@ViewBag.Message</h2>
             </hgroup>
             <p>
-                
+
             </p>
         </div>
     </section>
@@ -17,13 +17,13 @@
 @*<h3>Dashboard</h3>*@
 @{ var tweetList = (List<ScrapyWeb.Models.TweetSet>)ViewBag.TweetSets;
 }
-@*@Html.ActionLink("Fetch Data", "FetchData", "Home")*@
+@**@@Html.ActionLink("Fetch Data", "FetchData", "Home")@**@
 <ol class="round">
     <li class="one">
         <h5>Total Tweets in Data Set</h5>
-       <p>
-           So for total Tweets in database are :@tweetList.Count <b></b>
-       </p>
+        <p>
+            So for total Tweets in database are :@tweetList.Count <b></b>
+        </p>
     </li>
     <table class="users">
         <thead>
@@ -31,27 +31,23 @@
                 <th class="row-1 row-ID">Screen Name</th>
                 <th class="row-2 row-ID">Tweet Date</th>
                 <th class="row-3 row-Tweet">Tweet Text</th>
-               
             </tr>
         </thead>
         <tbody>
-            
-    
-            @foreach (var tweet in tweetList )
+
+            @foreach (var tweet in tweetList)
             {
-            <tr>
-            <td>
-                @tweet.ScreenName
-            </td>
-            <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", tweet.DateCreated)</td>
-            <td>@tweet.TweetText</td>           
-            </tr>
+                <tr>
+                    <td>
+                        @tweet.ScreenName
+                    </td>
+                    <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", tweet.DateCreated)</td>
+                    <td>@tweet.TweetText</td>
+                </tr>
             }
 
-</tbody>
+        </tbody>
 
- </table>
+    </table>
 
-
-    
 </ol>

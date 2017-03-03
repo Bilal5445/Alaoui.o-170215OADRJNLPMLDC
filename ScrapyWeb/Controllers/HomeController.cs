@@ -13,15 +13,22 @@ namespace ScrapyWeb.Controllers
         public ActionResult Index()
         {
             ViewBag.Message = "";
-            var TweetSets=new List<TweetSet>();
+
+            // get existing tweets in DB
+            var TweetSets = new List<TweetSet>();
             clBusiness.getDownloadedTweetSets(ref TweetSets);
+
+            //
             ViewBag.TweetSets = TweetSets;
+
             return View();
         }
 
         public ActionResult FetchData()
         {
-           // clBusiness.getFacebookGroupFeed();
+            String message = "";
+            clBusiness.searchInTwitter(null, clBusiness.getSearchCriteria(), ref message);
+            // clBusiness.getFacebookGroupFeed();
 
             return RedirectToAction("Index");
         }

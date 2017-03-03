@@ -7,20 +7,21 @@ namespace ScrapyWeb.Business
 {
     public class Search
     {
-
         public double Latitude { get; set; }
         public double Longitude { get; set; }
-        public bool IsRadiusInMiles { get;set; }
+        public bool IsRadiusInMiles { get; set; }
         public int Radius { get; set; }
         public string URL { get; set; }
         public string Since_Id { get; set; }
         public string Count_toSearch { get; set; }
         public string GroupId { get; set; }
+
         public Search()
         {
             getSinceId();
         }
-        public Search(double Latitude,double Longitude,int Radius,bool IsRadiusInMiles)
+
+        public Search(double Latitude, double Longitude, int Radius, bool IsRadiusInMiles)
         {
             this.Latitude = Latitude;
             this.Longitude = Longitude;
@@ -28,21 +29,19 @@ namespace ScrapyWeb.Business
             this.IsRadiusInMiles = IsRadiusInMiles;
             getSinceId();
         }
+
         public Search(int GroupId)
         {
-           
+
         }
-        
+
         void getSinceId()
         {
-            var since_id=Business.clBusiness.getSinceIdFromTweetSets();
+            var since_id = clBusiness.getSinceIdFromTweetSets();
             if (!string.IsNullOrEmpty(since_id))
             {
                 this.Since_Id = since_id;
             }
-            
         }
-
-
     }
 }

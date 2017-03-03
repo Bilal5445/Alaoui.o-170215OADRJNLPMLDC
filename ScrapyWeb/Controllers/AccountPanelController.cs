@@ -14,20 +14,22 @@ namespace ScrapyWeb.Controllers
 
         public ActionResult Index()
         {
-            List<TwitterApplication> _appList = new List<TwitterApplication>() ;
-            List<FBApplication> _fbAppList = new List<FBApplication>();
+            List<TwitterApplication> _appList = new List<TwitterApplication>();
+            //List<FBApplication> _fbAppList = new List<FBApplication>();
             clBusiness.getTwitterApplications(ref _appList);
-            clBusiness.getFBApplications(ref _fbAppList);
-            ViewBag.FbApplications = _fbAppList;
-                      return View(_appList); 
+            // clBusiness.getFBApplications(ref _fbAppList);
+            // ViewBag.FbApplications = _fbAppList;
+
+            return View(_appList);
         }
+
         [HttpGet]
-        public ActionResult AddApplication(int id=0)
+        public ActionResult AddApplication(int id = 0)
         {
             if (id > 0)
             {
-             var app=   clBusiness.GetApplication(id);
-             return View(app);
+                var app = clBusiness.GetApplication(id);
+                return View(app);
             }
 
             return View();
@@ -36,7 +38,7 @@ namespace ScrapyWeb.Controllers
         [HttpPost]
         public ActionResult AddApplication(TwitterApplication app)
         {
-            string error="";
+            string error = "";
             clBusiness.AddAplication(app, ref error);
             if (string.IsNullOrEmpty(error))
             {
@@ -45,20 +47,20 @@ namespace ScrapyWeb.Controllers
             return View(app);
 
         }
-       
+
         [HttpGet]
-        public ActionResult FetchTwitterData(int?id)
+        public ActionResult FetchTwitterData(int? id)
         {
             ViewBag.AppId = id;
 
             return View(clBusiness.getSearchCriteria());
         }
         [HttpPost]
-        public ActionResult FetchTwitterData(Search search,int id)
+        public ActionResult FetchTwitterData(Search search, int id)
         {
             @ViewBag.Message = "";
             string Error = string.Empty;
-           // clBusiness.searchInTwitter(id,search,ref Error);
+            // clBusiness.searchInTwitter(id,search,ref Error);
             clBusiness.searchInTwitterPlaces(ref Error);
             if (string.IsNullOrEmpty(Error))
                 return RedirectToAction("Index", "Home");
@@ -69,7 +71,7 @@ namespace ScrapyWeb.Controllers
 
             }
         }
-       
+
 
     }
 }
