@@ -1,5 +1,29 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Schema Namespace="ScrapyWebModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="FacebookGroupFeed">
+    <Key>
+      <PropertyRef Name="GroupPostId" />
+    </Key>
+    <Property Name="GroupPostId" Type="int" Nullable="false" />
+    <Property Name="PostText" Type="nvarchar" MaxLength="2000" Nullable="false" />
+  </EntityType>
+  <EntityType Name="FBApplications">
+    <Key>
+      <PropertyRef Name="FbAppId" />
+    </Key>
+    <Property Name="ApplicationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ApplicationName" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="FbAppId" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="FbAppSecret" Type="varchar" MaxLength="150" Nullable="false" />
+  </EntityType>
+  <EntityType Name="FBGroups">
+    <Key>
+      <PropertyRef Name="GroupId" />
+    </Key>
+    <Property Name="GroupId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="FbGroupId" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="GroupName" Type="varchar" MaxLength="50" Nullable="false" />
+  </EntityType>
   <EntityType Name="TweetSet">
     <Key>
       <PropertyRef Name="Tweet_Id" />
@@ -31,6 +55,9 @@
     <Property Name="AccessTokenSecret" Type="varchar" MaxLength="150" Nullable="false" />
   </EntityType>
   <EntityContainer Name="ScrapyWebModelStoreContainer">
+    <EntitySet Name="FacebookGroupFeed" EntityType="Self.FacebookGroupFeed" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="FBApplications" EntityType="Self.FBApplications" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="FBGroups" EntityType="Self.FBGroups" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="TweetSet" EntityType="Self.TweetSet" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="TwitterApplications" EntityType="Self.TwitterApplications" Schema="dbo" store:Type="Tables" />
   </EntityContainer>

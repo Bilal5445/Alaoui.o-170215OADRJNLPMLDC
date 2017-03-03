@@ -49,3 +49,45 @@
     </div>
 
     </div>
+
+
+<div>
+    @Html.ActionLink("Add FB Application", "AddFBApplication", "AccountPanel")
+    <h2>Facebook Applications</h2>
+    <div>
+        <table class="users">
+            <thead>
+                <tr>
+                    <th class="row-1 row-ID">Action</th>
+                    <th class="row-1 row-ID">App Name</th>
+                    <th class="row-2 row-name">App ID</th>
+                    <th class="row-3 row-job">App Secret</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var app in (List<ScrapyWeb.Models.FBApplication>)ViewBag.FbApplications)
+                {
+                    <tr>
+                        <td>
+                            @Html.ActionLink("Edit", "AddApplication", "AccountPanel", new { id = app.ApplicationId }, null)&nbsp;
+                        @Html.ActionLink("Fetch Data", "FetchTwitterData", "AccountPanel", new { id = app.ApplicationId }, null)
+                    </td>
+
+                    <td>
+                        @app.ApplicationName
+                    </td>
+                    <td>@app.FbAppId</td>
+                    <td>@app.FbAppSecret</td>
+                </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+
+
+    </div>
+
+</div>

@@ -27,5 +27,8 @@ namespace ScrapyWeb.Models
     
         public DbSet<TweetSet> TweetSets { get; set; }
         public DbSet<TwitterApplication> TwitterApplications { get; set; }
+        public DbSet<FacebookGroupFeed> FacebookGroupFeeds { get; set; }
+        public DbSet<FBGroup> FBGroups { get; set; }
+        public DbSet<FBApplication> FBApplications { get; set; }
     }
 }

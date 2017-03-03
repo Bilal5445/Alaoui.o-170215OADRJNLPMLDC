@@ -5,6 +5,30 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="ScrapyWebModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="FacebookGroupFeed">
+          <Key>
+            <PropertyRef Name="GroupPostId" />
+          </Key>
+          <Property Name="GroupPostId" Type="int" Nullable="false" />
+          <Property Name="PostText" Type="nvarchar" MaxLength="2000" Nullable="false" />
+        </EntityType>
+        <EntityType Name="FBApplications">
+          <Key>
+            <PropertyRef Name="FbAppId" />
+          </Key>
+          <Property Name="ApplicationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ApplicationName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="FbAppId" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="FbAppSecret" Type="varchar" MaxLength="150" Nullable="false" />
+        </EntityType>
+        <EntityType Name="FBGroups">
+          <Key>
+            <PropertyRef Name="GroupId" />
+          </Key>
+          <Property Name="GroupId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FbGroupId" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="GroupName" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
         <EntityType Name="TweetSet">
           <Key>
             <PropertyRef Name="Tweet_Id" />
@@ -36,6 +60,9 @@
           <Property Name="AccessTokenSecret" Type="varchar" MaxLength="150" Nullable="false" />
         </EntityType>
         <EntityContainer Name="ScrapyWebModelStoreContainer">
+          <EntitySet Name="FacebookGroupFeed" EntityType="Self.FacebookGroupFeed" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="FBApplications" EntityType="Self.FBApplications" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="FBGroups" EntityType="Self.FBGroups" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TweetSet" EntityType="Self.TweetSet" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TwitterApplications" EntityType="Self.TwitterApplications" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
@@ -76,7 +103,34 @@
         <EntityContainer Name="ScrapyWebEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="TweetSets" EntityType="Self.TweetSet" />
           <EntitySet Name="TwitterApplications" EntityType="Self.TwitterApplication" />
+          <EntitySet Name="FacebookGroupFeeds" EntityType="ScrapyWebModel.FacebookGroupFeed" />
+          <EntitySet Name="FBGroups" EntityType="ScrapyWebModel.FBGroup" />
+          <EntitySet Name="FBApplications" EntityType="ScrapyWebModel.FBApplication" />
         </EntityContainer>
+        <EntityType Name="FacebookGroupFeed">
+          <Key>
+            <PropertyRef Name="GroupPostId" />
+          </Key>
+          <Property Name="GroupPostId" Type="Int32" Nullable="false" />
+          <Property Name="PostText" Type="String" Nullable="false" MaxLength="2000" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="FBGroup">
+          <Key>
+            <PropertyRef Name="GroupId" />
+          </Key>
+          <Property Name="GroupId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FbGroupId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="GroupName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="FBApplication">
+          <Key>
+            <PropertyRef Name="FbAppId" />
+          </Key>
+          <Property Name="ApplicationId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ApplicationName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FbAppId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FbAppSecret" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -115,6 +169,33 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="FacebookGroupFeeds">
+            <EntityTypeMapping TypeName="ScrapyWebModel.FacebookGroupFeed">
+              <MappingFragment StoreEntitySet="FacebookGroupFeed">
+                <ScalarProperty Name="PostText" ColumnName="PostText" />
+                <ScalarProperty Name="GroupPostId" ColumnName="GroupPostId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FBGroups">
+            <EntityTypeMapping TypeName="ScrapyWebModel.FBGroup">
+              <MappingFragment StoreEntitySet="FBGroups">
+                <ScalarProperty Name="GroupName" ColumnName="GroupName" />
+                <ScalarProperty Name="FbGroupId" ColumnName="FbGroupId" />
+                <ScalarProperty Name="GroupId" ColumnName="GroupId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FBApplications">
+            <EntityTypeMapping TypeName="ScrapyWebModel.FBApplication">
+              <MappingFragment StoreEntitySet="FBApplications">
+                <ScalarProperty Name="FbAppSecret" ColumnName="FbAppSecret" />
+                <ScalarProperty Name="FbAppId" ColumnName="FbAppId" />
+                <ScalarProperty Name="ApplicationName" ColumnName="ApplicationName" />
+                <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
@@ -136,6 +217,14 @@
       </DesignerInfoPropertySet>
     </Options>
     <!-- Diagram content (shape and connector positions) -->
-    <Diagrams></Diagrams>
+    <Diagrams>
+      <Diagram DiagramId="8d30603ef9d14716b6432f86c6393713" Name="Diagram1">
+        <EntityTypeShape EntityType="ScrapyWebModel.TweetSet" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ScrapyWebModel.TwitterApplication" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ScrapyWebModel.FacebookGroupFeed" Width="1.5" PointX="3.375" PointY="3.75" />
+        <EntityTypeShape EntityType="ScrapyWebModel.FBGroup" Width="1.5" PointX="5.375" PointY="0.75" />
+        <EntityTypeShape EntityType="ScrapyWebModel.FBApplication" Width="1.5" PointX="0.75" PointY="5.75" />
+      </Diagram>
+    </Diagrams>
   </Designer>
 </edmx:Edmx>

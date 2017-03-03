@@ -86,6 +86,135 @@ namespace ScrapyWeb.Business
                 Console.WriteLine(err.ToString());
             }
         }
+
+
+        public static void searchInTwitterPlaces( ref string Message)
+        {
+            try
+            {
+
+                ScrapyWeb.Models.TwitterApplication app = getApplicationDetails(null);
+                //oauth application keys
+                var oauth_token = app.AccessToken;//Util.getKeyValueFromAppSetting("oauth_token");
+                var oauth_token_secret = app.AccessTokenSecret;// Util.getKeyValueFromAppSetting("oauth_token_secret");
+                var oauth_consumer_key = app.ConsumerKey;// Util.getKeyValueFromAppSetting("oauth_consumer_key");
+                var oauth_consumer_secret = app.ConsumerSecret;// Util.getKeyValueFromAppSetting("oauth_consumer_secret");
+
+                //oauth implementation details
+                var oauth_version = "1.0";
+                var oauth_signature_method = "HMAC-SHA1";
+
+                // unique request details
+                var oauth_nonce = Convert.ToBase64String(
+                    new ASCIIEncoding().GetBytes(DateTime.Now.Ticks.ToString()));
+                var timeSpan = DateTime.UtcNow
+                    - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                var oauth_timestamp = Convert.ToInt64(timeSpan.TotalSeconds).ToString();
+                // var geocode = "33.6436653,-6.8618025,15mi";
+                var query = new StringBuilder().Append("Morocco").ToString();
+
+
+                // create oauth signature
+                var baseFormat = "";
+                                baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
+                                "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}";//&count=" + search.Count_toSearch;//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
+
+
+                var baseString = string.Format(baseFormat,
+                                            oauth_consumer_key,
+                                            oauth_nonce,
+                                            oauth_signature_method,
+                                            oauth_timestamp,
+                                            oauth_token,
+                                            oauth_version,
+                                            Uri.EscapeDataString(query)
+                                            );
+
+                baseString = string.Concat("GET&", Uri.EscapeDataString("https://api.twitter.com/1.1/geo/search.json"), "&", Uri.EscapeDataString(baseString));
+
+                var compositeKey = string.Concat(Uri.EscapeDataString(oauth_consumer_secret),
+                                        "&", Uri.EscapeDataString(oauth_token_secret));
+
+                string oauth_signature;
+                using (HMACSHA1 hasher = new HMACSHA1(ASCIIEncoding.ASCII.GetBytes(compositeKey)))
+                {
+                    oauth_signature = Convert.ToBase64String(
+                        hasher.ComputeHash(ASCIIEncoding.ASCII.GetBytes(baseString)));
+                }
+
+                // create the request header
+                var headerFormat = "OAuth oauth_nonce=\"{0}\", oauth_signature_method=\"{1}\", " +
+                                   "oauth_timestamp=\"{2}\", oauth_consumer_key=\"{3}\", " +
+                                   "oauth_token=\"{4}\", oauth_signature=\"{5}\", " +
+                                   "oauth_version=\"{6}\"";
+
+                var authHeader = string.Format(headerFormat,
+                                        Uri.EscapeDataString(oauth_nonce),
+                                        Uri.EscapeDataString(oauth_signature_method),
+                                        Uri.EscapeDataString(oauth_timestamp),
+                                        Uri.EscapeDataString(oauth_consumer_key),
+                                        Uri.EscapeDataString(oauth_token),
+                                        Uri.EscapeDataString(oauth_signature),
+                                        Uri.EscapeDataString(oauth_version)
+                                );
+
+
+                ServicePointManager.Expect100Continue = false;
+                var URL = "https://api.twitter.com/1.1/geo/search.json";
+               
+                    URL = URL + "?query=" + query;
+                
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
+                request.Headers.Add("Authorization", authHeader);
+                request.Method = "GET";
+                request.ContentType = "application/x-www-form-urlencoded";
+
+               
+                var response = (HttpWebResponse)request.GetResponse();
+                var reader = new StreamReader(response.GetResponseStream());
+                var objText = reader.ReadToEnd();
+                try
+                {
+                    JObject jObjects = JObject.Parse(objText);
+                    foreach (var v in jObjects)
+                    {
+                        JObject Objects = new JObject(jObjects);
+                        JArray items = (JArray)Objects["statuses"];
+                        var length = items.Count;
+                        if (length == 0)
+                        {
+                            Message = "No tweet(s) found against the provided location, try to change the location/latitude,longitude by dragg /move and left clicking on the map";
+                            break;
+                        }
+                        foreach (var status in Objects["statuses"])
+                        {
+                            ScrapyWeb.Models.TweetSet tweet = new ScrapyWeb.Models.TweetSet();
+
+                            getTweetFromJObj(status, ref tweet);
+                            AddTweetTODb(tweet);
+
+
+                        }
+                    }
+
+
+
+                }
+                catch (Exception twit_error)
+                {
+                    Console.WriteLine(twit_error.ToString());
+                }
+
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine(err.ToString());
+            }
+        }
+
+
+
+
         public static Search getSearchCriteria()
         {
             return  new Search()
@@ -494,6 +623,84 @@ namespace ScrapyWeb.Business
            }
        }
 
+       public static Models.FBGroup GetFbGroup(int GroupId)
+       {
+           using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+           {
+
+               var query = (from app in context.FBGroups
+                            where app.GroupId == GroupId
+
+                            select app).Take(1);
+               return query.FirstOrDefault<FBGroup>();
+
+           }
+       }
+       public static Models.FBApplication GetFbApplication(int ApplicationId)
+       {
+           using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+           {
+
+               var query = (from app in context.FBApplications
+                            where app.ApplicationId == ApplicationId
+
+                            select app).Take(1);
+               return query.FirstOrDefault<FBApplication>();
+
+           }
+       }
+      public static void getFBApplications(ref List<FBApplication> _appList)
+      {
+
+           using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+           {
+
+               _appList = context.FBApplications
+                                     .ToList();
+
+
+           }
+       }
+       public String FacebookGetAccessToken()
+       {
+
+           string vals = "";
+           string url = "https://graph.facebook.com/oauth/access_token?client_id=360921534307030&client_secret=e7622d158d04babc3bdc5e5687174040&grant_type=client_credentials";
+
+           HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+
+           using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+           {
+               StreamReader reader = new StreamReader(response.GetResponseStream());
+
+               vals = reader.ReadToEnd();
+
+
+           }
+
+           return vals;
+
+       }
+
+       public static void getFacebookGroupFeed()
+       {
+           string vals = "";
+           string url = "https://graph.facebook.com/v2.8/968091193320896/feed?key=360921534307030&access_token=360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk";
+
+           HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+
+           using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+           {
+               StreamReader reader = new StreamReader(response.GetResponseStream());
+
+               vals = reader.ReadToEnd();
+
+
+           }
+
+
+
+       }
 
 
       

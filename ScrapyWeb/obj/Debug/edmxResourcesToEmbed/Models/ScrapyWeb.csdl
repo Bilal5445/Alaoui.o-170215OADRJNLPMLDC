@@ -33,5 +33,32 @@
   <EntityContainer Name="ScrapyWebEntities" annotation:LazyLoadingEnabled="true">
     <EntitySet Name="TweetSets" EntityType="Self.TweetSet" />
     <EntitySet Name="TwitterApplications" EntityType="Self.TwitterApplication" />
+    <EntitySet Name="FacebookGroupFeeds" EntityType="ScrapyWebModel.FacebookGroupFeed" />
+    <EntitySet Name="FBGroups" EntityType="ScrapyWebModel.FBGroup" />
+    <EntitySet Name="FBApplications" EntityType="ScrapyWebModel.FBApplication" />
   </EntityContainer>
+  <EntityType Name="FacebookGroupFeed">
+    <Key>
+      <PropertyRef Name="GroupPostId" />
+    </Key>
+    <Property Name="GroupPostId" Type="Int32" Nullable="false" />
+    <Property Name="PostText" Type="String" Nullable="false" MaxLength="2000" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="FBGroup">
+    <Key>
+      <PropertyRef Name="GroupId" />
+    </Key>
+    <Property Name="GroupId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="FbGroupId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="GroupName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="FBApplication">
+    <Key>
+      <PropertyRef Name="FbAppId" />
+    </Key>
+    <Property Name="ApplicationId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ApplicationName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="FbAppId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="FbAppSecret" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+  </EntityType>
 </Schema>

@@ -33,5 +33,32 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <EntitySetMapping Name="FacebookGroupFeeds">
+      <EntityTypeMapping TypeName="ScrapyWebModel.FacebookGroupFeed">
+        <MappingFragment StoreEntitySet="FacebookGroupFeed">
+          <ScalarProperty Name="PostText" ColumnName="PostText" />
+          <ScalarProperty Name="GroupPostId" ColumnName="GroupPostId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="FBGroups">
+      <EntityTypeMapping TypeName="ScrapyWebModel.FBGroup">
+        <MappingFragment StoreEntitySet="FBGroups">
+          <ScalarProperty Name="GroupName" ColumnName="GroupName" />
+          <ScalarProperty Name="FbGroupId" ColumnName="FbGroupId" />
+          <ScalarProperty Name="GroupId" ColumnName="GroupId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="FBApplications">
+      <EntityTypeMapping TypeName="ScrapyWebModel.FBApplication">
+        <MappingFragment StoreEntitySet="FBApplications">
+          <ScalarProperty Name="FbAppSecret" ColumnName="FbAppSecret" />
+          <ScalarProperty Name="FbAppId" ColumnName="FbAppId" />
+          <ScalarProperty Name="ApplicationName" ColumnName="ApplicationName" />
+          <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
   </EntityContainerMapping>
 </Mapping>

@@ -15,8 +15,10 @@ namespace ScrapyWeb.Controllers
         public ActionResult Index()
         {
             List<TwitterApplication> _appList = new List<TwitterApplication>() ;
+            List<FBApplication> _fbAppList = new List<FBApplication>();
             clBusiness.getTwitterApplications(ref _appList);
-
+            clBusiness.getFBApplications(ref _fbAppList);
+            ViewBag.FbApplications = _fbAppList;
                       return View(_appList); 
         }
         [HttpGet]
@@ -56,7 +58,8 @@ namespace ScrapyWeb.Controllers
         {
             @ViewBag.Message = "";
             string Error = string.Empty;
-            clBusiness.searchInTwitter(id,search,ref Error);
+           // clBusiness.searchInTwitter(id,search,ref Error);
+            clBusiness.searchInTwitterPlaces(ref Error);
             if (string.IsNullOrEmpty(Error))
                 return RedirectToAction("Index", "Home");
             else
