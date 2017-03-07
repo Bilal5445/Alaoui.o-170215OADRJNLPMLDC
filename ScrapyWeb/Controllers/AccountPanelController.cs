@@ -58,8 +58,13 @@ namespace ScrapyWeb.Controllers
         {
             @ViewBag.Message = "";
             string Error = string.Empty;
-           // clBusiness.searchInTwitter(id,search,ref Error);
-            clBusiness.searchInTwitterPlaces(ref Error);
+            if (search.SearchUserTimeLine)
+                clBusiness.ReadUserTimelineInTwitter(search, clBusiness.getApplicationDetails(id));
+            else
+            {
+                clBusiness.searchInTwitter(id, search, ref Error);
+            }
+           // clBusiness.searchInTwitterPlaces(ref Error);
             if (string.IsNullOrEmpty(Error))
                 return RedirectToAction("Index", "Home");
             else

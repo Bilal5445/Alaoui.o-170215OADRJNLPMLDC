@@ -16,9 +16,13 @@ namespace ScrapyWeb.Business
         public string Since_Id { get; set; }
         public string Count_toSearch { get; set; }
         public string GroupId { get; set; }
+        public string TimeLineURL { get; set; }
+        public String ScreenName { get; set; }
+        public bool SearchUserTimeLine { get; set; }
         public Search()
         {
             getSinceId();
+            TimeLineURL = Util.getKeyValueFromAppSetting("TimeLineURL");
         }
         public Search(double Latitude,double Longitude,int Radius,bool IsRadiusInMiles)
         {
@@ -31,8 +35,7 @@ namespace ScrapyWeb.Business
         public Search(int GroupId)
         {
            
-        }
-        
+        }        
         void getSinceId()
         {
             var since_id=Business.clBusiness.getSinceIdFromTweetSets();

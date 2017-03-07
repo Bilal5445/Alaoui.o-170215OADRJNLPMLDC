@@ -12,7 +12,7 @@ using System.IO;
 using System.Text;
 using System.Net;
 using System.Xml;
-
+using System.Globalization;
 namespace ScrapyWeb.Business
 {
     public class clBusiness
@@ -86,8 +86,6 @@ namespace ScrapyWeb.Business
                 Console.WriteLine(err.ToString());
             }
         }
-
-
         public static void searchInTwitterPlaces( ref string Message)
         {
             try
@@ -211,20 +209,17 @@ namespace ScrapyWeb.Business
                 Console.WriteLine(err.ToString());
             }
         }
-
-
-
-
         public static Search getSearchCriteria()
         {
             return  new Search()
             {
-                Latitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Latitude")),
-                Longitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Longitude")),
+                Latitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Latitude"), CultureInfo.InvariantCulture.NumberFormat),
+                Longitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Longitude"), CultureInfo.InvariantCulture.NumberFormat),
                 Radius = Convert.ToInt32(Util.getKeyValueFromAppSetting("Radius")),
                 IsRadiusInMiles = Convert.ToBoolean(Util.getKeyValueFromAppSetting("IsRadiusInMile")),
                 URL = Util.getKeyValueFromAppSetting("resource_url"),
-                Count_toSearch = Convert.ToString(Util.getKeyValueFromAppSetting("Count_toSearch"))
+                Count_toSearch = Convert.ToString(Util.getKeyValueFromAppSetting("Count_toSearch")),
+                TimeLineURL = Util.getKeyValueFromAppSetting("TimeLineURL")
             };
 
         }
@@ -281,8 +276,11 @@ namespace ScrapyWeb.Business
             tweet.UserId = Convert.ToString(user["id"]);
             if (geo.HasValues == null)
                 tweet.LatLong = Convert.ToString(Convert.ToString(geo["coordinates"])).Replace("]", "").Replace("[", "").Replace("\r\n", "");
-            tweet.PlaceId = Convert.ToString(place["id"]);
-            tweet.PlaceName = Convert.ToString(place["name"]);
+            if (place.HasValues == null)
+            {
+                tweet.PlaceId = Convert.ToString(place["id"]);
+                tweet.PlaceName = Convert.ToString(place["name"]);
+            }
             tweet.Language = Convert.ToString(jobj["lang"]);
             tweet.FollowersCount = Convert.ToInt32(user["followers_count"]);
             tweet.FriendsCouunt = Convert.ToInt32(user["friends_count"]);
@@ -291,7 +289,6 @@ namespace ScrapyWeb.Business
 
 
         }
-
         /// <summary>
         /// get Application from Config
         /// </summary>
@@ -317,12 +314,116 @@ namespace ScrapyWeb.Business
 
 
         }
+
+        public static void ReadUserTimelineInTwitter(Search search,TwitterApplication app)
+        {
+            
+            // oauth application keys
+            var oauth_token = app.AccessToken;
+            var oauth_token_secret = app.AccessTokenSecret;
+            var oauth_consumer_key = app.ConsumerKey;
+            var oauth_consumer_secret = app.ConsumerSecret;
+
+            // oauth implementation details
+            var oauth_version = "1.0";
+            var oauth_signature_method = "HMAC-SHA1";
+
+            // unique request details
+            var oauth_nonce = Convert.ToBase64String(new ASCIIEncoding().GetBytes(DateTime.Now.Ticks.ToString()));
+            var timeSpan = DateTime.UtcNow
+                - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            var oauth_timestamp = Convert.ToInt64(timeSpan.TotalSeconds).ToString();
+
+
+            // create oauth signature
+            var baseFormat = "oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
+                            "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}&screen_name={6}";//&count = {7}";
+
+            var baseString = string.Format(baseFormat,
+                                        oauth_consumer_key,
+                                        oauth_nonce,
+                                        oauth_signature_method,
+                                        oauth_timestamp,
+                                        oauth_token,
+                                        oauth_version,
+                                        //Uri.EscapeDataString(search.Count_toSearch),
+                                        Uri.EscapeDataString(search.ScreenName)
+                                        );
+
+            
+            baseString = string.Concat("GET&", Uri.EscapeDataString(search.TimeLineURL), "&", Uri.EscapeDataString(baseString));
+
+            var compositeKey = string.Concat(Uri.EscapeDataString(oauth_consumer_secret),
+                                    "&", Uri.EscapeDataString(oauth_token_secret));
+
+            string oauth_signature;
+            using (HMACSHA1 hasher = new HMACSHA1(ASCIIEncoding.ASCII.GetBytes(compositeKey)))
+            {
+                oauth_signature = Convert.ToBase64String(
+                    hasher.ComputeHash(ASCIIEncoding.ASCII.GetBytes(baseString)));
+            }
+
+            // create the request header
+            var headerFormat = "OAuth oauth_nonce=\"{0}\", oauth_signature_method=\"{1}\", " +
+                               "oauth_timestamp=\"{2}\", oauth_consumer_key=\"{3}\", " +
+                               "oauth_token=\"{4}\", oauth_signature=\"{5}\", " +
+                               "oauth_version=\"{6}\"";
+
+            var authHeader = string.Format(headerFormat,
+                                    Uri.EscapeDataString(oauth_nonce),
+                                    Uri.EscapeDataString(oauth_signature_method),
+                                    Uri.EscapeDataString(oauth_timestamp),
+                                    Uri.EscapeDataString(oauth_consumer_key),
+                                    Uri.EscapeDataString(oauth_token),
+                                    Uri.EscapeDataString(oauth_signature),
+                                    Uri.EscapeDataString(oauth_version)
+                            );
+
+
+
+            ServicePointManager.Expect100Continue = false;
+
+            // make the request
+            var postBody = "screen_name="+Uri.EscapeDataString(search.ScreenName); 
+            search.TimeLineURL += "?" + postBody;
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(search.TimeLineURL);
+            request.Headers.Add("Authorization", authHeader);
+            request.Method = "GET";
+            request.ContentType = "application/x-www-form-urlencoded";
+            var response = (HttpWebResponse)request.GetResponse();
+            var reader = new StreamReader(response.GetResponseStream());
+            var objText = reader.ReadToEnd();
+           
+            
+            try
+            {
+                JArray jsonDat = JArray.Parse(objText);
+                foreach (var status in jsonDat)
+                {
+                    ScrapyWeb.Models.TweetSet tweet = new ScrapyWeb.Models.TweetSet();
+
+                    getTweetFromJObj(status, ref tweet);
+                    AddTweetTODb(tweet);
+
+
+                }
+                //myDiv.InnerHtml = html;
+            }
+            catch (Exception twit_error)
+            {
+                //myDiv.InnerHtml = html + twit_error.ToString();
+            }
+        }
+
+
         /// <summary>
         /// Create Request Object and Oath Header for Twitter API Search
         /// </summary>
         /// <param name="app"></param>
         /// <param name="search"></param>
         /// <returns></returns>
+        /// 
+
         static WebRequest CreateOauthAndRequest(TwitterApplication app, Search search)
         {
             //oauth application keys
@@ -344,17 +445,25 @@ namespace ScrapyWeb.Business
             // var geocode = "33.6436653,-6.8618025,15mi";
             var geocode = new StringBuilder().Append(search.Latitude).Append(",").Append(search.Longitude).Append(",").Append(search.Radius).Append(search.IsRadiusInMiles ? "mi" : "km").ToString();
 
-
+            
             // create oauth signature
             var baseFormat = "";
-            if (!string.IsNullOrEmpty(search.Since_Id))
+            if (search.SearchUserTimeLine)
             {
-                baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
-                            "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}&result_type=mixed&since_id=" + search.Since_Id;// +"&count=" + search.Count_toSearch;//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
+                baseFormat = "screen_name={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
+                            "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}";//&since_id=" + search.Since_Id;// +"&count=" + search.Count_toSearch;//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
+                geocode = search.ScreenName;
             }
-            else baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
-                            "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}&result_type=mixed";//&count=" + search.Count_toSearch;//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
-
+            else
+            {
+                if (!string.IsNullOrEmpty(search.Since_Id))
+                {
+                    baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
+                                "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}&result_type=mixed&since_id=" + search.Since_Id;// +"&count=" + search.Count_toSearch;//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
+                }
+                else baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
+                                "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}&result_type=mixed";//&count=" + search.Count_toSearch;//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
+            }
 
             var baseString = string.Format(baseFormat,
                                         oauth_consumer_key,
@@ -366,7 +475,7 @@ namespace ScrapyWeb.Business
                                         Uri.EscapeDataString(geocode)
                                         );
 
-            baseString = string.Concat("GET&", Uri.EscapeDataString(search.URL), "&", Uri.EscapeDataString(baseString));
+            baseString = string.Concat("GET&", Uri.EscapeDataString(search.SearchUserTimeLine?search.TimeLineURL:search.URL), "&", Uri.EscapeDataString(baseString));
 
             var compositeKey = string.Concat(Uri.EscapeDataString(oauth_consumer_secret),
                                     "&", Uri.EscapeDataString(oauth_token_secret));
@@ -397,11 +506,18 @@ namespace ScrapyWeb.Business
 
             ServicePointManager.Expect100Continue = false;
             var URL = "";
-            if (!string.IsNullOrEmpty(search.Since_Id))
+            if (search.SearchUserTimeLine)
             {
-                URL = search.URL + "?geocode=" + geocode + "&result_type=mixed&since_id=" + search.Since_Id;// +"&count=" + search.Count_toSearch;
+                URL = search.TimeLineURL + "?screen_name=" + search.ScreenName;
             }
-            else URL = search.URL + "?geocode=" + geocode + "&result_type=mixed";//&count=" + search.Count_toSearch;
+            else
+            {
+                if (!string.IsNullOrEmpty(search.Since_Id))
+                {
+                    URL = search.URL + "?geocode=" + geocode + "&result_type=mixed&since_id=" + search.Since_Id;// +"&count=" + search.Count_toSearch;
+                }
+                else URL = search.URL + "?geocode=" + geocode + "&result_type=mixed";//&count=" + search.Count_toSearch;
+            }
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
             request.Headers.Add("Authorization", authHeader);
             request.Method = "GET";
@@ -409,7 +525,6 @@ namespace ScrapyWeb.Business
             return request;
 
         }
-
         /// <summary>
         /// Add Twitter Application to Database
         /// </summary>
@@ -449,7 +564,6 @@ namespace ScrapyWeb.Business
 
             }
         }
-
         /// <summary>
         /// Get Downloaded Tweets from Database
         /// </summary>
@@ -465,7 +579,6 @@ namespace ScrapyWeb.Business
 
             }
         }
-
         /// <summary>
         /// Get Twitter Id from DB for Since_Id param
         /// </summary>
