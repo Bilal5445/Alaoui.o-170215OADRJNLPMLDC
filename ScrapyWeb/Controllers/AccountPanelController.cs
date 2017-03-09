@@ -45,6 +45,30 @@ namespace ScrapyWeb.Controllers
             return View(app);
 
         }
+
+        public ActionResult AddFBApplication(int id = 0)
+        {
+            if (id > 0)
+            {
+                var app = clBusiness.GetFBApplication(id);
+                return View(app);
+            }
+
+            return View();
+
+        }
+        [HttpPost]
+        public ActionResult AddFBApplication(FBApplication app)
+        {
+            string error = "";
+            clBusiness.AddFBAplication(app, ref error);
+            if (string.IsNullOrEmpty(error))
+            {
+                return RedirectToAction("Index");
+            }
+            return View(app);
+
+        }
        
         [HttpGet]
         public ActionResult FetchTwitterData(int?id)
@@ -74,7 +98,30 @@ namespace ScrapyWeb.Controllers
 
             }
         }
-       
+        [HttpGet]
+        public ActionResult FetchFBData(int? id)
+        {
+            ViewBag.AppId = id;
+
+            return View(clBusiness.getSearchCriteria());
+        }
+        [HttpPost]
+        public ActionResult FetchFBData(Search search, int id)
+        {
+            @ViewBag.Message = "";
+            string Error = string.Empty;
+            search.FbAccessToken = clBusiness.FacebookGetAccessToken(clBusiness.GetFbApplication(id));
+            clBusiness.getFacebookGroupFeed(search, clBusiness.GetFbApplication(id),ref Error);
+            
+            if (string.IsNullOrEmpty(Error))
+                return RedirectToAction("Index", "Home");
+            else
+            {
+                @ViewBag.Message = Error;
+                return View(search);
+
+            }
+        }
 
     }
 }

@@ -49,7 +49,8 @@
     </div>
 
     </div>
-
+<hr />
+<br />
 
 <div>
     @Html.ActionLink("Add FB Application", "AddFBApplication", "AccountPanel")
@@ -70,8 +71,8 @@
                 {
                     <tr>
                         <td>
-                            @Html.ActionLink("Edit", "AddApplication", "AccountPanel", new { id = app.ApplicationId }, null)&nbsp;
-                        @Html.ActionLink("Fetch Data", "FetchTwitterData", "AccountPanel", new { id = app.ApplicationId }, null)
+                            @Html.ActionLink("Edit", "AddFBApplication", "AccountPanel", new { id = app.ApplicationId }, null)&nbsp;
+                        @Html.ActionLink("Fetch Data", "FetchFBData", "AccountPanel", new { id = app.ApplicationId }, null)
                     </td>
 
                     <td>

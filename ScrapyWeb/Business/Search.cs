@@ -19,10 +19,15 @@ namespace ScrapyWeb.Business
         public string TimeLineURL { get; set; }
         public String ScreenName { get; set; }
         public bool SearchUserTimeLine { get; set; }
+        public string FbAccessToken { get; set; }
+        public string FbAccessTokenURL { get; set; }
+        public string FbAccessGroupFeedURL { get; set; }
         public Search()
         {
             getSinceId();
             TimeLineURL = Util.getKeyValueFromAppSetting("TimeLineURL");
+            FbAccessTokenURL = Util.getKeyValueFromAppSetting("FbTokenURL");
+            FbAccessGroupFeedURL = Util.getKeyValueFromAppSetting("FbGroupFeed");
         }
         public Search(double Latitude,double Longitude,int Radius,bool IsRadiusInMiles)
         {

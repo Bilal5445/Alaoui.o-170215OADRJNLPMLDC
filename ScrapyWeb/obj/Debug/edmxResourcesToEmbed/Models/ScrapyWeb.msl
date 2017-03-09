@@ -36,6 +36,7 @@
     <EntitySetMapping Name="FacebookGroupFeeds">
       <EntityTypeMapping TypeName="ScrapyWebModel.FacebookGroupFeed">
         <MappingFragment StoreEntitySet="FacebookGroupFeed">
+          <ScalarProperty Name="UpdatedTime" ColumnName="UpdatedTime" />
           <ScalarProperty Name="PostText" ColumnName="PostText" />
           <ScalarProperty Name="GroupPostId" ColumnName="GroupPostId" />
         </MappingFragment>

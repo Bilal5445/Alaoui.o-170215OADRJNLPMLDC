@@ -16,16 +16,24 @@
 }
 @*<h3>Dashboard</h3>*@
 @{ var tweetList = (List<ScrapyWeb.Models.TweetSet>)ViewBag.TweetSets;
+   var feedList = (List<ScrapyWeb.Models.FacebookGroupFeed>)ViewBag.FeedSets;
 }
 @*@Html.ActionLink("Fetch Data", "FetchData", "Home")*@
 <ol class="round">
     <li class="one">
         <h5>Total Tweets in Data Set</h5>
-       <p>
-           So for total Tweets in database are :@tweetList.Count <b></b>
-       </p>
+        <p>
+            So for total Tweets in database are :@tweetList.Count <b></b>
+        </p>
     </li>
-    <table class="users">
+    <li class="two">
+        <h5>Total Facebook Group Feed in Data Set</h5>
+        <p>
+            So for total Group Feed in database are :@feedList.Count <b></b>
+        </p>
+    </li>
+</ol>
+    <table class="users" style="height:450px; overflow:scroll">
         <thead>
             <tr>
                 <th class="row-1 row-ID">Screen Name</th>
@@ -54,4 +62,4 @@
 
 
     
-</ol>
+

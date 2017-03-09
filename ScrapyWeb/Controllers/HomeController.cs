@@ -14,8 +14,11 @@ namespace ScrapyWeb.Controllers
         {
             ViewBag.Message = "";
             var TweetSets=new List<TweetSet>();
+            var FeedSets = new List<FacebookGroupFeed>();
             clBusiness.getDownloadedTweetSets(ref TweetSets);
+            clBusiness.getDownloadedGroupFeeds(ref FeedSets);
             ViewBag.TweetSets = TweetSets;
+            ViewBag.FeedSets = FeedSets;
             return View();
         }
 

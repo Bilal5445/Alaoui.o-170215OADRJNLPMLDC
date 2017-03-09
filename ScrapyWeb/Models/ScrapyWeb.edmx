@@ -9,8 +9,9 @@
           <Key>
             <PropertyRef Name="GroupPostId" />
           </Key>
-          <Property Name="GroupPostId" Type="int" Nullable="false" />
-          <Property Name="PostText" Type="nvarchar" MaxLength="2000" Nullable="false" />
+          <Property Name="GroupPostId" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="PostText" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="UpdatedTime" Type="datetime" Nullable="false" />
         </EntityType>
         <EntityType Name="FBApplications">
           <Key>
@@ -111,8 +112,9 @@
           <Key>
             <PropertyRef Name="GroupPostId" />
           </Key>
-          <Property Name="GroupPostId" Type="Int32" Nullable="false" />
-          <Property Name="PostText" Type="String" Nullable="false" MaxLength="2000" FixedLength="false" Unicode="true" />
+          <Property Name="GroupPostId" Type="String" Nullable="false" MaxLength="150" Unicode="false" FixedLength="false" />
+          <Property Name="PostText" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="UpdatedTime" Type="DateTime" Nullable="false" Precision="3" />
         </EntityType>
         <EntityType Name="FBGroup">
           <Key>
@@ -172,6 +174,7 @@
           <EntitySetMapping Name="FacebookGroupFeeds">
             <EntityTypeMapping TypeName="ScrapyWebModel.FacebookGroupFeed">
               <MappingFragment StoreEntitySet="FacebookGroupFeed">
+                <ScalarProperty Name="UpdatedTime" ColumnName="UpdatedTime" />
                 <ScalarProperty Name="PostText" ColumnName="PostText" />
                 <ScalarProperty Name="GroupPostId" ColumnName="GroupPostId" />
               </MappingFragment>

@@ -4,8 +4,9 @@
     <Key>
       <PropertyRef Name="GroupPostId" />
     </Key>
-    <Property Name="GroupPostId" Type="int" Nullable="false" />
-    <Property Name="PostText" Type="nvarchar" MaxLength="2000" Nullable="false" />
+    <Property Name="GroupPostId" Type="varchar" MaxLength="150" Nullable="false" />
+    <Property Name="PostText" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="UpdatedTime" Type="datetime" Nullable="false" />
   </EntityType>
   <EntityType Name="FBApplications">
     <Key>

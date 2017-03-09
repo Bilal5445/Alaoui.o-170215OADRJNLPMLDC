@@ -14,7 +14,8 @@ namespace ScrapyWeb.Models
     
     public partial class FacebookGroupFeed
     {
-        public int GroupPostId { get; set; }
+        public string GroupPostId { get; set; }
         public string PostText { get; set; }
+        public System.DateTime UpdatedTime { get; set; }
     }
 }

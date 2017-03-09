@@ -41,8 +41,9 @@
     <Key>
       <PropertyRef Name="GroupPostId" />
     </Key>
-    <Property Name="GroupPostId" Type="Int32" Nullable="false" />
-    <Property Name="PostText" Type="String" Nullable="false" MaxLength="2000" FixedLength="false" Unicode="true" />
+    <Property Name="GroupPostId" Type="String" Nullable="false" MaxLength="150" Unicode="false" FixedLength="false" />
+    <Property Name="PostText" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="UpdatedTime" Type="DateTime" Nullable="false" Precision="3" />
   </EntityType>
   <EntityType Name="FBGroup">
     <Key>
