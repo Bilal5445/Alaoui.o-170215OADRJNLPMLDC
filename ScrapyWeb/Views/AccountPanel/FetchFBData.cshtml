@@ -1,0 +1,42 @@
+﻿@model ScrapyWeb.Business.Search
+@{
+    ViewBag.Title = "FetchFBData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Search Parameters</h2>
+<div class="container">
+
+
+    @using (Html.BeginForm("FetchFBData", "AccountPanel", FormMethod.Post, new { id = @ViewBag.AppId }))
+    {
+
+
+        <div class="form-group row">
+            <label for="lgFormGroupInput" class="col-sm-2 col-form-label col-form-label-lg">@ViewBag.Message</label>
+        </div>
+        <br />
+        <hr />
+
+
+
+        <div class="form-group row">
+            <label for="lgFormGroupInput" class="col-sm-2 col-form-label col-form-label-lg">Group Id</label>
+            <div class="col-sm-10">
+
+                @Html.TextBoxFor(m => m.GroupId, new { @id = "txtGroupId", @required = "required" })
+                @Html.HiddenFor(m => m.FbAccessTokenURL, new { @id = "htnUrl" })
+            </div>
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+        <br />
+        <hr />
+
+
+    }
+
+
+
