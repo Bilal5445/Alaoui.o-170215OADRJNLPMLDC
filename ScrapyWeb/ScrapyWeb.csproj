@@ -20,6 +20,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -192,6 +193,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\FacebookGroupFeed.cs" />
+    <Compile Include="Models\FBApplication.cs" />
+    <Compile Include="Models\FBGroup.cs" />
     <Compile Include="Models\ScrapyWeb.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -285,6 +289,7 @@
     <Content Include="Models\ScrapyWeb.edmx.diagram">
       <DependentUpon>ScrapyWeb.edmx</DependentUpon>
     </Content>
+    <Content Include="Models\ScrapyWeb.edmx.diagram.xml" />
     <Content Include="Models\ScrapyWeb.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>ScrapyWeb.edmx</DependentUpon>
