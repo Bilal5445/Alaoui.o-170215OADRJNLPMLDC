@@ -315,9 +315,10 @@ namespace ScrapyWeb.Business
 
         }
 
-        public static void ReadUserTimelineInTwitter(Search search,TwitterApplication app)
+        public static void ReadUserTimelineInTwitter(Search search, TwitterApplication app)
         {
-            
+            search.Max_Id = getMaxIdFromTweetSets(search.ScreenName);
+            search.Count_toSearch = "100";
             // oauth application keys
             var oauth_token = app.AccessToken;
             var oauth_token_secret = app.AccessTokenSecret;
@@ -336,7 +337,7 @@ namespace ScrapyWeb.Business
 
 
             // create oauth signature
-            var baseFormat = "oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
+            var baseFormat = "count={8}&max_id={7}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
                             "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}&screen_name={6}";//&count = {7}";
 
             var baseString = string.Format(baseFormat,
@@ -347,10 +348,11 @@ namespace ScrapyWeb.Business
                                         oauth_token,
                                         oauth_version,
                                         //Uri.EscapeDataString(search.Count_toSearch),
-                                        Uri.EscapeDataString(search.ScreenName)
+                                        Uri.EscapeDataString(search.ScreenName),
+                                          Uri.EscapeDataString(search.Max_Id),Uri.EscapeDataString(search.Count_toSearch)
                                         );
 
-            
+
             baseString = string.Concat("GET&", Uri.EscapeDataString(search.TimeLineURL), "&", Uri.EscapeDataString(baseString));
 
             var compositeKey = string.Concat(Uri.EscapeDataString(oauth_consumer_secret),
@@ -384,7 +386,7 @@ namespace ScrapyWeb.Business
             ServicePointManager.Expect100Continue = false;
 
             // make the request
-            var postBody = "screen_name="+Uri.EscapeDataString(search.ScreenName); 
+            var postBody = "screen_name=" + Uri.EscapeDataString(search.ScreenName) + "&max_id="+Uri.EscapeDataString(search.Max_Id)+"&count="+Uri.EscapeDataString(search.Count_toSearch);
             search.TimeLineURL += "?" + postBody;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(search.TimeLineURL);
             request.Headers.Add("Authorization", authHeader);
@@ -393,8 +395,8 @@ namespace ScrapyWeb.Business
             var response = (HttpWebResponse)request.GetResponse();
             var reader = new StreamReader(response.GetResponseStream());
             var objText = reader.ReadToEnd();
-           
-            
+
+
             try
             {
                 JArray jsonDat = JArray.Parse(objText);
@@ -414,7 +416,6 @@ namespace ScrapyWeb.Business
                 //myDiv.InnerHtml = html + twit_error.ToString();
             }
         }
-
 
         /// <summary>
         /// Create Request Object and Oath Header for Twitter API Search
@@ -640,6 +641,19 @@ namespace ScrapyWeb.Business
             {
                 var topTweet = (from tweet in context.TweetSets
                                 orderby tweet.Tweet_Id descending
+                                select tweet).Take(1);
+                return topTweet.FirstOrDefault<TweetSet>().Tweet_Id;
+
+            }
+
+        }
+        public static string getMaxIdFromTweetSets(string Screen_name)
+        {
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            {
+                var topTweet = (from tweet in context.TweetSets
+                                orderby tweet.Tweet_Id ascending
+                                where tweet.ScreenName==Screen_name
                                 select tweet).Take(1);
                 return topTweet.FirstOrDefault<TweetSet>().Tweet_Id;
 

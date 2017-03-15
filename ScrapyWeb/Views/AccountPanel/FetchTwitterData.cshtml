@@ -22,7 +22,7 @@
             <label for="lgFormGroupInput" class="col-sm-2 col-form-label col-form-label-lg">Search For User Timeline</label>
             <div class="col-sm-10">
               
-                @Html.CheckBoxFor(m => m.SearchUserTimeLine, new { @id = "chkSearchUserTimeLine", @required = "required", @onchange="onSearchUserTimeLineCheckChange(this);" })
+                @Html.CheckBoxFor(m => m.SearchUserTimeLine, new { @id = "chkSearchUserTimeLine", @onchange="onSearchUserTimeLineCheckChange(this);" })
                 
             </div>
         </div>
@@ -31,7 +31,7 @@
             <label for="lgFormGroupInput" class="col-sm-2 col-form-label col-form-label-lg">Screen Name</label>
             <div class="col-sm-10">
               
-                @Html.TextBoxFor(m => m.ScreenName, new { @id = "txtScreenName", @required = "required" })
+                @Html.TextBoxFor(m => m.ScreenName, new { @id = "txtScreenName" })
                
             </div>
         </div>

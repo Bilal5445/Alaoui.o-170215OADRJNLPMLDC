@@ -22,6 +22,7 @@ namespace ScrapyWeb.Business
         public string FbAccessToken { get; set; }
         public string FbAccessTokenURL { get; set; }
         public string FbAccessGroupFeedURL { get; set; }
+        public string Max_Id { get; set; }
         public Search()
         {
             getSinceId();
