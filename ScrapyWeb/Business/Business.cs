@@ -786,9 +786,21 @@ namespace ScrapyWeb.Business
 
                             var message = status["message"] != null ? Convert.ToString(status["message"]) : null;
 
-                            var updated_time = Convert.ToString(status["updated_time"]);
+                            // MC240517 quick hack differentiation between group and page
+                            String updated_created_time;
+                            if (Regex.IsMatch(search.GroupId, @"^\d"))
+                            {
+                                // starting with a digit ex : 142220009186235 then groupid then updated_time
+                                updated_created_time = Convert.ToString(status["updated_time"]);
 
-                            var date = DateTime.Parse(updated_time);
+                            } else
+                            {
+                                // not starting with a digit ex : tanjazzofficiel then page then created_time
+                                updated_created_time = Convert.ToString(status["created_time"]);
+                            }
+                            var date = DateTime.Parse(updated_created_time);
+
+                            //
                             feed.GroupPostId = Convert.ToString(status["id"]);
                             feed.PostText = message;
                             feed.UpdatedTime = date;
@@ -817,11 +829,8 @@ namespace ScrapyWeb.Business
             }
         }
 
-        static void getgroupFeedFromJObj(dynamic jobj, ref ScrapyWeb.Models.FacebookGroupFeed feed)
+        /*static void getgroupFeedFromJObj(dynamic jobj, ref ScrapyWeb.Models.FacebookGroupFeed feed)
         {
-
-
-
             var message = jobj["message"] != null ? Convert.ToString(jobj["message"]) : null;
 
             var updated_time = Convert.ToString(jobj["updated_time"]);
@@ -829,10 +838,7 @@ namespace ScrapyWeb.Business
             var date = DateTime.Parse(updated_time);
             feed.GroupPostId = Convert.ToString(jobj["id"]);
             feed.PostText = message;
-
-
-
-        }
+        }*/
 
         public static void AddGroupFeedTODb(FacebookGroupFeed feed)
         {

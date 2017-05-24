@@ -1,0 +1,13 @@
+https://graph.facebook.com/oauth/access_token?client_id=360921534307030&client_secret=e7622d158d04babc3bdc5e5687174040&grant_type=client_credentials
+
+https://graph.facebook.com/oauth/access_token?client_id=360921534307030&client_secret=e7622d158d04babc3bdc5e5687174040&grant_type=client_credentials
+
+https://graph.facebook.com/v2.8/142220009186235/feed?key=360921534307030&{"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
+
+https://graph.facebook.com/v2.8/142220009186235/feed?key=360921534307030&access_token=360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk&token_type=bearer
+
+https://graph.facebook.com/v2.8/142220009186235/feed?key=360921534307030&access_token=360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk&token_type=bearer
+
+https://web.facebook.com/tanjazzofficiel/
+
+https://graph.facebook.com/v2.8/tanjazzofficiel/feed?key=360921534307030&access_token=360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk&token_type=bearer
