@@ -9,14 +9,13 @@
                 <h2>@ViewBag.Message</h2>
             </hgroup>
             <p>
-                
+
             </p>
         </div>
     </section>
 }
-@*<h3>Dashboard</h3>*@
 @{ var tweetList = (List<ScrapyWeb.Models.TweetSet>)ViewBag.TweetSets;
-   var feedList = (List<ScrapyWeb.Models.FacebookGroupFeed>)ViewBag.FeedSets;
+    var feedList = (List<ScrapyWeb.Models.FacebookGroupFeed>)ViewBag.FeedSets;
 }
 @*@Html.ActionLink("Fetch Data", "FetchData", "Home")*@
 <ol class="round">
@@ -33,33 +32,57 @@
         </p>
     </li>
 </ol>
-    <table class="users" style="height:450px; overflow:scroll">
-        <thead>
+<h1>Twitter</h1>
+<table class="users" style="height:450px; overflow:scroll">
+    <thead>
+        <tr>
+            <th class="row-1 row-ID">Screen Name</th>
+            <th class="row-2 row-ID">Tweet Date</th>
+            <th class="row-3 row-Tweet">Tweet Text</th>
+
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var tweet in tweetList)
+        {
             <tr>
-                <th class="row-1 row-ID">Screen Name</th>
-                <th class="row-2 row-ID">Tweet Date</th>
-                <th class="row-3 row-Tweet">Tweet Text</th>
-               
+                <td>
+                    @tweet.ScreenName
+                </td>
+                <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", tweet.DateCreated)</td>
+                <td>@tweet.TweetText</td>
             </tr>
-        </thead>
-        <tbody>
-            
-    
-            @foreach (var tweet in tweetList )
-            {
+        }
+
+    </tbody>
+
+</table>
+
+<h1>Facebook</h1>
+<table class="users" style="height:450px; overflow:scroll">
+    <thead>
+        <tr>
+            <th class="row-1 row-ID">Group Post Id</th>
+            <th class="row-2 row-ID">Updated Time</th>
+            <th class="row-3 row-Tweet">Post Text</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var feed in feedList)
+        {
             <tr>
-            <td>
-                @tweet.ScreenName
-            </td>
-            <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", tweet.DateCreated)</td>
-            <td>@tweet.TweetText</td>           
+                <td>
+                    @feed.GroupPostId
+                </td>
+                <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", feed.UpdatedTime)</td>
+                <td>@feed.PostText</td>
             </tr>
-            }
+        }
 
-</tbody>
+    </tbody>
 
- </table>
+</table>
 
-
-    
 

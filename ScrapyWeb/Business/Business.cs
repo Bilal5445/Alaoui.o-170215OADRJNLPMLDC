@@ -763,7 +763,6 @@ namespace ScrapyWeb.Business
                 string objText = "";
                 // string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed?key=" + app.FbAppId + "&" + search.FbAccessToken;
                 string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed?key=" + app.FbAppId
-                    // + "&" + search.FbAccessToken;
                     + "&access_token=" + access_token
                     + "&token_type=" + token_type;
 
@@ -837,12 +836,11 @@ namespace ScrapyWeb.Business
 
         public static void AddGroupFeedTODb(FacebookGroupFeed feed)
         {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            using (var context = new ScrapyWebEntities())
             {
                 var result = context.FacebookGroupFeeds.SingleOrDefault(f => f.GroupPostId == feed.GroupPostId);
                 if (result == null)
                 {
-
                     context.FacebookGroupFeeds.Add(feed);
                     context.SaveChanges();
                 }

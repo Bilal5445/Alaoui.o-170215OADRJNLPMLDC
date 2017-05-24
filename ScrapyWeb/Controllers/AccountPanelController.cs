@@ -21,6 +21,7 @@ namespace ScrapyWeb.Controllers
             ViewBag.FbApplications = _fbAppList;
             return View(_appList);
         }
+
         [HttpGet]
         public ActionResult AddApplication(int id = 0)
         {
@@ -33,6 +34,7 @@ namespace ScrapyWeb.Controllers
             return View();
 
         }
+
         [HttpPost]
         public ActionResult AddApplication(TwitterApplication app)
         {
@@ -133,6 +135,5 @@ namespace ScrapyWeb.Controllers
                 return View(search);
             }
         }
-
     }
 }

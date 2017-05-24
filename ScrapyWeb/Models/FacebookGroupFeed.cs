@@ -16,6 +16,6 @@ namespace ScrapyWeb.Models
     {
         public string GroupPostId { get; set; }
         public string PostText { get; set; }
-        public System.DateTime UpdatedTime { get; set; }
+        public DateTime UpdatedTime { get; set; }
     }
 }
