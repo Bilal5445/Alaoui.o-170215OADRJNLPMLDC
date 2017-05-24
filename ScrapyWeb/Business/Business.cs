@@ -41,9 +41,9 @@ namespace ScrapyWeb.Business
         {
             try
             {
-                
+
                 //Search searchTwitter = getSearchCriteria();
-                
+
                 HttpWebRequest request = (HttpWebRequest)CreateOauthAndRequest(getApplicationDetails(appid), searchTwitter);
                 var response = (HttpWebResponse)request.GetResponse();
                 var reader = new StreamReader(response.GetResponseStream());
@@ -55,7 +55,7 @@ namespace ScrapyWeb.Business
                     {
                         JObject Objects = new JObject(jObjects);
                         JArray items = (JArray)Objects["statuses"];
-                        var length=items.Count;
+                        var length = items.Count;
                         if (length == 0)
                         {
                             Message = "No tweet(s) found against the provided location, try to change the location/latitude,longitude by dragg /move and left clicking on the map";
@@ -86,7 +86,7 @@ namespace ScrapyWeb.Business
                 Console.WriteLine(err.ToString());
             }
         }
-        public static void searchInTwitterPlaces( ref string Message)
+        public static void searchInTwitterPlaces(ref string Message)
         {
             try
             {
@@ -114,8 +114,8 @@ namespace ScrapyWeb.Business
 
                 // create oauth signature
                 var baseFormat = "";
-                                baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
-                                "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}";//&count=" + search.Count_toSearch;//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
+                baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
+                "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}";//&count=" + search.Count_toSearch;//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
 
 
                 var baseString = string.Format(baseFormat,
@@ -159,15 +159,15 @@ namespace ScrapyWeb.Business
 
                 ServicePointManager.Expect100Continue = false;
                 var URL = "https://api.twitter.com/1.1/geo/search.json";
-               
-                    URL = URL + "?query=" + query;
-                
+
+                URL = URL + "?query=" + query;
+
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
                 request.Headers.Add("Authorization", authHeader);
                 request.Method = "GET";
                 request.ContentType = "application/x-www-form-urlencoded";
 
-               
+
                 var response = (HttpWebResponse)request.GetResponse();
                 var reader = new StreamReader(response.GetResponseStream());
                 var objText = reader.ReadToEnd();
@@ -211,7 +211,7 @@ namespace ScrapyWeb.Business
         }
         public static Search getSearchCriteria()
         {
-            return  new Search()
+            return new Search()
             {
                 Latitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Latitude"), CultureInfo.InvariantCulture.NumberFormat),
                 Longitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Longitude"), CultureInfo.InvariantCulture.NumberFormat),
@@ -293,7 +293,7 @@ namespace ScrapyWeb.Business
         /// get Application from Config
         /// </summary>
         /// <returns></returns>
-        public static ScrapyWeb.Models.TwitterApplication getApplicationDetails(int ?id)
+        public static ScrapyWeb.Models.TwitterApplication getApplicationDetails(int? id)
         {
             if (id == null)
             {// oauth application keys
@@ -349,7 +349,7 @@ namespace ScrapyWeb.Business
                                         oauth_version,
                                         //Uri.EscapeDataString(search.Count_toSearch),
                                         Uri.EscapeDataString(search.ScreenName),
-                                          Uri.EscapeDataString(search.Max_Id),Uri.EscapeDataString(search.Count_toSearch)
+                                          Uri.EscapeDataString(search.Max_Id), Uri.EscapeDataString(search.Count_toSearch)
                                         );
 
 
@@ -386,7 +386,7 @@ namespace ScrapyWeb.Business
             ServicePointManager.Expect100Continue = false;
 
             // make the request
-            var postBody = "screen_name=" + Uri.EscapeDataString(search.ScreenName) + "&max_id="+Uri.EscapeDataString(search.Max_Id)+"&count="+Uri.EscapeDataString(search.Count_toSearch);
+            var postBody = "screen_name=" + Uri.EscapeDataString(search.ScreenName) + "&max_id=" + Uri.EscapeDataString(search.Max_Id) + "&count=" + Uri.EscapeDataString(search.Count_toSearch);
             search.TimeLineURL += "?" + postBody;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(search.TimeLineURL);
             request.Headers.Add("Authorization", authHeader);
@@ -446,7 +446,7 @@ namespace ScrapyWeb.Business
             // var geocode = "33.6436653,-6.8618025,15mi";
             var geocode = new StringBuilder().Append(search.Latitude).Append(",").Append(search.Longitude).Append(",").Append(search.Radius).Append(search.IsRadiusInMiles ? "mi" : "km").ToString();
 
-            
+
             // create oauth signature
             var baseFormat = "";
             if (search.SearchUserTimeLine)
@@ -476,7 +476,7 @@ namespace ScrapyWeb.Business
                                         Uri.EscapeDataString(geocode)
                                         );
 
-            baseString = string.Concat("GET&", Uri.EscapeDataString(search.SearchUserTimeLine?search.TimeLineURL:search.URL), "&", Uri.EscapeDataString(baseString));
+            baseString = string.Concat("GET&", Uri.EscapeDataString(search.SearchUserTimeLine ? search.TimeLineURL : search.URL), "&", Uri.EscapeDataString(baseString));
 
             var compositeKey = string.Concat(Uri.EscapeDataString(oauth_consumer_secret),
                                     "&", Uri.EscapeDataString(oauth_token_secret));
@@ -547,7 +547,7 @@ namespace ScrapyWeb.Business
                         result.AccessToken = app.AccessToken;
                         //context.TwitterApplications.Attach(app);
                         context.Entry(result).State = System.Data.EntityState.Modified;
-                        
+
                     }
                     else
                     {
@@ -583,7 +583,7 @@ namespace ScrapyWeb.Business
                         result.ApplicationName = app.ApplicationName;
                         result.FbAppId = app.FbAppId;
                         result.FbAppSecret = app.FbAppSecret;
-                       
+
                         context.Entry(result).State = System.Data.EntityState.Modified;
 
                     }
@@ -610,13 +610,9 @@ namespace ScrapyWeb.Business
         /// <param name="_tweetList"></param>
         public static void getDownloadedTweetSets(ref List<TweetSet> _tweetList)
         {
-
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            using (var context = new ScrapyWebEntities())
             {
-
-                _tweetList = context.TweetSets
-                                      .ToList();
-
+                _tweetList = context.TweetSets.ToList();
             }
         }
 
@@ -653,184 +649,185 @@ namespace ScrapyWeb.Business
             {
                 var topTweet = (from tweet in context.TweetSets
                                 orderby tweet.Tweet_Id ascending
-                                where tweet.ScreenName==Screen_name
+                                where tweet.ScreenName == Screen_name
                                 select tweet).Take(1);
                 return topTweet.FirstOrDefault<TweetSet>().Tweet_Id;
 
             }
 
         }
-       
-       public static Models.TwitterApplication   GetApplication(int ApplicationId)
-       {
-           using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-           {
 
-               var query = (from app in context.TwitterApplications
-                            where app.ApplicationId == ApplicationId
+        public static Models.TwitterApplication GetApplication(int ApplicationId)
+        {
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            {
 
-                            select app).Take(1);
-               return query.FirstOrDefault<TwitterApplication>();
-             
-           }
-       }
-       public static Models.FBApplication GetFBApplication(int ApplicationId)
-       {
-           using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-           {
+                var query = (from app in context.TwitterApplications
+                             where app.ApplicationId == ApplicationId
 
-               var query = (from app in context.FBApplications
-                            where app.ApplicationId == ApplicationId
+                             select app).Take(1);
+                return query.FirstOrDefault<TwitterApplication>();
 
-                            select app).Take(1);
-               return query.FirstOrDefault<FBApplication>();
+            }
+        }
+        public static Models.FBApplication GetFBApplication(int ApplicationId)
+        {
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            {
 
-           }
-       }
+                var query = (from app in context.FBApplications
+                             where app.ApplicationId == ApplicationId
 
-       public static Models.FBGroup GetFbGroup(int GroupId)
-       {
-           using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-           {
+                             select app).Take(1);
+                return query.FirstOrDefault<FBApplication>();
 
-               var query = (from app in context.FBGroups
-                            where app.GroupId == GroupId
+            }
+        }
 
-                            select app).Take(1);
-               return query.FirstOrDefault<FBGroup>();
+        public static Models.FBGroup GetFbGroup(int GroupId)
+        {
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            {
 
-           }
-       }
-       public static Models.FBApplication GetFbApplication(int ApplicationId)
-       {
-           using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-           {
+                var query = (from app in context.FBGroups
+                             where app.GroupId == GroupId
 
-               var query = (from app in context.FBApplications
-                            where app.ApplicationId == ApplicationId
+                             select app).Take(1);
+                return query.FirstOrDefault<FBGroup>();
 
-                            select app).Take(1);
-               return query.FirstOrDefault<FBApplication>();
+            }
+        }
+        public static Models.FBApplication GetFbApplication(int ApplicationId)
+        {
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            {
 
-           }
-       }
-       public static void getFBApplications(ref List<FBApplication> _appList)
-      {
+                var query = (from app in context.FBApplications
+                             where app.ApplicationId == ApplicationId
 
-           using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-           {
+                             select app).Take(1);
+                return query.FirstOrDefault<FBApplication>();
 
-               _appList = context.FBApplications
-                                     .ToList();
+            }
+        }
+        public static void getFBApplications(ref List<FBApplication> _appList)
+        {
 
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            {
 
-           }
-       }
-
-       public static String FacebookGetAccessToken(FBApplication app)
-       {
-
-           string vals = "";
-           string url = string.Format(Util.getKeyValueFromAppSetting("FbTokenURL") + "?client_id={0}&client_secret={1}&grant_type=client_credentials", app.FbAppId, app.FbAppSecret);
-
-           HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-
-           using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-           {
-               StreamReader reader = new StreamReader(response.GetResponseStream());
-
-               vals = reader.ReadToEnd();
+                _appList = context.FBApplications
+                                      .ToList();
 
 
-           }
+            }
+        }
 
-           return vals;
+        public static String FacebookGetAccessToken(FBApplication app)
+        {
 
-       }
+            string vals = "";
+            string url = string.Format(Util.getKeyValueFromAppSetting("FbTokenURL") + "?client_id={0}&client_secret={1}&grant_type=client_credentials", app.FbAppId, app.FbAppSecret);
 
-       public static void getFacebookGroupFeed(Search search,FBApplication app,ref string Error)
-       { try
-               {
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
 
-           string objText = "";
-           string url = search.FbAccessGroupFeedURL+search.GroupId+"/feed?key="+app.FbAppId+"&"+search.FbAccessToken;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
 
-           HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest ;
-
-           using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-           {
-               StreamReader reader = new StreamReader(response.GetResponseStream());
-
-               objText = reader.ReadToEnd();
-              
-                   JObject jObjects = JObject.Parse(objText);
-                   JObject Objects = new JObject(jObjects);
-                   JArray items = (JArray)Objects["data"];
-                   //JArray jsonDat = JArray.Parse(objText);
-                   foreach (var status in items)
-                   {
-                       if (status["message"] != null)
-                       {
-                           var feed = new ScrapyWeb.Models.FacebookGroupFeed();
-
-                           var message = status["message"] != null ? Convert.ToString(status["message"]) : null;
-
-                           var updated_time = Convert.ToString(status["updated_time"]);
-
-                           var date = DateTime.Parse(updated_time);
-                           feed.GroupPostId = Convert.ToString(status["id"]);
-                           feed.PostText = message;
-                           feed.UpdatedTime = date;
-                           AddGroupFeedTODb(feed);
-                       }
+                vals = reader.ReadToEnd();
 
 
-                   }
-                   //myDiv.InnerHtml = html;
-               
+            }
 
-           }
-               }
-       catch (Exception ex)
-       {
-           Error = ex.Message;
-       }
+            return vals;
+
+        }
+
+        public static void getFacebookGroupFeed(Search search, FBApplication app, ref string Error)
+        {
+            try
+            {
+
+                string objText = "";
+                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed?key=" + app.FbAppId + "&" + search.FbAccessToken;
+
+                HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+
+                using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                {
+                    StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                    objText = reader.ReadToEnd();
+
+                    JObject jObjects = JObject.Parse(objText);
+                    JObject Objects = new JObject(jObjects);
+                    JArray items = (JArray)Objects["data"];
+                    //JArray jsonDat = JArray.Parse(objText);
+                    foreach (var status in items)
+                    {
+                        if (status["message"] != null)
+                        {
+                            var feed = new ScrapyWeb.Models.FacebookGroupFeed();
+
+                            var message = status["message"] != null ? Convert.ToString(status["message"]) : null;
+
+                            var updated_time = Convert.ToString(status["updated_time"]);
+
+                            var date = DateTime.Parse(updated_time);
+                            feed.GroupPostId = Convert.ToString(status["id"]);
+                            feed.PostText = message;
+                            feed.UpdatedTime = date;
+                            AddGroupFeedTODb(feed);
+                        }
 
 
+                    }
+                    //myDiv.InnerHtml = html;
 
-       }
 
-
-       static void getgroupFeedFromJObj(dynamic jobj, ref ScrapyWeb.Models.FacebookGroupFeed feed)
-       {
+                }
+            }
+            catch (Exception ex)
+            {
+                Error = ex.Message;
+            }
 
 
 
-           var message = jobj["message"] != null ? Convert.ToString(jobj["message"]) : null;
-           
-           var updated_time = Convert.ToString(jobj["updated_time"]);
-           
-           var date = DateTime.Parse(updated_time);         
-           feed.GroupPostId = Convert.ToString(jobj["id"]);
-           feed.PostText = message;
-           
+        }
 
 
-       }
+        static void getgroupFeedFromJObj(dynamic jobj, ref ScrapyWeb.Models.FacebookGroupFeed feed)
+        {
 
-       public static void AddGroupFeedTODb(FacebookGroupFeed feed)
-       {
-           using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-           {
-               var result = context.FacebookGroupFeeds.SingleOrDefault(f => f.GroupPostId == feed.GroupPostId);
-               if (result == null)
-               {
 
-                   context.FacebookGroupFeeds.Add(feed);
-                   context.SaveChanges();
-               }
-           }
-       }
+
+            var message = jobj["message"] != null ? Convert.ToString(jobj["message"]) : null;
+
+            var updated_time = Convert.ToString(jobj["updated_time"]);
+
+            var date = DateTime.Parse(updated_time);
+            feed.GroupPostId = Convert.ToString(jobj["id"]);
+            feed.PostText = message;
+
+
+
+        }
+
+        public static void AddGroupFeedTODb(FacebookGroupFeed feed)
+        {
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            {
+                var result = context.FacebookGroupFeeds.SingleOrDefault(f => f.GroupPostId == feed.GroupPostId);
+                if (result == null)
+                {
+
+                    context.FacebookGroupFeeds.Add(feed);
+                    context.SaveChanges();
+                }
+            }
+        }
 
 
 
