@@ -17,7 +17,6 @@ namespace ScrapyWeb.Business
 {
     public class clBusiness
     {
-
         /// <summary>
         /// Get Twitter Applications from DB for Listing
         /// </summary>
@@ -34,6 +33,7 @@ namespace ScrapyWeb.Business
 
             }
         }
+        
         /// <summary>
         /// It Will Search for Tweets
         /// </summary>
@@ -86,6 +86,7 @@ namespace ScrapyWeb.Business
                 Console.WriteLine(err.ToString());
             }
         }
+
         public static void searchInTwitterPlaces(ref string Message)
         {
             try
@@ -209,6 +210,7 @@ namespace ScrapyWeb.Business
                 Console.WriteLine(err.ToString());
             }
         }
+
         public static Search getSearchCriteria()
         {
             return new Search()
@@ -223,6 +225,7 @@ namespace ScrapyWeb.Business
             };
 
         }
+
         public static void AddTweetTODb(TweetSet tweet)
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
@@ -236,6 +239,7 @@ namespace ScrapyWeb.Business
                 }
             }
         }
+        
         /// <summary>
         /// This method is used to extract the tweet attributes from JObject.
         /// </summary>
@@ -289,6 +293,7 @@ namespace ScrapyWeb.Business
 
 
         }
+        
         /// <summary>
         /// get Application from Config
         /// </summary>
@@ -424,7 +429,6 @@ namespace ScrapyWeb.Business
         /// <param name="search"></param>
         /// <returns></returns>
         /// 
-
         static WebRequest CreateOauthAndRequest(TwitterApplication app, Search search)
         {
             //oauth application keys
@@ -526,6 +530,7 @@ namespace ScrapyWeb.Business
             return request;
 
         }
+        
         /// <summary>
         /// Add Twitter Application to Database
         /// </summary>
@@ -627,6 +632,7 @@ namespace ScrapyWeb.Business
 
             }
         }
+        
         /// <summary>
         /// Get Twitter Id from DB for Since_Id param
         /// </summary>
@@ -643,6 +649,7 @@ namespace ScrapyWeb.Business
             }
 
         }
+
         public static string getMaxIdFromTweetSets(string Screen_name)
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
@@ -670,6 +677,7 @@ namespace ScrapyWeb.Business
 
             }
         }
+
         public static Models.FBApplication GetFBApplication(int ApplicationId)
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
@@ -697,6 +705,7 @@ namespace ScrapyWeb.Business
 
             }
         }
+
         public static Models.FBApplication GetFbApplication(int ApplicationId)
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
@@ -710,6 +719,7 @@ namespace ScrapyWeb.Business
 
             }
         }
+
         public static void getFBApplications(ref List<FBApplication> _appList)
         {
 
@@ -725,7 +735,6 @@ namespace ScrapyWeb.Business
 
         public static String FacebookGetAccessToken(FBApplication app)
         {
-
             string vals = "";
             string url = string.Format(Util.getKeyValueFromAppSetting("FbTokenURL") + "?client_id={0}&client_secret={1}&grant_type=client_credentials", app.FbAppId, app.FbAppSecret);
 
@@ -736,21 +745,27 @@ namespace ScrapyWeb.Business
                 StreamReader reader = new StreamReader(response.GetResponseStream());
 
                 vals = reader.ReadToEnd();
-
-
             }
 
             return vals;
-
         }
 
         public static void getFacebookGroupFeed(Search search, FBApplication app, ref string Error)
         {
             try
             {
+                // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
+                JObject jObject = JObject.Parse(search.FbAccessToken);
+                String access_token = (String)jObject["access_token"];
+                String token_type = (String)jObject["token_type"];
 
+                //
                 string objText = "";
-                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed?key=" + app.FbAppId + "&" + search.FbAccessToken;
+                // string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed?key=" + app.FbAppId + "&" + search.FbAccessToken;
+                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed?key=" + app.FbAppId
+                    // + "&" + search.FbAccessToken;
+                    + "&access_token=" + access_token
+                    + "&token_type=" + token_type;
 
                 HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
 
@@ -768,7 +783,7 @@ namespace ScrapyWeb.Business
                     {
                         if (status["message"] != null)
                         {
-                            var feed = new ScrapyWeb.Models.FacebookGroupFeed();
+                            var feed = new FacebookGroupFeed();
 
                             var message = status["message"] != null ? Convert.ToString(status["message"]) : null;
 
@@ -780,23 +795,28 @@ namespace ScrapyWeb.Business
                             feed.UpdatedTime = date;
                             AddGroupFeedTODb(feed);
                         }
-
-
                     }
                     //myDiv.InnerHtml = html;
-
-
+                }
+            }
+            catch (WebException wex)
+            {
+                if (wex.Response != null)
+                {
+                    using (var errorResponse = (HttpWebResponse)wex.Response)
+                    {
+                        using (var reader = new StreamReader(errorResponse.GetResponseStream()))
+                        {
+                            Error = reader.ReadToEnd();
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Error = ex.Message;
             }
-
-
-
         }
-
 
         static void getgroupFeedFromJObj(dynamic jobj, ref ScrapyWeb.Models.FacebookGroupFeed feed)
         {
@@ -828,9 +848,5 @@ namespace ScrapyWeb.Business
                 }
             }
         }
-
-
-
-
     }
 }

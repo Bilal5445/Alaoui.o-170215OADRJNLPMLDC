@@ -14,20 +14,20 @@ namespace ScrapyWeb.Controllers
 
         public ActionResult Index()
         {
-            List<TwitterApplication> _appList = new List<TwitterApplication>() ;
+            List<TwitterApplication> _appList = new List<TwitterApplication>();
             List<FBApplication> _fbAppList = new List<FBApplication>();
             clBusiness.getTwitterApplications(ref _appList);
             clBusiness.getFBApplications(ref _fbAppList);
             ViewBag.FbApplications = _fbAppList;
-                      return View(_appList); 
+            return View(_appList);
         }
         [HttpGet]
-        public ActionResult AddApplication(int id=0)
+        public ActionResult AddApplication(int id = 0)
         {
             if (id > 0)
             {
-             var app=   clBusiness.GetApplication(id);
-             return View(app);
+                var app = clBusiness.GetApplication(id);
+                return View(app);
             }
 
             return View();
@@ -36,7 +36,7 @@ namespace ScrapyWeb.Controllers
         [HttpPost]
         public ActionResult AddApplication(TwitterApplication app)
         {
-            string error="";
+            string error = "";
             clBusiness.AddAplication(app, ref error);
             if (string.IsNullOrEmpty(error))
             {
@@ -57,6 +57,7 @@ namespace ScrapyWeb.Controllers
             return View();
 
         }
+
         [HttpPost]
         public ActionResult AddFBApplication(FBApplication app)
         {
@@ -69,16 +70,17 @@ namespace ScrapyWeb.Controllers
             return View(app);
 
         }
-       
+
         [HttpGet]
-        public ActionResult FetchTwitterData(int?id)
+        public ActionResult FetchTwitterData(int? id)
         {
             ViewBag.AppId = id;
 
             return View(clBusiness.getSearchCriteria());
         }
+
         [HttpPost]
-        public ActionResult FetchTwitterData(Search search,int id)
+        public ActionResult FetchTwitterData(Search search, int id)
         {
             @ViewBag.Message = "";
             string Error = string.Empty;
@@ -88,7 +90,7 @@ namespace ScrapyWeb.Controllers
             {
                 clBusiness.searchInTwitter(id, search, ref Error);
             }
-           // clBusiness.searchInTwitterPlaces(ref Error);
+            // clBusiness.searchInTwitterPlaces(ref Error);
             if (string.IsNullOrEmpty(Error))
                 return RedirectToAction("Index", "Home");
             else
@@ -98,6 +100,7 @@ namespace ScrapyWeb.Controllers
 
             }
         }
+
         [HttpGet]
         public ActionResult FetchFBData(int? id)
         {
@@ -105,21 +108,29 @@ namespace ScrapyWeb.Controllers
 
             return View(clBusiness.getSearchCriteria());
         }
+
         [HttpPost]
         public ActionResult FetchFBData(Search search, int id)
         {
             @ViewBag.Message = "";
             string Error = string.Empty;
-            search.FbAccessToken = clBusiness.FacebookGetAccessToken(clBusiness.GetFbApplication(id));
-            clBusiness.getFacebookGroupFeed(search, clBusiness.GetFbApplication(id),ref Error);
-            
+
+            //
+            var fbApp = clBusiness.GetFbApplication(id);
+
+            //
+            search.FbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
+
+            //
+            clBusiness.getFacebookGroupFeed(search, fbApp, ref Error);
+
+            //
             if (string.IsNullOrEmpty(Error))
                 return RedirectToAction("Index", "Home");
             else
             {
                 @ViewBag.Message = Error;
                 return View(search);
-
             }
         }
 

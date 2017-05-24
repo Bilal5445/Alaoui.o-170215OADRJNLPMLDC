@@ -5,3 +5,7 @@
 2 - CREATE DATABASE ScrapyWeb
 3 - open and copy/paste db script from DBScripts/170524_script_create_db_with_data.sql
 4 - run web app
+
+TEST FB
+----------------
+1 - web app > accounts > Facebook Applications > Fetch Data : enter public group id : 142220009186235 (mrji group https://web.facebook.com/groups/142220009186235/)
