@@ -20,19 +20,19 @@
 @*@Html.ActionLink("Fetch Data", "FetchData", "Home")*@
 <ol class="round">
     <li class="one">
-        <h5>Total Tweets in Data Set</h5>
+        <h5><a href="#twitter">Total Tweets in Data Set</a></h5>
         <p>
             So for total Tweets in database are :@tweetList.Count <b></b>
         </p>
     </li>
     <li class="two">
-        <h5>Total Facebook Group Feed in Data Set</h5>
+        <h5><a href="#facebook">Total Facebook Group Feed in Data Set</a></h5>
         <p>
             So for total Group Feed in database are :@feedList.Count <b></b>
         </p>
     </li>
 </ol>
-<h1>Twitter</h1>
+<h1 id="twitter">Twitter</h1>
 <table class="users" style="height:450px; overflow:scroll">
     <thead>
         <tr>
@@ -59,7 +59,7 @@
 
 </table>
 
-<h1>Facebook</h1>
+<h1 id="facebook">Facebook</h1>
 <table class="users" style="height:450px; overflow:scroll">
     <thead>
         <tr>

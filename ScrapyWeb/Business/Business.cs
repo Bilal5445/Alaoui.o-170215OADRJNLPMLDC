@@ -623,13 +623,9 @@ namespace ScrapyWeb.Business
 
         public static void getDownloadedGroupFeeds(ref List<FacebookGroupFeed> _fbFeedList)
         {
-
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
             {
-
-                _fbFeedList = context.FacebookGroupFeeds
-                                      .ToList();
-
+                _fbFeedList = context.FacebookGroupFeeds.OrderByDescending(x => x.UpdatedTime).ToList();
             }
         }
         
