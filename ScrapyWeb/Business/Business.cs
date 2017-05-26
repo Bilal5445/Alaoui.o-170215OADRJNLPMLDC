@@ -625,7 +625,12 @@ namespace ScrapyWeb.Business
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
             {
-                _fbFeedList = context.FacebookGroupFeeds.OrderBy(x => x.GroupPostId).OrderByDescending(x => x.UpdatedTime).ToList();
+                // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
+                // since I can not use split inside a lambda expression, take the 15 first chars
+                _fbFeedList = context.FacebookGroupFeeds
+                    .OrderBy(x => x.GroupPostId.Substring(0, 15))
+                    .ThenByDescending(x => x.UpdatedTime)
+                    .ToList();
             }
         }
         
@@ -757,13 +762,12 @@ namespace ScrapyWeb.Business
 
                 //
                 string objText = "";
-                // string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed?key=" + app.FbAppId + "&" + search.FbAccessToken;
-                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed?key=" + app.FbAppId
+                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed"
+                    + "?key=" + app.FbAppId
                     + "&access_token=" + access_token
                     + "&token_type=" + token_type;
 
                 HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-
                 using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
                 {
                     StreamReader reader = new StreamReader(response.GetResponseStream());
@@ -788,7 +792,6 @@ namespace ScrapyWeb.Business
                             {
                                 // starting with a digit ex : 142220009186235 then groupid then updated_time
                                 updated_created_time = Convert.ToString(status["updated_time"]);
-
                             } else
                             {
                                 // not starting with a digit ex : tanjazzofficiel then page then created_time
@@ -796,14 +799,13 @@ namespace ScrapyWeb.Business
                             }
                             var date = DateTime.Parse(updated_created_time);
 
-                            //
+                            // save FB feed to DB
                             feed.GroupPostId = Convert.ToString(status["id"]);
                             feed.PostText = message;
                             feed.UpdatedTime = date;
                             AddGroupFeedTODb(feed);
                         }
                     }
-                    //myDiv.InnerHtml = html;
                 }
             }
             catch (WebException wex)
