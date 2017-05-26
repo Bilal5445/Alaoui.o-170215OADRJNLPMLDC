@@ -33,7 +33,7 @@ namespace ScrapyWeb.Business
 
             }
         }
-        
+
         /// <summary>
         /// It Will Search for Tweets
         /// </summary>
@@ -239,7 +239,7 @@ namespace ScrapyWeb.Business
                 }
             }
         }
-        
+
         /// <summary>
         /// This method is used to extract the tweet attributes from JObject.
         /// </summary>
@@ -293,12 +293,12 @@ namespace ScrapyWeb.Business
 
 
         }
-        
+
         /// <summary>
         /// get Application from Config
         /// </summary>
         /// <returns></returns>
-        public static ScrapyWeb.Models.TwitterApplication getApplicationDetails(int? id)
+        public static TwitterApplication getApplicationDetails(int? id)
         {
             if (id == null)
             {// oauth application keys
@@ -530,7 +530,7 @@ namespace ScrapyWeb.Business
             return request;
 
         }
-        
+
         /// <summary>
         /// Add Twitter Application to Database
         /// </summary>
@@ -552,22 +552,18 @@ namespace ScrapyWeb.Business
                         result.AccessToken = app.AccessToken;
                         //context.TwitterApplications.Attach(app);
                         context.Entry(result).State = System.Data.EntityState.Modified;
-
                     }
                     else
                     {
-
                         context.TwitterApplications.Add(app);
                     }
                     context.SaveChanges();
                     error = "";
-
                 }
             }
             catch (Exception ex)
             {
                 error = ex.Message;
-
             }
         }
 
@@ -590,16 +586,13 @@ namespace ScrapyWeb.Business
                         result.FbAppSecret = app.FbAppSecret;
 
                         context.Entry(result).State = System.Data.EntityState.Modified;
-
                     }
                     else
                     {
-
                         context.FBApplications.Add(app);
                     }
                     context.SaveChanges();
                     error = "";
-
                 }
             }
             catch (Exception ex)
@@ -633,7 +626,7 @@ namespace ScrapyWeb.Business
                     .ToList();
             }
         }
-        
+
         /// <summary>
         /// Get Twitter Id from DB for Since_Id param
         /// </summary>
@@ -693,19 +686,17 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static Models.FBGroup GetFbGroup(int GroupId)
+        /*public static Models.FBGroup GetFbGroup(int GroupId)
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
             {
-
                 var query = (from app in context.FBGroups
                              where app.GroupId == GroupId
 
                              select app).Take(1);
                 return query.FirstOrDefault<FBGroup>();
-
             }
-        }
+        }*/
 
         public static Models.FBApplication GetFbApplication(int ApplicationId)
         {
@@ -777,7 +768,7 @@ namespace ScrapyWeb.Business
                     JObject jObjects = JObject.Parse(objText);
                     JObject Objects = new JObject(jObjects);
                     JArray items = (JArray)Objects["data"];
-                    //JArray jsonDat = JArray.Parse(objText);
+
                     foreach (var status in items)
                     {
                         if (status["message"] != null)
@@ -792,7 +783,8 @@ namespace ScrapyWeb.Business
                             {
                                 // starting with a digit ex : 142220009186235 then groupid then updated_time
                                 updated_created_time = Convert.ToString(status["updated_time"]);
-                            } else
+                            }
+                            else
                             {
                                 // not starting with a digit ex : tanjazzofficiel then page then created_time
                                 updated_created_time = Convert.ToString(status["created_time"]);
@@ -804,6 +796,19 @@ namespace ScrapyWeb.Business
                             feed.PostText = message;
                             feed.UpdatedTime = date;
                             AddGroupFeedTODb(feed);
+                        }
+                    }
+
+                    // save FB group infor to DB
+                    if (items != null)
+                    {
+                        var laststatus = items.Last();
+                        if (laststatus != null)
+                        {
+                            var group = new FBGroup();
+                            group.FbGroupId = Convert.ToString(laststatus["id"]).Split(new char[] { '_' })[0];
+                            group.GroupName = search.GroupId;
+                            AddFbGroupTODb(group);
                         }
                     }
                 }
@@ -846,6 +851,24 @@ namespace ScrapyWeb.Business
                 if (result == null)
                 {
                     context.FacebookGroupFeeds.Add(feed);
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        public static void AddFbGroupTODb(FBGroup fbGroup)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                // int id
+                int? max = context.FBGroups.Max(x => (int?)x.GroupId);
+                fbGroup.GroupId = max ?? 0 + 1;
+                
+                //
+                var result = context.FBGroups.SingleOrDefault(f => f.FbGroupId == fbGroup.FbGroupId);
+                if (result == null)
+                {
+                    context.FBGroups.Add(fbGroup);
                     context.SaveChanges();
                 }
             }

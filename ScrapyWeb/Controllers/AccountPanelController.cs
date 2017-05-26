@@ -32,7 +32,6 @@ namespace ScrapyWeb.Controllers
             }
 
             return View();
-
         }
 
         [HttpPost]
@@ -45,7 +44,6 @@ namespace ScrapyWeb.Controllers
                 return RedirectToAction("Index");
             }
             return View(app);
-
         }
 
         public ActionResult AddFBApplication(int id = 0)

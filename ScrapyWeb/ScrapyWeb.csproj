@@ -193,9 +193,15 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\FacebookGroupFeed.cs" />
-    <Compile Include="Models\FBApplication.cs" />
-    <Compile Include="Models\FBGroup.cs" />
+    <Compile Include="Models\FacebookGroupFeed.cs">
+      <DependentUpon>ScrapyWeb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\FBApplication.cs">
+      <DependentUpon>ScrapyWeb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\FBGroup.cs">
+      <DependentUpon>ScrapyWeb.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\ScrapyWeb.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -337,13 +343,14 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\Index_old.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Web.config" />
     <Content Include="Views\AccountPanel\Index.cshtml" />
     <Content Include="Views\AccountPanel\AddApplication.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

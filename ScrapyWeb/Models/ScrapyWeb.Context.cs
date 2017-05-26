@@ -9,21 +9,22 @@
 
 namespace ScrapyWeb.Models
 {
+    using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
-
+    
     public partial class ScrapyWebEntities : DbContext
     {
         public ScrapyWebEntities()
             : base("name=ScrapyWebEntities")
         {
         }
-
+    
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             throw new UnintentionalCodeFirstException();
         }
-
+    
         public DbSet<TweetSet> TweetSets { get; set; }
         public DbSet<TwitterApplication> TwitterApplications { get; set; }
         public DbSet<FacebookGroupFeed> FacebookGroupFeeds { get; set; }
