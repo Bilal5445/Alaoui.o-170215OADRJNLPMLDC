@@ -625,7 +625,7 @@ namespace ScrapyWeb.Business
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
             {
-                _fbFeedList = context.FacebookGroupFeeds.OrderByDescending(x => x.UpdatedTime).ToList();
+                _fbFeedList = context.FacebookGroupFeeds.OrderBy(x => x.GroupPostId).OrderByDescending(x => x.UpdatedTime).ToList();
             }
         }
         

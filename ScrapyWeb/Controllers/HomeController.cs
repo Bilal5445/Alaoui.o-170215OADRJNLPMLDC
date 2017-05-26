@@ -14,31 +14,17 @@ namespace ScrapyWeb.Controllers
         {
             ViewBag.Message = "";
 
-            //
+            // Twitter
             var TweetSets=new List<TweetSet>();
             clBusiness.getDownloadedTweetSets(ref TweetSets);
             ViewBag.TweetSets = TweetSets;
 
-            //
+            // FB
             var FeedSets = new List<FacebookGroupFeed>();
             clBusiness.getDownloadedGroupFeeds(ref FeedSets);
             ViewBag.FeedSets = FeedSets;
 
             return View();
         }
-
-        public ActionResult FetchData()
-        {
-           // clBusiness.getFacebookGroupFeed();
-
-            return RedirectToAction("Index");
-        }
-
-        //public ActionResult Contact()
-        //{
-        //    ViewBag.Message = "Your contact page.";
-
-        //    return View();
-        //}
     }
 }

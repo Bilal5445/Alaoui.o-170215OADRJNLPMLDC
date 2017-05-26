@@ -31,7 +31,7 @@
         <th class="row-2 row-ID">Updated Time</th>
         <th class="row-3 row-Tweet">Post Text<span>-</span></th>
     </tr>
-    @foreach (var tweet in tweetList.Take(5))
+    @foreach (var tweet in tweetList.Take(20))
     {
         <tr>
             <td>@tweet.ScreenName</td>
@@ -47,7 +47,7 @@
         <th class="row-2 row-ID">Updated Time</th>
         <th class="row-3 row-Tweet">Post Text<span>-</span></th>
     </tr>
-    @foreach (var feed in feedList.Take(5))
+    @foreach (var feed in feedList.Take(20))
     {
         <tr>
             <td>@feed.GroupPostId</td>
