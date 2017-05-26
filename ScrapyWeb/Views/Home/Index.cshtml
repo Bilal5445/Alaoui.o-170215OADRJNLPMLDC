@@ -9,7 +9,6 @@
                 <h2>@ViewBag.Message</h2>
             </hgroup>
             <p>
-
             </p>
         </div>
     </section>
@@ -17,72 +16,53 @@
 @{ var tweetList = (List<ScrapyWeb.Models.TweetSet>)ViewBag.TweetSets;
     var feedList = (List<ScrapyWeb.Models.FacebookGroupFeed>)ViewBag.FeedSets;
 }
-@*@Html.ActionLink("Fetch Data", "FetchData", "Home")*@
-<ol class="round">
-    <li class="one">
-        <h5><a href="#twitter">Total Tweets in Data Set</a></h5>
-        <p>
-            So for total Tweets in database are :@tweetList.Count <b></b>
-        </p>
-    </li>
-    <li class="two">
-        <h5><a href="#facebook">Total Facebook Group Feed in Data Set</a></h5>
-        <p>
-            So for total Group Feed in database are :@feedList.Count <b></b>
-        </p>
-    </li>
-</ol>
+<style>
+    tr.header {
+        cursor: pointer;
+    }
+    tr.header th:nth-child(3) span {
+        float: right;
+    }
+</style>
 <h1 id="twitter">Twitter</h1>
-<table class="users" style="height:450px; overflow:scroll">
-    <thead>
+<table class="users">
+    <tr class="header">
+        <th class="row-1 row-ID">Group Post Id</th>
+        <th class="row-2 row-ID">Updated Time</th>
+        <th class="row-3 row-Tweet">Post Text<span>-</span></th>
+    </tr>
+    @foreach (var tweet in tweetList.Take(5))
+    {
         <tr>
-            <th class="row-1 row-ID">Screen Name</th>
-            <th class="row-2 row-ID">Tweet Date</th>
-            <th class="row-3 row-Tweet">Tweet Text</th>
-
+            <td>@tweet.ScreenName</td>
+            <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", tweet.DateCreated)</td>
+            <td>@tweet.TweetText</td>
         </tr>
-    </thead>
-    <tbody>
-
-        @foreach (var tweet in tweetList)
-        {
-            <tr>
-                <td>
-                    @tweet.ScreenName
-                </td>
-                <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", tweet.DateCreated)</td>
-                <td>@tweet.TweetText</td>
-            </tr>
-        }
-
-    </tbody>
-
+    }
 </table>
-
 <h1 id="facebook">Facebook</h1>
-<table class="users" style="height:450px; overflow:scroll">
-    <thead>
+<table class="users">
+    <tr class="header">
+        <th class="row-1 row-ID">Group Post Id</th></th>
+        <th class="row-2 row-ID">Updated Time</th>
+        <th class="row-3 row-Tweet">Post Text<span>-</span></th>
+    </tr>
+    @foreach (var feed in feedList.Take(5))
+    {
         <tr>
-            <th class="row-1 row-ID">Group Post Id</th>
-            <th class="row-2 row-ID">Updated Time</th>
-            <th class="row-3 row-Tweet">Post Text</th>
+            <td>@feed.GroupPostId</td>
+            <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", feed.UpdatedTime)</td>
+            <td>@feed.PostText</td>
         </tr>
-    </thead>
-    <tbody>
-
-        @foreach (var feed in feedList)
-        {
-            <tr>
-                <td>
-                    @feed.GroupPostId
-                </td>
-                <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", feed.UpdatedTime)</td>
-                <td>@feed.PostText</td>
-            </tr>
-        }
-
-    </tbody>
-
+    }
 </table>
+<script>
+    $('.header').click(function () {
+        $(this).find('span').text(function (_, value) {
+            return value == '-' ? '+' : '-'
+        });
 
-
+        $(this).nextUntil('tr.header').slideToggle(100, function () {
+        });
+    })
+</script>

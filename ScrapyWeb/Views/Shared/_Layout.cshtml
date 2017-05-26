@@ -5,10 +5,10 @@
         <title>@ViewBag.Title -ScrapyWeb</title>    
         <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <meta name="viewport" content="width=device-width" />
-        @RenderSection("scripts", required: false)
         @Styles.Render("~/Content/css")
         @Scripts.Render("~/bundles/modernizr")
         @Scripts.Render("~/bundles/jquery")
+        @RenderSection("scripts", required: false)
       
     </head>
     <body>

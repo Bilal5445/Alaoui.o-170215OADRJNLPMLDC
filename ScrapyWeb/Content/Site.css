@@ -792,7 +792,7 @@ tbody { display:normal; }
 .users td,
 .users th {
   text-align: left;
-  padding: 5px 10px;
+  padding: 2px 5px;
 }
 .users tr:nth-child(even) {
   background: lightblue;
