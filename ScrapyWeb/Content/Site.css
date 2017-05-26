@@ -758,7 +758,7 @@ tr.pager td {
 .users {
     table-layout: fixed;
     width: 100%;
-    white-space: nowrap;
+    /*white-space: nowrap;*/
     font-size: 12px;
     overflow-x: scroll;
 }
@@ -769,15 +769,17 @@ tbody {
 
 /* Column widths are based on these cells */
 .row-ID {
-    width: 25%;
+    width: 22%;
 }
-
+.row-Time {
+    width: 13%;
+}
 .row-name {
     width: 40%;
 }
 
 .row-Tweet {
-    width: 50%;
+    width: 65%;
 }
 
 .row-job {
@@ -798,9 +800,9 @@ tbody {
 }
 
 .users td {
-    white-space: nowrap;
+    /*white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis;*/
 }
 
 .users th {
@@ -808,8 +810,15 @@ tbody {
     color: white;
 }
 
-.users td,
-.users th {
+.users td
+ {
+    /*text-align: left;*/
+    text-align: justify;
+    direction: rtl;
+    padding: 2px 5px;
+}
+.users th
+{
     text-align: left;
     padding: 2px 5px;
 }
