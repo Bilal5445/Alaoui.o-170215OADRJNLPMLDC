@@ -19,7 +19,12 @@ namespace ScrapyWeb.Controllers
             clBusiness.getDownloadedTweetSets(ref TweetSets);
             ViewBag.TweetSets = TweetSets;
 
-            // FB
+            // FB groups
+            var groupSets = new List<FBGroup>();
+            clBusiness.getDownloadedFBGroups(ref groupSets);
+            ViewBag.GroupSets = groupSets;
+
+            // FB feeds
             var FeedSets = new List<FacebookGroupFeed>();
             clBusiness.getDownloadedGroupFeeds(ref FeedSets);
             ViewBag.FeedSets = FeedSets;

@@ -621,8 +621,17 @@ namespace ScrapyWeb.Business
                 // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
                 // since I can not use split inside a lambda expression, take the 15 first chars
                 _fbFeedList = context.FacebookGroupFeeds
-                    .OrderBy(x => x.GroupPostId.Substring(0, 15))
+                    // .OrderBy(x => x.GroupPostId.Substring(0, 15))
                     .ThenByDescending(x => x.UpdatedTime)
+                    .ToList();
+            }
+        }
+
+        public static void getDownloadedFBGroups(ref List<FBGroup> _fbGroupList)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                _fbGroupList = context.FBGroups
                     .ToList();
             }
         }

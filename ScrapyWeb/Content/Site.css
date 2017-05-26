@@ -787,6 +787,15 @@ tbody {
 .row-email {
     width: 20%;
 }
+.row-full {
+    width: 100%;
+}
+
+.subheader th.row-full {
+    background: darkorange;
+    color: white;
+    text-align:center;
+}
 
 .users td {
     white-space: nowrap;
