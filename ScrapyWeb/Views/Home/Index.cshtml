@@ -32,7 +32,7 @@
     </li>
 </ol>
 <style>
-    tr.header {
+    tr.header, tr.subheader {
         cursor: pointer;
     }
 
@@ -86,7 +86,7 @@
 
 </table>
 <script>
-    // on click
+    // on click on blue
     $('.header').click(function () {
         $(this).find('span').text(function (_, value) {
             return value == '-' ? '+' : '-'
@@ -96,7 +96,17 @@
         });
     })
 
-    // at load, trigger click
+    // on click on orange
+    $('.subheader').click(function () {
+        $(this).find('span').text(function (_, value) {
+            return value == '-' ? '+' : '-'
+        });
+
+        $(this).nextUntil('tr.subheader').slideToggle(100, function () {
+        });
+    })
+
+    // at load, trigger click to toggle up
     $('.header').click();
 
 </script>
