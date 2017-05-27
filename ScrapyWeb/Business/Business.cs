@@ -622,7 +622,7 @@ namespace ScrapyWeb.Business
                 // since I can not use split inside a lambda expression, take the 15 first chars
                 _fbFeedList = context.FacebookGroupFeeds
                     // .OrderBy(x => x.GroupPostId.Substring(0, 15))
-                    .ThenByDescending(x => x.UpdatedTime)
+                    .OrderByDescending(x => x.UpdatedTime)
                     .ToList();
             }
         }
@@ -667,7 +667,7 @@ namespace ScrapyWeb.Business
 
         }
 
-        public static Models.TwitterApplication GetApplication(int ApplicationId)
+        public static TwitterApplication GetApplication(int ApplicationId)
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
             {
@@ -681,7 +681,7 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static Models.FBApplication GetFBApplication(int ApplicationId)
+        public static FBApplication GetFBApplication(int ApplicationId)
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
             {
@@ -707,7 +707,7 @@ namespace ScrapyWeb.Business
             }
         }*/
 
-        public static Models.FBApplication GetFbApplication(int ApplicationId)
+        public static FBApplication GetFbApplication(int ApplicationId)
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
             {
@@ -752,6 +752,96 @@ namespace ScrapyWeb.Business
         }
 
         public static void getFacebookGroupFeed(Search search, FBApplication app, ref string Error)
+        {
+            try
+            {
+                // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
+                JObject jObject = JObject.Parse(search.FbAccessToken);
+                String access_token = (String)jObject["access_token"];
+                String token_type = (String)jObject["token_type"];
+
+                //
+                string objText = "";
+                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed"
+                    + "?key=" + app.FbAppId
+                    + "&access_token=" + access_token
+                    + "&token_type=" + token_type;
+
+                HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+                using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                {
+                    StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                    objText = reader.ReadToEnd();
+
+                    JObject jObjects = JObject.Parse(objText);
+                    JObject Objects = new JObject(jObjects);
+                    JArray items = (JArray)Objects["data"];
+
+                    foreach (var status in items)
+                    {
+                        if (status["message"] != null)
+                        {
+                            var feed = new FacebookGroupFeed();
+
+                            var message = status["message"] != null ? Convert.ToString(status["message"]) : null;
+
+                            // MC240517 quick hack differentiation between group and page
+                            String updated_created_time;
+                            if (Regex.IsMatch(search.GroupId, @"^\d"))
+                            {
+                                // starting with a digit ex : 142220009186235 then groupid then updated_time
+                                updated_created_time = Convert.ToString(status["updated_time"]);
+                            }
+                            else
+                            {
+                                // not starting with a digit ex : tanjazzofficiel then page then created_time
+                                updated_created_time = Convert.ToString(status["created_time"]);
+                            }
+                            var date = DateTime.Parse(updated_created_time);
+
+                            // save FB feed to DB
+                            feed.GroupPostId = Convert.ToString(status["id"]);
+                            feed.PostText = message;
+                            feed.UpdatedTime = date;
+                            AddGroupFeedTODb(feed);
+                        }
+                    }
+
+                    // save FB group infor to DB
+                    if (items != null)
+                    {
+                        var laststatus = items.Last();
+                        if (laststatus != null)
+                        {
+                            var group = new FBGroup();
+                            group.FbGroupId = Convert.ToString(laststatus["id"]).Split(new char[] { '_' })[0];
+                            group.GroupName = search.GroupId;
+                            AddFbGroupTODb(group);
+                        }
+                    }
+                }
+            }
+            catch (WebException wex)
+            {
+                if (wex.Response != null)
+                {
+                    using (var errorResponse = (HttpWebResponse)wex.Response)
+                    {
+                        using (var reader = new StreamReader(errorResponse.GetResponseStream()))
+                        {
+                            Error = reader.ReadToEnd();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Error = ex.Message;
+            }
+        }
+
+        public static void getFacebookGroupFeedComment(Search search, FBApplication app, ref string Error)
         {
             try
             {
