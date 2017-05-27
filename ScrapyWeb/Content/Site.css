@@ -22,14 +22,14 @@ a {
     text-decoration: underline;
 }
 
-    a:link, a:visited,
-    a:active, a:hover {
-        color: #333;
-    }
+a:link, a:visited,
+a:active, a:hover {
+    color: #333;
+}
 
-    a:hover {
-        background-color: #c7d1d6;
-    }
+a:hover {
+    background-color: #c7d1d6;
+}
 
 header, footer, hgroup,
 nav, section {
@@ -541,41 +541,41 @@ th {
     padding-left: 0;
 }
 
-    th a {
-        display: block;
-        position: relative;
-    }
+th a {
+    display: block;
+    position: relative;
+}
 
-        th a:link, th a:visited, th a:active, th a:hover {
-            color: #333;
-            font-weight: 600;
-            text-decoration: none;
-            padding: 0;
-        }
+th a:link, th a:visited, th a:active, th a:hover {
+    color: #333;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0;
+}
 
-        th a:hover {
-            color: #000;
-        }
+th a:hover {
+    color: #000;
+}
 
-    th.asc a, th.desc a {
-        margin-right: .75em;
-    }
+th.asc a, th.desc a {
+    margin-right: .75em;
+}
 
-        th.asc a:after, th.desc a:after {
-            display: block;
-            position: absolute;
-            right: 0em;
-            top: 0;
-            font-size: 0.75em;
-        }
+th.asc a:after, th.desc a:after {
+    display: block;
+    position: absolute;
+    right: 0em;
+    top: 0;
+    font-size: 0.75em;
+}
 
-        th.asc a:after {
-            content: '▲';
-        }
+th.asc a:after {
+    content: '▲';
+}
 
-        th.desc a:after {
-            content: '▼';
-        }
+th.desc a:after {
+    content: '▼';
+}
 
 td {
     padding: 0.25em 2em 0.25em 0em;
@@ -772,9 +772,11 @@ tbody {
 .row-ID {
     width: 22%;
 }
+
 .row-Time {
     width: 13%;
 }
+
 .row-name {
     width: 40%;
 }
@@ -790,14 +792,20 @@ tbody {
 .row-email {
     width: 20%;
 }
+
 .row-full {
     width: 100%;
 }
 
-.subheader th.row-full {
+tr.subheader th.row-full {
     background: darkorange;
     color: white;
-    text-align:center;
+    text-align: center;
+}
+
+.feedcomment {
+    background: darkgreen;
+    color: white;
 }
 
 .users td {
@@ -806,21 +814,29 @@ tbody {
     text-overflow: ellipsis;*/
 }
 
-.users th {
+tr.header /*th*/ {
     background: darkblue;
     color: white;
+    text-align: left;
+    padding: 2px 5px;
 }
 
-.users td
- {
-    /*text-align: left;*/
+tr.feed /*th*/ {
+    background: darkred;
+    color: white;
     text-align: justify;
     direction: rtl;
     padding: 2px 5px;
 }
-.users th
-{
-    text-align: left;
+
+tr.feed:nth-child(even) th {
+    background: red;
+}
+
+.users td {
+    /*text-align: left;*/
+    text-align: justify;
+    direction: rtl;
     padding: 2px 5px;
 }
 

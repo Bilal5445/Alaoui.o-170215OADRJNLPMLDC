@@ -16,6 +16,7 @@
 @{ var tweetList = (List<ScrapyWeb.Models.TweetSet>)ViewBag.TweetSets;
     var feedList = (List<ScrapyWeb.Models.FacebookGroupFeed>)ViewBag.FeedSets;
     var fbGroupsList = (List<ScrapyWeb.Models.FBGroup>)ViewBag.GroupSets;
+    var fbCommentsList = (List<ScrapyWeb.Models.FBFeedComment>)ViewBag.CommentSets;
 }
 
 <style>
@@ -56,18 +57,27 @@
     </tr>
     @foreach (var grp in fbGroupsList)
     {
-        // var groupFeedList = feedList.Where(x => x.GroupPostId.Substring(0, 15) == grp.FbGroupId);
         var groupFeedList = feedList.Where(x => x.GroupPostId.StartsWith(grp.FbGroupId));
         <tr class="subheader">
             <th class="row-full" colspan="3">@grp.GroupName (@grp.FbGroupId) [@groupFeedList.Count()]<span>-</span></th>
         </tr>
         foreach (var feed in groupFeedList)
         {
-            <tr>
-                <td>@feed.GroupPostId</td>
-                <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", feed.UpdatedTime)</td>
-                <td>@feed.PostText</td>
+            <tr class="feed">
+                <th>@feed.GroupPostId</th>
+                <th>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", feed.UpdatedTime)</th>
+                <th>@feed.PostText</th>
             </tr>
+            var feedId = feed.GroupPostId.Split(new char[] { '_' })[1];
+            var commentList = fbCommentsList.Where(x => x.Id.StartsWith(feedId));
+            foreach (var comment in commentList)
+            {
+                <tr class="feedcomment">
+                    <td>@comment.Id</td>
+                    <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", comment.created_time)</td>
+                    <td>@comment.message</td>
+                </tr>
+            }
         }
     }
 
@@ -93,7 +103,19 @@
         });
     })
 
+    // on click on feed
+    $('.feed').click(function () {
+        $(this).find('span').text(function (_, value) {
+            return value == '-' ? '+' : '-'
+        });
+
+        $(this).nextUntil('tr.feed').slideToggle(100, function () {
+        });
+    })
+
     // at load, trigger click to toggle up
     $('.header').click();
+    $('.subheader').click();
+    $('.feed').click();
 
 </script>

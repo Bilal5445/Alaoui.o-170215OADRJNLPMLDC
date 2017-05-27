@@ -9,3 +9,7 @@
 TEST FB
 ----------------
 1 - web app > accounts > Facebook Applications > Fetch Data : enter public group id : 142220009186235 (mrji group https://web.facebook.com/groups/142220009186235/)
+
+HOW TO LIST TABLES IN DB
+------------------------
+SELECT TABLE_NAME FROM ScrapyWeb.INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'

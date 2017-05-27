@@ -205,6 +205,9 @@
     <Compile Include="Models\FBApplication.cs">
       <DependentUpon>ScrapyWeb.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\FBFeedComment.cs">
+      <DependentUpon>ScrapyWeb.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\FBGroup.cs">
       <DependentUpon>ScrapyWeb.tt</DependentUpon>
     </Compile>
@@ -307,6 +310,7 @@
       <DependentUpon>ScrapyWeb.edmx</DependentUpon>
     </Content>
     <Content Include="Models\ScrapyWeb.edmx.diagram.xml" />
+    <Content Include="Models\ScrapyWeb.edmx.sql" />
     <Content Include="Models\ScrapyWeb.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>ScrapyWeb.edmx</DependentUpon>

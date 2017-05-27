@@ -4,70 +4,79 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="ScrapyWebModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
-        <EntityType Name="FacebookGroupFeed">
-          <Key>
-            <PropertyRef Name="GroupPostId" />
-          </Key>
-          <Property Name="GroupPostId" Type="varchar" MaxLength="150" Nullable="false" />
-          <Property Name="PostText" Type="nvarchar(max)" Nullable="false" />
-          <Property Name="UpdatedTime" Type="datetime" Nullable="false" />
-        </EntityType>
-        <EntityType Name="FBApplications">
-          <Key>
-            <PropertyRef Name="FbAppId" />
-          </Key>
-          <Property Name="ApplicationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ApplicationName" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="FbAppId" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="FbAppSecret" Type="varchar" MaxLength="150" Nullable="false" />
-        </EntityType>
-        <EntityType Name="FBGroups">
-          <Key>
-            <PropertyRef Name="GroupId" />
-          </Key>
-          <Property Name="GroupId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="FbGroupId" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="GroupName" Type="varchar" MaxLength="50" Nullable="false" />
-        </EntityType>
-        <EntityType Name="TweetSet">
-          <Key>
-            <PropertyRef Name="Tweet_Id" />
-          </Key>
-          <Property Name="Tweet_Id" Type="varchar" MaxLength="150" Nullable="false" />
-          <Property Name="TweetText" Type="nvarchar" MaxLength="150" Nullable="false" />
-          <Property Name="DateDownload" Type="datetime" Nullable="false" />
-          <Property Name="DateCreated" Type="datetime" />
-          <Property Name="HashTags" Type="nvarchar" MaxLength="150" />
-          <Property Name="Mentions" Type="nvarchar" MaxLength="150" />
-          <Property Name="UserId" Type="varchar" MaxLength="50" />
-          <Property Name="ScreenName" Type="nvarchar" MaxLength="50" />
-          <Property Name="FollowersCount" Type="int" />
-          <Property Name="FriendsCouunt" Type="int" />
-          <Property Name="PlaceName" Type="varchar" MaxLength="50" />
-          <Property Name="PlaceId" Type="varchar" MaxLength="50" />
-          <Property Name="LatLong" Type="varchar" MaxLength="100" />
-          <Property Name="Language" Type="varchar" MaxLength="50" />
-        </EntityType>
-        <EntityType Name="TwitterApplications">
-          <Key>
-            <PropertyRef Name="ApplicationId" />
-          </Key>
-          <Property Name="ApplicationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ApplicationName" Type="varchar" MaxLength="150" Nullable="false" />
-          <Property Name="ConsumerKey" Type="varchar" MaxLength="150" Nullable="false" />
-          <Property Name="ConsumerSecret" Type="varchar" MaxLength="150" Nullable="false" />
-          <Property Name="AccessToken" Type="varchar" MaxLength="150" Nullable="false" />
-          <Property Name="AccessTokenSecret" Type="varchar" MaxLength="150" Nullable="false" />
-        </EntityType>
-        <EntityContainer Name="ScrapyWebModelStoreContainer">
-          <EntitySet Name="FacebookGroupFeed" EntityType="Self.FacebookGroupFeed" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="FBApplications" EntityType="Self.FBApplications" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="FBGroups" EntityType="Self.FBGroups" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="TweetSet" EntityType="Self.TweetSet" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="TwitterApplications" EntityType="Self.TwitterApplications" Schema="dbo" store:Type="Tables" />
-        </EntityContainer>
-      </Schema></edmx:StorageModels>
+    <Schema Namespace="ScrapyWebModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2008" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityContainer Name="ScrapyWebModelStoreContainer">
+    <EntitySet Name="TweetSets" EntityType="ScrapyWebModel.Store.TweetSets" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="TwitterApplications" EntityType="ScrapyWebModel.Store.TwitterApplications" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="FacebookGroupFeeds" EntityType="ScrapyWebModel.Store.FacebookGroupFeeds" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="FBGroups" EntityType="ScrapyWebModel.Store.FBGroups" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="FBApplications" EntityType="ScrapyWebModel.Store.FBApplications" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="FBFeedComments" EntityType="ScrapyWebModel.Store.FBFeedComments" store:Type="Tables" Schema="dbo" />
+  </EntityContainer>
+  <EntityType Name="TweetSets">
+    <Key>
+      <PropertyRef Name="Tweet_Id" />
+    </Key>
+    <Property Name="Tweet_Id" Type="varchar" Nullable="false" MaxLength="150" />
+    <Property Name="TweetText" Type="nvarchar" Nullable="false" MaxLength="150" />
+    <Property Name="DateDownload" Type="datetime" Nullable="false" />
+    <Property Name="DateCreated" Type="datetime" Nullable="true" />
+    <Property Name="HashTags" Type="nvarchar" Nullable="true" MaxLength="150" />
+    <Property Name="Mentions" Type="nvarchar" Nullable="true" MaxLength="150" />
+    <Property Name="UserId" Type="varchar" Nullable="true" MaxLength="50" />
+    <Property Name="ScreenName" Type="nvarchar" Nullable="true" MaxLength="50" />
+    <Property Name="FollowersCount" Type="int" Nullable="true" />
+    <Property Name="FriendsCouunt" Type="int" Nullable="true" />
+    <Property Name="PlaceName" Type="varchar" Nullable="true" MaxLength="50" />
+    <Property Name="PlaceId" Type="varchar" Nullable="true" MaxLength="50" />
+    <Property Name="LatLong" Type="varchar" Nullable="true" MaxLength="100" />
+    <Property Name="Language" Type="varchar" Nullable="true" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="TwitterApplications">
+    <Key>
+      <PropertyRef Name="ApplicationId" />
+    </Key>
+    <Property Name="ApplicationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ApplicationName" Type="varchar" Nullable="false" MaxLength="150" />
+    <Property Name="ConsumerKey" Type="varchar" Nullable="false" MaxLength="150" />
+    <Property Name="ConsumerSecret" Type="varchar" Nullable="false" MaxLength="150" />
+    <Property Name="AccessToken" Type="varchar" Nullable="false" MaxLength="150" />
+    <Property Name="AccessTokenSecret" Type="varchar" Nullable="false" MaxLength="150" />
+  </EntityType>
+  <EntityType Name="FacebookGroupFeeds">
+    <Key>
+      <PropertyRef Name="GroupPostId" />
+    </Key>
+    <Property Name="GroupPostId" Type="varchar" Nullable="false" MaxLength="150" />
+    <Property Name="PostText" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="UpdatedTime" Type="datetime" Nullable="false" />
+  </EntityType>
+  <EntityType Name="FBGroups">
+    <Key>
+      <PropertyRef Name="GroupId" />
+    </Key>
+    <Property Name="GroupId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="FbGroupId" Type="varchar" Nullable="false" MaxLength="50" />
+    <Property Name="GroupName" Type="varchar" Nullable="false" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="FBApplications">
+    <Key>
+      <PropertyRef Name="FbAppId" />
+    </Key>
+    <Property Name="ApplicationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ApplicationName" Type="varchar" Nullable="false" MaxLength="50" />
+    <Property Name="FbAppId" Type="varchar" Nullable="false" MaxLength="50" />
+    <Property Name="FbAppSecret" Type="varchar" Nullable="false" MaxLength="150" />
+  </EntityType>
+  <EntityType Name="FBFeedComments">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="varchar" Nullable="false" MaxLength="150" />
+    <Property Name="message" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="created_time" Type="datetime" Nullable="false" />
+  </EntityType>
+</Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="ScrapyWebModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -107,6 +116,7 @@
           <EntitySet Name="FacebookGroupFeeds" EntityType="ScrapyWebModel.FacebookGroupFeed" />
           <EntitySet Name="FBGroups" EntityType="ScrapyWebModel.FBGroup" />
           <EntitySet Name="FBApplications" EntityType="ScrapyWebModel.FBApplication" />
+          <EntitySet Name="FBFeedComments" EntityType="ScrapyWebModel.FBFeedComment" />
         </EntityContainer>
         <EntityType Name="FacebookGroupFeed">
           <Key>
@@ -133,75 +143,91 @@
           <Property Name="FbAppId" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="FbAppSecret" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="FBFeedComment">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="String" Nullable="false" annotation:StoreGeneratedPattern="None" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="message" Type="String" Nullable="false" />
+          <Property Name="created_time" Type="DateTime" Nullable="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
-      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="ScrapyWebModelStoreContainer" CdmEntityContainer="ScrapyWebEntities">
-          <EntitySetMapping Name="TweetSets">
-            <EntityTypeMapping TypeName="ScrapyWebModel.TweetSet">
-              <MappingFragment StoreEntitySet="TweetSet">
-                <ScalarProperty Name="Language" ColumnName="Language" />
-                <ScalarProperty Name="LatLong" ColumnName="LatLong" />
-                <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
-                <ScalarProperty Name="PlaceName" ColumnName="PlaceName" />
-                <ScalarProperty Name="FriendsCouunt" ColumnName="FriendsCouunt" />
-                <ScalarProperty Name="FollowersCount" ColumnName="FollowersCount" />
-                <ScalarProperty Name="ScreenName" ColumnName="ScreenName" />
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
-                <ScalarProperty Name="Mentions" ColumnName="Mentions" />
-                <ScalarProperty Name="HashTags" ColumnName="HashTags" />
-                <ScalarProperty Name="DateCreated" ColumnName="DateCreated" />
-                <ScalarProperty Name="Tweet_Id" ColumnName="Tweet_Id" />
-                <ScalarProperty Name="TweetText" ColumnName="TweetText" />
-                <ScalarProperty Name="DateDownload" ColumnName="DateDownload" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TwitterApplications">
-            <EntityTypeMapping TypeName="ScrapyWebModel.TwitterApplication">
-              <MappingFragment StoreEntitySet="TwitterApplications">
-                <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
-                <ScalarProperty Name="ApplicationName" ColumnName="ApplicationName" />
-                <ScalarProperty Name="ConsumerKey" ColumnName="ConsumerKey" />
-                <ScalarProperty Name="ConsumerSecret" ColumnName="ConsumerSecret" />
-                <ScalarProperty Name="AccessToken" ColumnName="AccessToken" />
-                <ScalarProperty Name="AccessTokenSecret" ColumnName="AccessTokenSecret" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="FacebookGroupFeeds">
-            <EntityTypeMapping TypeName="ScrapyWebModel.FacebookGroupFeed">
-              <MappingFragment StoreEntitySet="FacebookGroupFeed">
-                <ScalarProperty Name="UpdatedTime" ColumnName="UpdatedTime" />
-                <ScalarProperty Name="PostText" ColumnName="PostText" />
-                <ScalarProperty Name="GroupPostId" ColumnName="GroupPostId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="FBGroups">
-            <EntityTypeMapping TypeName="ScrapyWebModel.FBGroup">
-              <MappingFragment StoreEntitySet="FBGroups">
-                <ScalarProperty Name="GroupName" ColumnName="GroupName" />
-                <ScalarProperty Name="FbGroupId" ColumnName="FbGroupId" />
-                <ScalarProperty Name="GroupId" ColumnName="GroupId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="FBApplications">
-            <EntityTypeMapping TypeName="ScrapyWebModel.FBApplication">
-              <MappingFragment StoreEntitySet="FBApplications">
-                <ScalarProperty Name="FbAppSecret" ColumnName="FbAppSecret" />
-                <ScalarProperty Name="FbAppId" ColumnName="FbAppId" />
-                <ScalarProperty Name="ApplicationName" ColumnName="ApplicationName" />
-                <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-        </EntityContainerMapping>
-      </Mapping>
-    </edmx:Mappings>
+    <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="ScrapyWebModelStoreContainer" CdmEntityContainer="ScrapyWebEntities">
+    <EntitySetMapping Name="TweetSets">
+      <EntityTypeMapping TypeName="IsTypeOf(ScrapyWebModel.TweetSet)">
+        <MappingFragment StoreEntitySet="TweetSets">
+          <ScalarProperty Name="Tweet_Id" ColumnName="Tweet_Id" />
+          <ScalarProperty Name="TweetText" ColumnName="TweetText" />
+          <ScalarProperty Name="DateDownload" ColumnName="DateDownload" />
+          <ScalarProperty Name="DateCreated" ColumnName="DateCreated" />
+          <ScalarProperty Name="HashTags" ColumnName="HashTags" />
+          <ScalarProperty Name="Mentions" ColumnName="Mentions" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+          <ScalarProperty Name="ScreenName" ColumnName="ScreenName" />
+          <ScalarProperty Name="FollowersCount" ColumnName="FollowersCount" />
+          <ScalarProperty Name="FriendsCouunt" ColumnName="FriendsCouunt" />
+          <ScalarProperty Name="PlaceName" ColumnName="PlaceName" />
+          <ScalarProperty Name="PlaceId" ColumnName="PlaceId" />
+          <ScalarProperty Name="LatLong" ColumnName="LatLong" />
+          <ScalarProperty Name="Language" ColumnName="Language" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="TwitterApplications">
+      <EntityTypeMapping TypeName="IsTypeOf(ScrapyWebModel.TwitterApplication)">
+        <MappingFragment StoreEntitySet="TwitterApplications">
+          <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
+          <ScalarProperty Name="ApplicationName" ColumnName="ApplicationName" />
+          <ScalarProperty Name="ConsumerKey" ColumnName="ConsumerKey" />
+          <ScalarProperty Name="ConsumerSecret" ColumnName="ConsumerSecret" />
+          <ScalarProperty Name="AccessToken" ColumnName="AccessToken" />
+          <ScalarProperty Name="AccessTokenSecret" ColumnName="AccessTokenSecret" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="FacebookGroupFeeds">
+      <EntityTypeMapping TypeName="IsTypeOf(ScrapyWebModel.FacebookGroupFeed)">
+        <MappingFragment StoreEntitySet="FacebookGroupFeeds">
+          <ScalarProperty Name="GroupPostId" ColumnName="GroupPostId" />
+          <ScalarProperty Name="PostText" ColumnName="PostText" />
+          <ScalarProperty Name="UpdatedTime" ColumnName="UpdatedTime" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="FBGroups">
+      <EntityTypeMapping TypeName="IsTypeOf(ScrapyWebModel.FBGroup)">
+        <MappingFragment StoreEntitySet="FBGroups">
+          <ScalarProperty Name="GroupId" ColumnName="GroupId" />
+          <ScalarProperty Name="FbGroupId" ColumnName="FbGroupId" />
+          <ScalarProperty Name="GroupName" ColumnName="GroupName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="FBApplications">
+      <EntityTypeMapping TypeName="IsTypeOf(ScrapyWebModel.FBApplication)">
+        <MappingFragment StoreEntitySet="FBApplications">
+          <ScalarProperty Name="FbAppId" ColumnName="FbAppId" />
+          <ScalarProperty Name="ApplicationId" ColumnName="ApplicationId" />
+          <ScalarProperty Name="ApplicationName" ColumnName="ApplicationName" />
+          <ScalarProperty Name="FbAppSecret" ColumnName="FbAppSecret" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="FBFeedComments">
+      <EntityTypeMapping TypeName="IsTypeOf(ScrapyWebModel.FBFeedComment)">
+        <MappingFragment StoreEntitySet="FBFeedComments">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="message" ColumnName="message" />
+          <ScalarProperty Name="created_time" ColumnName="created_time" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping></edmx:Mappings>
   </edmx:Runtime>
   <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
   <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
@@ -215,7 +241,7 @@
         <DesignerProperty Name="ValidateOnBuild" Value="true" />
         <DesignerProperty Name="EnablePluralization" Value="true" />
         <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
-        <DesignerProperty Name="UseLegacyProvider" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="True" />
         <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
       </DesignerInfoPropertySet>
     </Options>
@@ -223,10 +249,11 @@
     <Diagrams>
       <Diagram DiagramId="8d30603ef9d14716b6432f86c6393713" Name="Diagram1">
         <EntityTypeShape EntityType="ScrapyWebModel.TweetSet" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="ScrapyWebModel.TwitterApplication" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="ScrapyWebModel.FacebookGroupFeed" Width="1.5" PointX="3.375" PointY="3.75" />
+        <EntityTypeShape EntityType="ScrapyWebModel.TwitterApplication" Width="2.125" PointX="2.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ScrapyWebModel.FacebookGroupFeed" Width="1.875" PointX="5.125" PointY="2.875" />
         <EntityTypeShape EntityType="ScrapyWebModel.FBGroup" Width="1.5" PointX="5.375" PointY="0.75" />
         <EntityTypeShape EntityType="ScrapyWebModel.FBApplication" Width="1.5" PointX="0.75" PointY="5.75" />
+        <EntityTypeShape EntityType="ScrapyWebModel.FBFeedComment" Width="2.125" PointX="7.125" PointY="1.875" />
       </Diagram>
     </Diagrams>
   </Designer>

@@ -223,7 +223,6 @@ namespace ScrapyWeb.Business
                 Count_toSearch = Convert.ToString(Util.getKeyValueFromAppSetting("Count_toSearch")),
                 TimeLineURL = Util.getKeyValueFromAppSetting("TimeLineURL")
             };
-
         }
 
         public static void AddTweetTODb(TweetSet tweet)
@@ -627,6 +626,16 @@ namespace ScrapyWeb.Business
             }
         }
 
+        public static void getDownloadedFeedComments(ref List<FBFeedComment> _fbCommentList)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                _fbCommentList = context.FBFeedComments
+                    .OrderByDescending(x => x.created_time)
+                    .ToList();
+            }
+        }
+
         public static void getDownloadedFBGroups(ref List<FBGroup> _fbGroupList)
         {
             using (var context = new ScrapyWebEntities())
@@ -642,15 +651,17 @@ namespace ScrapyWeb.Business
         /// <returns></returns>
         public static string getSinceIdFromTweetSets()
         {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            using (var context = new ScrapyWebEntities())
             {
                 var topTweet = (from tweet in context.TweetSets
                                 orderby tweet.Tweet_Id descending
                                 select tweet).Take(1);
-                return topTweet.FirstOrDefault<TweetSet>().Tweet_Id;
-
+                var firstTopTweet = topTweet.FirstOrDefault<TweetSet>();
+                if (firstTopTweet == null)
+                    return String.Empty;
+                else
+                return firstTopTweet.Tweet_Id;
             }
-
         }
 
         public static string getMaxIdFromTweetSets(string Screen_name)
@@ -800,8 +811,12 @@ namespace ScrapyWeb.Business
                             }
                             var date = DateTime.Parse(updated_created_time);
 
+                            // get comments as well
+                            var feedId = Convert.ToString(status["id"]);
+                            getFacebookGroupFeedComment(search, access_token, feedId, app, ref Error);
+                                
                             // save FB feed to DB
-                            feed.GroupPostId = Convert.ToString(status["id"]);
+                            feed.GroupPostId = feedId;
                             feed.PostText = message;
                             feed.UpdatedTime = date;
                             AddGroupFeedTODb(feed);
@@ -841,21 +856,15 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static void getFacebookGroupFeedComment(Search search, FBApplication app, ref string Error)
+        public static void getFacebookGroupFeedComment(Search search, String access_token, String feedId, FBApplication app, ref string Error)
         {
             try
             {
-                // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
-                JObject jObject = JObject.Parse(search.FbAccessToken);
-                String access_token = (String)jObject["access_token"];
-                String token_type = (String)jObject["token_type"];
-
                 //
                 string objText = "";
-                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed"
+                string url = search.FbAccessGroupFeedURL + feedId + "/comments"
                     + "?key=" + app.FbAppId
-                    + "&access_token=" + access_token
-                    + "&token_type=" + token_type;
+                    + "&access_token=" + access_token;
 
                 HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
                 using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
@@ -872,42 +881,17 @@ namespace ScrapyWeb.Business
                     {
                         if (status["message"] != null)
                         {
-                            var feed = new FacebookGroupFeed();
+                            var feedComment = new FBFeedComment();
 
-                            var message = status["message"] != null ? Convert.ToString(status["message"]) : null;
+                            var message = Convert.ToString(status["message"]);
+                            String created_time = Convert.ToString(status["created_time"]);
+                            var date = DateTime.Parse(created_time);
 
-                            // MC240517 quick hack differentiation between group and page
-                            String updated_created_time;
-                            if (Regex.IsMatch(search.GroupId, @"^\d"))
-                            {
-                                // starting with a digit ex : 142220009186235 then groupid then updated_time
-                                updated_created_time = Convert.ToString(status["updated_time"]);
-                            }
-                            else
-                            {
-                                // not starting with a digit ex : tanjazzofficiel then page then created_time
-                                updated_created_time = Convert.ToString(status["created_time"]);
-                            }
-                            var date = DateTime.Parse(updated_created_time);
-
-                            // save FB feed to DB
-                            feed.GroupPostId = Convert.ToString(status["id"]);
-                            feed.PostText = message;
-                            feed.UpdatedTime = date;
-                            AddGroupFeedTODb(feed);
-                        }
-                    }
-
-                    // save FB group infor to DB
-                    if (items != null)
-                    {
-                        var laststatus = items.Last();
-                        if (laststatus != null)
-                        {
-                            var group = new FBGroup();
-                            group.FbGroupId = Convert.ToString(laststatus["id"]).Split(new char[] { '_' })[0];
-                            group.GroupName = search.GroupId;
-                            AddFbGroupTODb(group);
+                            // save FB feed comment to DB
+                            feedComment.Id = Convert.ToString(status["id"]);
+                            feedComment.message = message;
+                            feedComment.created_time = date;
+                            AddFeedCommentToDb(feedComment);
                         }
                     }
                 }
@@ -962,12 +946,25 @@ namespace ScrapyWeb.Business
                 // int id
                 int? max = context.FBGroups.Max(x => (int?)x.GroupId);
                 fbGroup.GroupId = max ?? 0 + 1;
-                
+
                 //
                 var result = context.FBGroups.SingleOrDefault(f => f.FbGroupId == fbGroup.FbGroupId);
                 if (result == null)
                 {
                     context.FBGroups.Add(fbGroup);
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        public static void AddFeedCommentToDb(FBFeedComment feedComment)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                var result = context.FBFeedComments.SingleOrDefault(f => f.Id == feedComment.Id);
+                if (result == null)
+                {
+                    context.FBFeedComments.Add(feedComment);
                     context.SaveChanges();
                 }
             }

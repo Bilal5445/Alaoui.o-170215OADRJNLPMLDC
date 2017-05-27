@@ -8,12 +8,13 @@
 
 
 <div>
-   @Html.ActionLink("Add Application", "AddApplication", "AccountPanel")
+    @Html.ActionLink("Add Application", "AddApplication", "AccountPanel")
     <h2>Twitter Applications</h2>
     <div>
         <table class="users">
             <thead>
-                <tr><th class="row-1 row-ID">Action</th>
+                <tr>
+                    <th class="row-1 row-ID">Action</th>
                     <th class="row-1 row-ID">App Name</th>
                     <th class="row-2 row-name">Consumer Key</th>
                     <th class="row-3 row-job">Consumer Secret</th>
@@ -26,29 +27,30 @@
                 @foreach (var app in Model)
                 {
                     <tr>
-                        <td>@Html.ActionLink("Edit","AddApplication","AccountPanel",new {id=app.ApplicationId},null)&nbsp;
-                        @Html.ActionLink("Fetch Data", "FetchTwitterData", "AccountPanel", new { id = app.ApplicationId }, null)
-                         </td>
-                        
                         <td>
-                            @app.ApplicationName
-                        </td>
-                        <td>@app.ConsumerKey</td>
-                        <td>@app.ConsumerSecret</td>
-                        <td>@app.AccessToken</td>
-                        <td>@app.AccessTokenSecret</td>
-                    </tr>
+                            @Html.ActionLink("Edit", "AddApplication", "AccountPanel", new { id = app.ApplicationId }, null)&nbsp;
+                        @Html.ActionLink("Fetch Data", "FetchTwitterData", "AccountPanel", new { id = app.ApplicationId }, null)
+                    </td>
+
+                    <td>
+                        @app.ApplicationName
+                    </td>
+                    <td>@app.ConsumerKey</td>
+                    <td>@app.ConsumerSecret</td>
+                    <td>@app.AccessToken</td>
+                    <td>@app.AccessTokenSecret</td>
+                </tr>
                 }
 
             </tbody>
 
         </table>
 
-     
+
 
     </div>
 
-    </div>
+</div>
 <hr />
 <br />
 
@@ -72,15 +74,15 @@
                     <tr>
                         <td>
                             @Html.ActionLink("Edit", "AddFBApplication", "AccountPanel", new { id = app.ApplicationId }, null)&nbsp;
-                        @Html.ActionLink("Fetch Data", "FetchFBData", "AccountPanel", new { id = app.ApplicationId }, null)
-                    </td>
+                            @Html.ActionLink("Fetch Data", "FetchFBData", "AccountPanel", new { id = app.ApplicationId }, null)
+                        </td>
 
-                    <td>
-                        @app.ApplicationName
-                    </td>
-                    <td>@app.FbAppId</td>
-                    <td>@app.FbAppSecret</td>
-                </tr>
+                        <td>
+                            @app.ApplicationName
+                        </td>
+                        <td>@app.FbAppId</td>
+                        <td>@app.FbAppSecret</td>
+                    </tr>
                 }
 
             </tbody>
