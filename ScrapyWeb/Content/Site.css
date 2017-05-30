@@ -804,8 +804,8 @@ tr.subheader th.row-full {
 }
 
 .feedcomment {
-    background: darkgreen;
-    color: white;
+    background: /*darkgreen*/#fefefe;
+    color: black /*white*/;
 }
 
 .users td {
@@ -822,15 +822,26 @@ tr.header /*th*/ {
 }
 
 tr.feed /*th*/ {
-    background: darkred;
+    background: /*darkred*/#f8ccdd;
     color: white;
     text-align: justify;
-    direction: rtl;
     padding: 2px 5px;
+    color: black;
 }
 
 tr.feed:nth-child(even) th {
-    background: red;
+    background: /*red*/#f8bced;
+}
+
+tr.feed th {
+    text-align: justify;
+    font-size: 12px;
+    font-weight: normal;
+    padding: 2px;
+}
+
+tr.feed th:nth-child(3) {
+    direction: rtl;
 }
 
 .users td {
@@ -841,5 +852,5 @@ tr.feed:nth-child(even) th {
 }
 
 .users tr:nth-child(even) {
-    background: lightblue;
+    background: /*lightblue*/#ededed;
 }

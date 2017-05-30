@@ -27,12 +27,12 @@ namespace ScrapyWeb.Controllers
             // FB feeds
             var FeedSets = new List<FacebookGroupFeed>();
             clBusiness.getDownloadedGroupFeeds(ref FeedSets);
-            ViewBag.FeedSets = FeedSets;
+            ViewBag.FeedSets = FeedSets;//.Take(5).ToList();
 
             // FB comments
             var CommentSets = new List<FBFeedComment>();
             clBusiness.getDownloadedFeedComments(ref CommentSets);
-            ViewBag.CommentSets = CommentSets;
+            ViewBag.CommentSets = CommentSets;//.Take(5).ToList();
 
             return View();
         }

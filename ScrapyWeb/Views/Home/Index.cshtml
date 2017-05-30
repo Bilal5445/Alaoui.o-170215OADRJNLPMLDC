@@ -20,7 +20,7 @@
 }
 
 <style>
-    tr.header, tr.subheader {
+    tr.header, tr.subheader, tr.feed {
         cursor: pointer;
     }
 
@@ -105,17 +105,19 @@
 
     // on click on feed
     $('.feed').click(function () {
-        $(this).find('span').text(function (_, value) {
+        /*$(this).find('span').text(function (_, value) {
             return value == '-' ? '+' : '-'
-        });
+        });*/
+        // $(this).find('th').css({ "font-weight": "bold !important" });
 
         $(this).nextUntil('tr.feed').slideToggle(100, function () {
         });
     })
 
     // at load, trigger click to toggle up
-    $('.header').click();
-    $('.subheader').click();
-    $('.feed').click();
+    // $('.header').click();
+    // $('.feed').click();
+    // $('.subheader').click();
+    // $('.header').click();
 
 </script>
