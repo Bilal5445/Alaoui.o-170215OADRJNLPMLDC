@@ -246,15 +246,6 @@
       </DesignerInfoPropertySet>
     </Options>
     <!-- Diagram content (shape and connector positions) -->
-    <Diagrams>
-      <Diagram DiagramId="8d30603ef9d14716b6432f86c6393713" Name="Diagram1">
-        <EntityTypeShape EntityType="ScrapyWebModel.TweetSet" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="ScrapyWebModel.TwitterApplication" Width="2.125" PointX="2.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="ScrapyWebModel.FacebookGroupFeed" Width="1.875" PointX="5.125" PointY="2.875" />
-        <EntityTypeShape EntityType="ScrapyWebModel.FBGroup" Width="1.5" PointX="5.375" PointY="0.75" />
-        <EntityTypeShape EntityType="ScrapyWebModel.FBApplication" Width="1.5" PointX="0.75" PointY="5.75" />
-        <EntityTypeShape EntityType="ScrapyWebModel.FBFeedComment" Width="2.125" PointX="7.125" PointY="1.875" />
-      </Diagram>
-    </Diagrams>
+    <Diagrams></Diagrams>
   </Designer>
 </edmx:Edmx>
