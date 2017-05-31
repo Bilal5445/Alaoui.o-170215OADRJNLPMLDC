@@ -374,6 +374,10 @@
     <Content Include="Views\AccountPanel\Index.cshtml" />
     <Content Include="Views\AccountPanel\AddApplication.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\AccountPanel\AddFBApplication.cshtml" />
+    <Content Include="Views\AccountPanel\FBGroups.cshtml" />
+    <Content Include="Views\AccountPanel\FetchFBData.cshtml" />
+    <Content Include="Views\AccountPanel\FetchTwitterData.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

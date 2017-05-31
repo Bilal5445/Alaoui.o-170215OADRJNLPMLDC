@@ -5,8 +5,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-
-
 <div>
     @Html.ActionLink("Add Application", "AddApplication", "AccountPanel")
     <h2>Twitter Applications</h2>
@@ -29,24 +27,22 @@
                     <tr>
                         <td>
                             @Html.ActionLink("Edit", "AddApplication", "AccountPanel", new { id = app.ApplicationId }, null)&nbsp;
-                        @Html.ActionLink("Fetch Data", "FetchTwitterData", "AccountPanel", new { id = app.ApplicationId }, null)
-                    </td>
+                            @Html.ActionLink("Fetch Data", "FetchTwitterData", "AccountPanel", new { id = app.ApplicationId }, null)
+                        </td>
 
-                    <td>
-                        @app.ApplicationName
-                    </td>
-                    <td>@app.ConsumerKey</td>
-                    <td>@app.ConsumerSecret</td>
-                    <td>@app.AccessToken</td>
-                    <td>@app.AccessTokenSecret</td>
-                </tr>
+                        <td>
+                            @app.ApplicationName
+                        </td>
+                        <td>@app.ConsumerKey</td>
+                        <td>@app.ConsumerSecret</td>
+                        <td>@app.AccessToken</td>
+                        <td>@app.AccessTokenSecret</td>
+                    </tr>
                 }
 
             </tbody>
 
         </table>
-
-
 
     </div>
 

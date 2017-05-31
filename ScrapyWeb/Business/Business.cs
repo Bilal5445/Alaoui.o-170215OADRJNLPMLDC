@@ -605,71 +605,43 @@ namespace ScrapyWeb.Business
         /// Get Downloaded Tweets from Database
         /// </summary>
         /// <param name="_tweetList"></param>
-        public static void getDownloadedTweetSets(ref List<TweetSet> _tweetList, ref string Error)
+        public static void getDownloadedTweetSets(ref List<TweetSet> _tweetList)
         {
-            try
+            using (var context = new ScrapyWebEntities())
             {
-                using (var context = new ScrapyWebEntities())
-                {
-                    _tweetList = context.TweetSets.ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                Error = ex.Message;
+                _tweetList = context.TweetSets.ToList();
             }
         }
 
-        public static void getDownloadedGroupFeeds(ref List<FacebookGroupFeed> _fbFeedList, ref string Error)
+        public static void getDownloadedGroupFeeds(ref List<FacebookGroupFeed> _fbFeedList)
         {
-            try
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
             {
-                using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-                {
-                    // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
-                    // since I can not use split inside a lambda expression, take the 15 first chars
-                    _fbFeedList = context.FacebookGroupFeeds
-                        // .OrderBy(x => x.GroupPostId.Substring(0, 15))
-                        .OrderByDescending(x => x.UpdatedTime)
-                        .ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                Error = ex.Message;
+                // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
+                // since I can not use split inside a lambda expression, take the 15 first chars
+                _fbFeedList = context.FacebookGroupFeeds
+                    // .OrderBy(x => x.GroupPostId.Substring(0, 15))
+                    .OrderByDescending(x => x.UpdatedTime)
+                    .ToList();
             }
         }
 
-        public static void getDownloadedFeedComments(ref List<FBFeedComment> _fbCommentList, ref string Error)
+        public static void getDownloadedFeedComments(ref List<FBFeedComment> _fbCommentList)
         {
-            try
+            using (var context = new ScrapyWebEntities())
             {
-                using (var context = new ScrapyWebEntities())
-                {
-                    _fbCommentList = context.FBFeedComments
-                        .OrderByDescending(x => x.created_time)
-                        .ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                Error = ex.Message;
+                _fbCommentList = context.FBFeedComments
+                    .OrderByDescending(x => x.created_time)
+                    .ToList();
             }
         }
 
-        public static void getDownloadedFBGroups(ref List<FBGroup> _fbGroupList, ref string Error)
+        public static void getDownloadedFBGroups(ref List<FBGroup> _fbGroupList)
         {
-            try
+            using (var context = new ScrapyWebEntities())
             {
-                using (var context = new ScrapyWebEntities())
-                {
-                    _fbGroupList = context.FBGroups
-                        .ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                Error = ex.Message;
+                _fbGroupList = context.FBGroups
+                    .ToList();
             }
         }
 
@@ -688,7 +660,7 @@ namespace ScrapyWeb.Business
                 if (firstTopTweet == null)
                     return String.Empty;
                 else
-                    return firstTopTweet.Tweet_Id;
+                return firstTopTweet.Tweet_Id;
             }
         }
 
@@ -842,7 +814,7 @@ namespace ScrapyWeb.Business
                             // get comments as well
                             var feedId = Convert.ToString(status["id"]);
                             getFacebookGroupFeedComment(search, access_token, feedId, app, ref Error);
-
+                                
                             // save FB feed to DB
                             feed.GroupPostId = feedId;
                             feed.PostText = message;

@@ -97,7 +97,6 @@ namespace ScrapyWeb.Controllers
             {
                 @ViewBag.Message = Error;
                 return View(search);
-
             }
         }
 
@@ -106,7 +105,9 @@ namespace ScrapyWeb.Controllers
         {
             ViewBag.AppId = id;
 
-            return View(clBusiness.getSearchCriteria());
+            var view = View(clBusiness.getSearchCriteria());
+
+            return view;
         }
 
         [HttpPost]

@@ -13,31 +13,26 @@ namespace ScrapyWeb.Controllers
         public ActionResult Index()
         {
             ViewBag.Message = "";
-            string Error = string.Empty;
 
             // Twitter
-            var TweetSets = new List<TweetSet>();
-            clBusiness.getDownloadedTweetSets(ref TweetSets, ref Error);
+            var TweetSets=new List<TweetSet>();
+            clBusiness.getDownloadedTweetSets(ref TweetSets);
             ViewBag.TweetSets = TweetSets;
 
             // FB groups
             var groupSets = new List<FBGroup>();
-            clBusiness.getDownloadedFBGroups(ref groupSets, ref Error);
+            clBusiness.getDownloadedFBGroups(ref groupSets);
             ViewBag.GroupSets = groupSets;
 
             // FB feeds
             var FeedSets = new List<FacebookGroupFeed>();
-            clBusiness.getDownloadedGroupFeeds(ref FeedSets, ref Error);
+            clBusiness.getDownloadedGroupFeeds(ref FeedSets);
             ViewBag.FeedSets = FeedSets;//.Take(5).ToList();
 
             // FB comments
             var CommentSets = new List<FBFeedComment>();
-            clBusiness.getDownloadedFeedComments(ref CommentSets, ref Error);
+            clBusiness.getDownloadedFeedComments(ref CommentSets);
             ViewBag.CommentSets = CommentSets;//.Take(5).ToList();
-
-            //
-            if (string.IsNullOrEmpty(Error) == false)
-                @ViewBag.Message = Error;
 
             return View();
         }
