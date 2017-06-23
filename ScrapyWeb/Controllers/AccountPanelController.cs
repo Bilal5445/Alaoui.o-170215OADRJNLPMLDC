@@ -68,7 +68,6 @@ namespace ScrapyWeb.Controllers
                 return RedirectToAction("Index");
             }
             return View(app);
-
         }
 
         [HttpGet]
