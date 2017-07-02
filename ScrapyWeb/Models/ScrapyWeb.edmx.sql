@@ -2,7 +2,7 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, 2012 and Azure
 -- --------------------------------------------------
--- Date Created: 05/27/2017 16:33:20
+-- Date Created: 06/29/2017 19:42:47
 -- Generated from EDMX file: C:\Users\Yahia Alaoui\Desktop\DEV\170215OADRJNLPMLDC\ScrapyWeb\Models\ScrapyWeb.edmx
 -- --------------------------------------------------
 
@@ -39,6 +39,12 @@ IF OBJECT_ID(N'[dbo].[FBApplications]', 'U') IS NOT NULL
 GO
 IF OBJECT_ID(N'[dbo].[FBFeedComments]', 'U') IS NOT NULL
     DROP TABLE [dbo].[FBFeedComments];
+GO
+IF OBJECT_ID(N'[dbo].[T_FB_INFLUENCER]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[T_FB_INFLUENCER];
+GO
+IF OBJECT_ID(N'[dbo].[T_FB_POST]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[T_FB_POST];
 GO
 
 -- --------------------------------------------------
@@ -108,6 +114,28 @@ CREATE TABLE [dbo].[FBFeedComments] (
 );
 GO
 
+-- Creating table 'T_FB_INFLUENCER'
+CREATE TABLE [dbo].[T_FB_INFLUENCER] (
+    [id] varchar(150)  NOT NULL,
+    [name] nvarchar(max)  NOT NULL,
+    [url_name] nvarchar(max)  NOT NULL,
+    [pro_or_anti] nvarchar(max)  NOT NULL,
+    [fan_count] int  NOT NULL,
+    [date_last_update] datetime  NOT NULL
+);
+GO
+
+-- Creating table 'T_FB_POST'
+CREATE TABLE [dbo].[T_FB_POST] (
+    [id] varchar(150)  NOT NULL,
+    [fk_influencer] nvarchar(max)  NOT NULL,
+    [post_text] nvarchar(max)  NOT NULL,
+    [likes_count] int  NOT NULL,
+    [comments_count] int  NOT NULL,
+    [date_publishing] datetime  NOT NULL
+);
+GO
+
 -- --------------------------------------------------
 -- Creating all PRIMARY KEY constraints
 -- --------------------------------------------------
@@ -146,6 +174,18 @@ GO
 ALTER TABLE [dbo].[FBFeedComments]
 ADD CONSTRAINT [PK_FBFeedComments]
     PRIMARY KEY CLUSTERED ([Id] ASC);
+GO
+
+-- Creating primary key on [id] in table 'T_FB_INFLUENCER'
+ALTER TABLE [dbo].[T_FB_INFLUENCER]
+ADD CONSTRAINT [PK_T_FB_INFLUENCER]
+    PRIMARY KEY CLUSTERED ([id] ASC);
+GO
+
+-- Creating primary key on [id] in table 'T_FB_POST'
+ALTER TABLE [dbo].[T_FB_POST]
+ADD CONSTRAINT [PK_T_FB_POST]
+    PRIMARY KEY CLUSTERED ([id] ASC);
 GO
 
 -- --------------------------------------------------

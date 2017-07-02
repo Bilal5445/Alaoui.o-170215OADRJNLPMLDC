@@ -42,7 +42,6 @@ namespace ScrapyWeb.Business
 
         public Search(int GroupId)
         {
-
         }
 
         void getSinceId()
@@ -52,7 +51,6 @@ namespace ScrapyWeb.Business
             {
                 this.Since_Id = since_id;
             }
-
         }
     }
 }

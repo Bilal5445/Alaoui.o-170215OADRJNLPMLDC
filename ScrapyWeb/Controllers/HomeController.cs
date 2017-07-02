@@ -36,5 +36,23 @@ namespace ScrapyWeb.Controllers
 
             return View();
         }
+
+        /*public ActionResult Data()
+        {
+            ViewBag.Message = "";
+
+            // FB influencers
+            var influencers = new List<T_FB_INFLUENCER>();
+            clBusiness.getFBInfluencersFromDB(ref influencers);
+            ViewBag.Influencers = influencers;
+
+            // FB feeds
+            var posts = new List<FacebookGroupFeed>();
+            clBusiness.getDownloadedGroupFeeds(ref posts);
+            ViewBag.FeedSets = posts;
+
+            //
+            return View();
+        }*/
     }
 }

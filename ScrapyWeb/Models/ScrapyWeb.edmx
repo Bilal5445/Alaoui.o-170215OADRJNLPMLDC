@@ -12,6 +12,8 @@
     <EntitySet Name="FBGroups" EntityType="ScrapyWebModel.Store.FBGroups" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="FBApplications" EntityType="ScrapyWebModel.Store.FBApplications" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="FBFeedComments" EntityType="ScrapyWebModel.Store.FBFeedComments" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="T_FB_INFLUENCER" EntityType="ScrapyWebModel.Store.T_FB_INFLUENCER" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="T_FB_POST" EntityType="ScrapyWebModel.Store.T_FB_POST" store:Type="Tables" Schema="dbo" />
   </EntityContainer>
   <EntityType Name="TweetSets">
     <Key>
@@ -76,6 +78,28 @@
     <Property Name="message" Type="nvarchar(max)" Nullable="false" />
     <Property Name="created_time" Type="datetime" Nullable="false" />
   </EntityType>
+  <EntityType Name="T_FB_INFLUENCER">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="varchar" Nullable="false" MaxLength="150" />
+    <Property Name="name" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="url_name" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="pro_or_anti" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="fan_count" Type="int" Nullable="false" />
+    <Property Name="date_last_update" Type="datetime" Nullable="false" />
+  </EntityType>
+  <EntityType Name="T_FB_POST">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="varchar" Nullable="false" MaxLength="150" />
+    <Property Name="fk_influencer" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="post_text" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="likes_count" Type="int" Nullable="false" />
+    <Property Name="comments_count" Type="int" Nullable="false" />
+    <Property Name="date_publishing" Type="datetime" Nullable="false" />
+  </EntityType>
 </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
@@ -117,6 +141,8 @@
           <EntitySet Name="FBGroups" EntityType="ScrapyWebModel.FBGroup" />
           <EntitySet Name="FBApplications" EntityType="ScrapyWebModel.FBApplication" />
           <EntitySet Name="FBFeedComments" EntityType="ScrapyWebModel.FBFeedComment" />
+          <EntitySet Name="T_FB_INFLUENCER" EntityType="ScrapyWebModel.T_FB_INFLUENCER" />
+          <EntitySet Name="T_FB_POST" EntityType="ScrapyWebModel.T_FB_POST" />
         </EntityContainer>
         <EntityType Name="FacebookGroupFeed">
           <Key>
@@ -150,6 +176,28 @@
           <Property Name="Id" Type="String" Nullable="false" annotation:StoreGeneratedPattern="None" MaxLength="150" FixedLength="false" Unicode="false" />
           <Property Name="message" Type="String" Nullable="false" />
           <Property Name="created_time" Type="DateTime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="T_FB_INFLUENCER">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="String" Nullable="false" annotation:StoreGeneratedPattern="None" FixedLength="false" MaxLength="150" Unicode="false" />
+          <Property Name="name" Type="String" Nullable="false" />
+          <Property Name="url_name" Type="String" Nullable="false" />
+          <Property Name="pro_or_anti" Type="String" Nullable="false" />
+          <Property Name="fan_count" Type="Int32" Nullable="false" />
+          <Property Name="date_last_update" Type="DateTime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="T_FB_POST">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="String" Nullable="false" annotation:StoreGeneratedPattern="None" FixedLength="false" MaxLength="150" Unicode="false" />
+          <Property Name="fk_influencer" Type="String" Nullable="false" />
+          <Property Name="post_text" Type="String" Nullable="false" />
+          <Property Name="likes_count" Type="Int32" Nullable="false" />
+          <Property Name="comments_count" Type="Int32" Nullable="false" />
+          <Property Name="date_publishing" Type="DateTime" Nullable="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -223,6 +271,30 @@
           <ScalarProperty Name="Id" ColumnName="Id" />
           <ScalarProperty Name="message" ColumnName="message" />
           <ScalarProperty Name="created_time" ColumnName="created_time" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="T_FB_INFLUENCER">
+      <EntityTypeMapping TypeName="IsTypeOf(ScrapyWebModel.T_FB_INFLUENCER)">
+        <MappingFragment StoreEntitySet="T_FB_INFLUENCER">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="name" ColumnName="name" />
+          <ScalarProperty Name="url_name" ColumnName="url_name" />
+          <ScalarProperty Name="pro_or_anti" ColumnName="pro_or_anti" />
+          <ScalarProperty Name="fan_count" ColumnName="fan_count" />
+          <ScalarProperty Name="date_last_update" ColumnName="date_last_update" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="T_FB_POST">
+      <EntityTypeMapping TypeName="IsTypeOf(ScrapyWebModel.T_FB_POST)">
+        <MappingFragment StoreEntitySet="T_FB_POST">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="fk_influencer" ColumnName="fk_influencer" />
+          <ScalarProperty Name="post_text" ColumnName="post_text" />
+          <ScalarProperty Name="likes_count" ColumnName="likes_count" />
+          <ScalarProperty Name="comments_count" ColumnName="comments_count" />
+          <ScalarProperty Name="date_publishing" ColumnName="date_publishing" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>

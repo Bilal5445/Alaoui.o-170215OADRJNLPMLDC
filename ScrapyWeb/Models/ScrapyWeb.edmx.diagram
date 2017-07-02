@@ -3,12 +3,14 @@
   <edmx:Designer>
     <edmx:Diagrams>
       <edmx:Diagram DiagramId="8d30603ef9d14716b6432f86c6393713" Name="Diagram1">
-        <edmx:EntityTypeShape EntityType="ScrapyWebModel.TweetSet" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
-        <edmx:EntityTypeShape EntityType="ScrapyWebModel.TwitterApplication" Width="2.125" PointX="2.75" PointY="0.75" IsExpanded="true" />
-        <edmx:EntityTypeShape EntityType="ScrapyWebModel.FacebookGroupFeed" Width="1.875" PointX="5.125" PointY="2.875" />
-        <edmx:EntityTypeShape EntityType="ScrapyWebModel.FBGroup" Width="1.5" PointX="5.375" PointY="0.75" />
-        <edmx:EntityTypeShape EntityType="ScrapyWebModel.FBApplication" Width="1.5" PointX="0.75" PointY="5.75" />
-        <edmx:EntityTypeShape EntityType="ScrapyWebModel.FBFeedComment" Width="2.125" PointX="7.125" PointY="1.875" />
+        <edmx:EntityTypeShape EntityType="ScrapyWebModel.TweetSet" Width="1.5" PointX="0.5" PointY="0.5" IsExpanded="true" />
+        <edmx:EntityTypeShape EntityType="ScrapyWebModel.TwitterApplication" Width="1.875" PointX="2.125" PointY="0.5" IsExpanded="true" />
+        <edmx:EntityTypeShape EntityType="ScrapyWebModel.FacebookGroupFeed" Width="1.875" PointX="2.125" PointY="2.75" />
+        <edmx:EntityTypeShape EntityType="ScrapyWebModel.FBGroup" Width="1.5" PointX="4.125" PointY="0.5" />
+        <edmx:EntityTypeShape EntityType="ScrapyWebModel.FBApplication" Width="1.5" PointX="8" PointY="0.5" />
+        <edmx:EntityTypeShape EntityType="ScrapyWebModel.FBFeedComment" Width="2.125" PointX="5.75" PointY="0.5" />
+        <edmx:EntityTypeShape EntityType="ScrapyWebModel.T_FB_INFLUENCER" Width="1.625" PointX="4.125" PointY="2.75" />
+        <edmx:EntityTypeShape EntityType="ScrapyWebModel.T_FB_POST" Width="1.5" PointX="5.875" PointY="2.75" />
       </edmx:Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

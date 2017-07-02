@@ -31,5 +31,7 @@ namespace ScrapyWeb.Models
         public DbSet<FBGroup> FBGroups { get; set; }
         public DbSet<FBApplication> FBApplications { get; set; }
         public DbSet<FBFeedComment> FBFeedComments { get; set; }
+        public DbSet<T_FB_INFLUENCER> T_FB_INFLUENCER { get; set; }
+        public DbSet<T_FB_POST> T_FB_POST { get; set; }
     }
 }

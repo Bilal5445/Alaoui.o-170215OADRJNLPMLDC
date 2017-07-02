@@ -46,6 +46,7 @@ namespace ScrapyWeb.Controllers
             return View(app);
         }
 
+        [HttpGet]
         public ActionResult AddFBApplication(int id = 0)
         {
             if (id > 0)
@@ -55,7 +56,6 @@ namespace ScrapyWeb.Controllers
             }
 
             return View();
-
         }
 
         [HttpPost]
@@ -132,6 +132,33 @@ namespace ScrapyWeb.Controllers
                 @ViewBag.Message = Error;
                 return View(search);
             }
+        }
+
+        [HttpGet]
+        public ActionResult AddFBInfluencer(int? id)
+        {
+            // passing fb app id
+            ViewBag.AppId = id;
+
+            //
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult AddFBInfluencer(T_FB_INFLUENCER influencer, int id)
+        {
+            // Get from FB
+            var fbApp = clBusiness.GetFbApplication(id);
+            var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
+
+            // get data from FB
+            influencer = clBusiness.getFBInfluencerInfoFromFB(influencer.url_name, influencer.pro_or_anti, fbApp, fbAccessToken);
+
+            // Save to DB
+            clBusiness.AddFBInfluencerToDB(influencer);
+
+            // return to main screen
+            return RedirectToAction("Index", "Home");
         }
     }
 }

@@ -626,6 +626,20 @@ namespace ScrapyWeb.Business
             }
         }
 
+        public static void getFBPostsFromDB(ref List<FacebookGroupFeed> posts, String influencerId)
+        {
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            {
+                // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
+                // since I can not use split inside a lambda expression, take the 15 first chars
+                // MC290617 not sure if working everytime
+                posts = context.FacebookGroupFeeds
+                    .Where(x => x.GroupPostId.Substring(0, 15) == influencerId)
+                    .OrderByDescending(x => x.UpdatedTime)
+                    .ToList();
+            }
+        }
+
         public static void getDownloadedFeedComments(ref List<FBFeedComment> _fbCommentList)
         {
             using (var context = new ScrapyWebEntities())
@@ -660,7 +674,7 @@ namespace ScrapyWeb.Business
                 if (firstTopTweet == null)
                     return String.Empty;
                 else
-                return firstTopTweet.Tweet_Id;
+                    return firstTopTweet.Tweet_Id;
             }
         }
 
@@ -696,13 +710,11 @@ namespace ScrapyWeb.Business
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
             {
-
                 var query = (from app in context.FBApplications
                              where app.ApplicationId == ApplicationId
 
                              select app).Take(1);
                 return query.FirstOrDefault<FBApplication>();
-
             }
         }
 
@@ -771,12 +783,9 @@ namespace ScrapyWeb.Business
                 String access_token = (String)jObject["access_token"];
                 String token_type = (String)jObject["token_type"];
 
-                //
+                // first get page/group feed (ie: list of posts)
                 string objText = "";
-                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed"
-                    + "?key=" + app.FbAppId
-                    + "&access_token=" + access_token
-                    + "&token_type=" + token_type;
+                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed" + "?key=" + app.FbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
 
                 HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
                 using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
@@ -801,12 +810,12 @@ namespace ScrapyWeb.Business
                             String updated_created_time;
                             if (Regex.IsMatch(search.GroupId, @"^\d"))
                             {
-                                // starting with a digit ex : 142220009186235 then groupid then updated_time
+                                // starting with a digit ex : 142220009186235 then group id then we use updated_time
                                 updated_created_time = Convert.ToString(status["updated_time"]);
                             }
                             else
                             {
-                                // not starting with a digit ex : tanjazzofficiel then page then created_time
+                                // not starting with a digit ex : tanjazzofficiel then page then we use created_time
                                 updated_created_time = Convert.ToString(status["created_time"]);
                             }
                             var date = DateTime.Parse(updated_created_time);
@@ -814,7 +823,7 @@ namespace ScrapyWeb.Business
                             // get comments as well
                             var feedId = Convert.ToString(status["id"]);
                             getFacebookGroupFeedComment(search, access_token, feedId, app, ref Error);
-                                
+
                             // save FB feed to DB
                             feed.GroupPostId = feedId;
                             feed.PostText = message;
@@ -854,6 +863,75 @@ namespace ScrapyWeb.Business
             {
                 Error = ex.Message;
             }
+        }
+
+        public static List<T_FB_POST> getFBInfluencerPostsFromFB(String fbInfluencerUrlName, String fbAppId, String fbAccessToken)
+        {
+            // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
+            JObject jObject = JObject.Parse(fbAccessToken);
+            String access_token = (String)jObject["access_token"];
+            String token_type = (String)jObject["token_type"];
+
+            //
+            var graphFBApi28Url = Util.getKeyValueFromAppSetting("FbGroupFeed");
+            Util.getKeyValueFromAppSetting("FbTokenURL");
+
+            //
+            var posts = new List<T_FB_POST>();
+
+            // first get page/group feed (ie: list of posts) with count of like and count of comments
+            string objText = "";
+            string url = graphFBApi28Url + fbInfluencerUrlName + "/feed"
+                + "?limit=100"
+                + "&fields=comments.limit(0).summary(true),likes.limit(0).summary(true),message,created_time"
+                + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                objText = reader.ReadToEnd();
+
+                JObject jObjects = JObject.Parse(objText);
+                JObject Objects = new JObject(jObjects);
+                JArray items = (JArray)Objects["data"];
+
+                //
+                foreach (var status in items)
+                {
+                    var post = new T_FB_POST();
+
+                    //
+                    var message = status["message"] != null ? Convert.ToString(status["message"]) : String.Empty;
+
+                    //
+                    String updated_created_time = Convert.ToString(status["created_time"]);
+                    var date = DateTime.Parse(updated_created_time);
+
+                    //
+                    var feedId = Convert.ToString(status["id"]);
+
+                    //
+                    int likes_count = Convert.ToInt32(status["likes"]["summary"]["total_count"]);
+                    int comments_count = Convert.ToInt32(status["comments"]["summary"]["total_count"]);
+
+                    //
+                    post.id = feedId;
+                    post.post_text = message;
+                    post.date_publishing = date;
+                    post.likes_count = likes_count;
+                    post.comments_count = comments_count;
+
+                    // influencer
+                    post.fk_influencer = feedId.Split(new char[] { '_' })[0];
+
+                    //
+                    posts.Add(post);
+                }
+            }
+
+            return posts;
         }
 
         public static void getFacebookGroupFeedComment(Search search, String access_token, String feedId, FBApplication app, ref string Error)
@@ -939,6 +1017,27 @@ namespace ScrapyWeb.Business
             }
         }
 
+        public static void AddFBPostsToDB(List<T_FB_POST> posts)
+        {
+            // posts = posts.Take(15).ToList();
+            using (var context = new ScrapyWebEntities())
+            {
+                foreach(var post in posts)
+                {
+                    context.T_FB_POST.Add(post);
+                }
+                context.SaveChanges();
+            }
+        }
+
+        public static void getFBPostsFromDB(ref List<T_FB_POST> posts)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                posts = context.T_FB_POST.ToList();
+            }
+        }
+
         public static void AddFbGroupTODb(FBGroup fbGroup)
         {
             using (var context = new ScrapyWebEntities())
@@ -967,6 +1066,94 @@ namespace ScrapyWeb.Business
                     context.FBFeedComments.Add(feedComment);
                     context.SaveChanges();
                 }
+            }
+        }
+
+        public static T_FB_INFLUENCER getFBInfluencerInfoFromFB(String fbInfluencerUrlName, String pro_or_anti, FBApplication app, String fbAccessToken)
+        {
+            // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
+            JObject jObject = JObject.Parse(fbAccessToken);
+            String access_token = (String)jObject["access_token"];
+            String token_type = (String)jObject["token_type"];
+
+            //
+            var graphFBApi28Url = Util.getKeyValueFromAppSetting("FbGroupFeed");
+            Util.getKeyValueFromAppSetting("FbTokenURL");
+
+            // create influencer and set url name and bias
+            var fbInfluencer = new T_FB_INFLUENCER();
+            fbInfluencer.url_name = fbInfluencerUrlName;
+            fbInfluencer.pro_or_anti = pro_or_anti;
+
+            // first get influencer name and id
+            String id, name;
+            getInfluencerFirstInfoFromFB(fbInfluencerUrlName, app.FbAppId, graphFBApi28Url, access_token, token_type, out id, out name);
+            fbInfluencer.id = id;
+            fbInfluencer.name = name;
+
+            // second get influencer fan count
+            int fan_count;
+            getInfluencerSecondInfoFromFB(fbInfluencerUrlName, app.FbAppId, graphFBApi28Url, access_token, token_type, out fan_count);
+            fbInfluencer.fan_count = fan_count;
+
+            // date last update
+            fbInfluencer.date_last_update = DateTime.Now;
+
+            //
+            return fbInfluencer;
+        }
+
+        private static void getInfluencerFirstInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out String id, out String name)
+        {
+            string objText = "";
+            string url = graphFBApi28Url + fbInfluencerUrlName + "?key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                objText = reader.ReadToEnd();
+                JObject obj = JObject.Parse(objText);
+
+                // set id, name
+                id = Convert.ToString(obj["id"]);
+                name = Convert.ToString(obj["name"]);
+            }
+        }
+
+        private static void getInfluencerSecondInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out int fan_count)
+        {
+            string objText = "";
+            string url = graphFBApi28Url + fbInfluencerUrlName + "?fields=fan_count" + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                objText = reader.ReadToEnd();
+                JObject obj = JObject.Parse(objText);
+
+                // set fan_count
+                fan_count = Convert.ToInt32(obj["fan_count"]);
+            }
+        }
+
+        public static void AddFBInfluencerToDB(T_FB_INFLUENCER influencer)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                context.T_FB_INFLUENCER.Add(influencer);
+                context.SaveChanges();
+            }
+        }
+
+        public static void getFBInfluencersFromDB(ref List<T_FB_INFLUENCER> influencers)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                influencers = context.T_FB_INFLUENCER.ToList();
             }
         }
     }

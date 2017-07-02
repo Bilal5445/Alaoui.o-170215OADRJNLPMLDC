@@ -9,7 +9,7 @@
     @Html.ActionLink("Add Application", "AddApplication", "AccountPanel")
     <h2>Twitter Applications</h2>
     <div>
-        <table class="users">
+        <table class="twitter_apps">
             <thead>
                 <tr>
                     <th class="row-1 row-ID">Action</th>
@@ -45,16 +45,15 @@
         </table>
 
     </div>
-
 </div>
 <hr />
 <br />
 
 <div>
-    @Html.ActionLink("Add FB Application", "AddFBApplication", "AccountPanel")
+    @Html.ActionLink("Add FB Application", "AddFBApplication", "AccountPanel", new { @class = "btn btn-primary" })
     <h2>Facebook Applications</h2>
     <div>
-        <table class="users">
+        <table class="fb_apps">
             <thead>
                 <tr>
                     <th class="row-1 row-ID">Action</th>
@@ -69,24 +68,29 @@
                 {
                     <tr>
                         <td>
-                            @Html.ActionLink("Edit", "AddFBApplication", "AccountPanel", new { id = app.ApplicationId }, null)&nbsp;
-                            @Html.ActionLink("Fetch Data", "FetchFBData", "AccountPanel", new { id = app.ApplicationId }, null)
+                            @Html.ActionLink("Edit App", "AddFBApplication", "AccountPanel", new { id = app.ApplicationId }, new { @class = "btn btn-primary btn-xs" })
                         </td>
-
                         <td>
                             @app.ApplicationName
                         </td>
                         <td>@app.FbAppId</td>
                         <td>@app.FbAppSecret</td>
                     </tr>
+                    <tr>
+                        <td colspan="4">
+                            <center>@Html.ActionLink("Fetch Data", "FetchFBData", "AccountPanel", new { id = app.ApplicationId }, new { @class = "btn btn-primary btn-xs" })</center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <center>@Html.ActionLink("Add Influencer", "AddFBInfluencer", "AccountPanel", new { id = app.ApplicationId }, new { @class = "btn btn-primary btn-xs" })</center>
+                        </td>
+                    </tr>
                 }
 
             </tbody>
-
         </table>
-
-
-
     </div>
-
 </div>
+<hr />
+<br />
