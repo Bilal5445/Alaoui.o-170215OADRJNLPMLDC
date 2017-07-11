@@ -23,9 +23,6 @@ namespace ScrapyWeb.Controllers
             ViewBag.Influencers = influencers;
 
             // FB feeds
-            /*var posts = new List<FacebookGroupFeed>();
-            clBusiness.getDownloadedGroupFeeds(ref posts);
-            ViewBag.FeedSets = posts;*/
             var posts = new List<T_FB_POST>();
             clBusiness.getFBPostsFromDB(ref posts);
             ViewBag.FeedSets = posts;

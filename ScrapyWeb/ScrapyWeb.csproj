@@ -193,10 +193,12 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Business\Business.cs" />
     <Compile Include="Business\Search.cs" />
+    <Compile Include="Business\SerializationUtil.cs" />
     <Compile Include="Business\Util.cs" />
     <Compile Include="Controllers\AccountPanelController.cs" />
     <Compile Include="Controllers\DataController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\KeywordsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -212,6 +214,7 @@
     <Compile Include="Models\FBGroup.cs">
       <DependentUpon>ScrapyWeb.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\L_FB_KEYWORD.cs" />
     <Compile Include="Models\ScrapyWeb.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -247,6 +250,7 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\mysite.css" />
+    <Content Include="Content\mysite_bootstrap_switch.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -348,6 +352,8 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\mysite.js" />
+    <Content Include="Scripts\mysite_keywords.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -388,6 +394,9 @@
     <Content Include="Views\AccountPanel\FetchTwitterData.cshtml" />
     <Content Include="Views\AccountPanel\AddFBInfluencer.cshtml" />
     <Content Include="Views\Data\Index.cshtml" />
+    <Content Include="Views\Keywords\Index.cshtml" />
+    <Content Include="Views\Keywords\_IndexPartial_keywords.cshtml" />
+    <Content Include="Views\Keywords\_IndexPartial_keywords_morocco.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

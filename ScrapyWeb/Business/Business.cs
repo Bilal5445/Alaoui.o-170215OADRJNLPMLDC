@@ -13,6 +13,8 @@ using System.Text;
 using System.Net;
 using System.Xml;
 using System.Globalization;
+using System.Xml.Serialization;
+
 namespace ScrapyWeb.Business
 {
     public class clBusiness
@@ -23,14 +25,10 @@ namespace ScrapyWeb.Business
         /// <param name="_appList"></param>
         public static void getTwitterApplications(ref List<TwitterApplication> _appList)
         {
-
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
             {
-
                 _appList = context.TwitterApplications
                                       .ToList();
-
-
             }
         }
 
@@ -1078,7 +1076,6 @@ namespace ScrapyWeb.Business
 
             //
             var graphFBApi28Url = Util.getKeyValueFromAppSetting("FbGroupFeed");
-            Util.getKeyValueFromAppSetting("FbTokenURL");
 
             // create influencer and set url name and bias
             var fbInfluencer = new T_FB_INFLUENCER();
@@ -1103,6 +1100,41 @@ namespace ScrapyWeb.Business
             return fbInfluencer;
         }
 
+        public static FB_KEYWORD getFBKeywordInfoFromFBViaTwingly(String fbKeywordKeyword)
+        {
+            //
+            String access_token = Util.getKeyValueFromAppSetting("TwinglyApiKey");
+
+            //
+            var twinglyApi15Url = Util.getKeyValueFromAppSetting("TwinglyApi15Url");
+
+            // create object and set values whatever available
+            var fbKeyword = new FB_KEYWORD();
+            fbKeyword.keyword = fbKeywordKeyword;
+            fbKeyword.date_oldest_retrieve = DateTime.Today;
+            fbKeyword.date_latest_retrieve = DateTime.Today;
+            fbKeyword.matched_posts_count = 0;
+            fbKeyword.matched_comments_count = 0;
+            fbKeyword.matched_total_count = 0;
+            fbKeyword.social_stats_likes = 0;
+            fbKeyword.social_stats_comments = 0;
+            fbKeyword.social_stats_shares = 0;
+            fbKeyword.matched_posts_count_ma = 0;
+            fbKeyword.matched_comments_count_ma = 0;
+            fbKeyword.matched_total_count_ma = 0;
+            fbKeyword.social_stats_likes_ma = 0;
+            fbKeyword.social_stats_comments_ma = 0;
+            fbKeyword.social_stats_shares_ma = 0;
+
+            // assign object rest of value from FB via twingly
+            getKeywordInfoFromFBViaTwingly(fbKeyword, twinglyApi15Url, access_token);
+            getKeywordInfoFromFBViaTwingly(fbKeyword, twinglyApi15Url, access_token, limitToMorocco: true);
+
+            //
+            return fbKeyword;
+        }
+
+        #region BACK YARD BO
         private static void getInfluencerFirstInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out String id, out String name)
         {
             string objText = "";
@@ -1140,6 +1172,16 @@ namespace ScrapyWeb.Business
             }
         }
 
+        public static void getFBInfluencersFromDB(ref List<T_FB_INFLUENCER> influencers)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                influencers = context.T_FB_INFLUENCER.ToList();
+            }
+        }
+        #endregion
+
+        #region BACK YARD PERSIST
         public static void AddFBInfluencerToDB(T_FB_INFLUENCER influencer)
         {
             using (var context = new ScrapyWebEntities())
@@ -1149,11 +1191,98 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static void getFBInfluencersFromDB(ref List<T_FB_INFLUENCER> influencers)
+        #endregion
+
+        private static void getKeywordInfoFromFBViaTwingly(FB_KEYWORD fbKeyword, String twinglyApi15Url, String access_token, bool limitToMorocco = false)
         {
-            using (var context = new ScrapyWebEntities())
+            String url = twinglyApi15Url + "chart" + "?apikey=" + access_token + "&one=\"" + fbKeyword.keyword + "\"";
+
+            // limit to Morocco
+            if (limitToMorocco)
+                url += "&country=ma";
+
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
             {
-                influencers = context.T_FB_INFLUENCER.ToList();
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                String objText = reader.ReadToEnd();
+                JObject jObjects = JObject.Parse(objText);
+                JObject Objects = new JObject(jObjects);
+                JArray items = (JArray)Objects["data"];
+
+                //
+                foreach (var item in items)
+                {
+                    // update date of latest and oldest
+                    DateTime time_iso8610 = Convert.ToDateTime(item["time_iso8610"]);
+                    if (time_iso8610 < fbKeyword.date_oldest_retrieve) fbKeyword.date_oldest_retrieve = time_iso8610;
+                    if (time_iso8610 > fbKeyword.date_latest_retrieve) fbKeyword.date_latest_retrieve = time_iso8610;
+
+                    // cumulate
+                    if (!limitToMorocco)
+                    {
+                        fbKeyword.matched_posts_count += Convert.ToInt32(item["matched_posts_count"]);
+                        fbKeyword.matched_comments_count += Convert.ToInt32(item["matched_comments_count"]);
+                        fbKeyword.matched_total_count += Convert.ToInt32(item["matched_total_count"]);
+                        fbKeyword.social_stats_likes += Convert.ToInt32(item["social_stats"]["likes"]);
+                        fbKeyword.social_stats_comments += Convert.ToInt32(item["social_stats"]["comments"]);
+                        fbKeyword.social_stats_shares += Convert.ToInt32(item["social_stats"]["shares"]);
+                    } else
+                    {
+                        fbKeyword.matched_posts_count_ma += Convert.ToInt32(item["matched_posts_count"]);
+                        fbKeyword.matched_comments_count_ma += Convert.ToInt32(item["matched_comments_count"]);
+                        fbKeyword.matched_total_count_ma += Convert.ToInt32(item["matched_total_count"]);
+                        fbKeyword.social_stats_likes_ma += Convert.ToInt32(item["social_stats"]["likes"]);
+                        fbKeyword.social_stats_comments_ma += Convert.ToInt32(item["social_stats"]["comments"]);
+                        fbKeyword.social_stats_shares_ma += Convert.ToInt32(item["social_stats"]["shares"]);
+                    }
+                }
+            }
+        }
+
+        public static void addFBKeywordToSerialization(FB_KEYWORD fbKeyword, String path)
+        {
+            //
+            List<FB_KEYWORD> fbKeywords = new List<FB_KEYWORD>();
+            XmlSerializer serializer = new XmlSerializer(fbKeywords.GetType());
+
+            // deserialize / serialize FB keywords : read / add / write back
+            using (var reader = new System.IO.StreamReader(path))
+            {
+                fbKeywords = (List<FB_KEYWORD>)serializer.Deserialize(reader);
+            }
+
+            // add or update
+            var infbKeyword = fbKeywords.Find(m => m.keyword == fbKeyword.keyword);
+            if (infbKeyword != null) {
+                // MC110717 for now we do not manage merging overlapping date keywords, later we will need to keep data for keayword day by day 
+                // in order to be able to cumulate/update keyword refresh of numbers
+
+                // for now replace (TODO later cumulate see above comment)
+                infbKeyword.date_oldest_retrieve = fbKeyword.date_oldest_retrieve;
+                infbKeyword.date_latest_retrieve = fbKeyword.date_latest_retrieve;
+                infbKeyword.matched_posts_count = fbKeyword.matched_posts_count;
+                infbKeyword.matched_comments_count = fbKeyword.matched_comments_count;
+                infbKeyword.matched_total_count = fbKeyword.matched_total_count;
+                infbKeyword.social_stats_likes = fbKeyword.social_stats_likes;
+                infbKeyword.social_stats_comments = fbKeyword.social_stats_comments;
+                infbKeyword.social_stats_shares = fbKeyword.social_stats_shares;
+                infbKeyword.matched_posts_count_ma = fbKeyword.matched_posts_count_ma;
+                infbKeyword.matched_comments_count_ma = fbKeyword.matched_comments_count_ma;
+                infbKeyword.matched_total_count_ma = fbKeyword.matched_total_count_ma;
+                infbKeyword.social_stats_likes_ma = fbKeyword.social_stats_likes_ma;
+                infbKeyword.social_stats_comments_ma = fbKeyword.social_stats_comments_ma;
+                infbKeyword.social_stats_shares_ma = fbKeyword.social_stats_shares_ma;
+            }
+            else
+                fbKeywords.Add(fbKeyword);
+
+            // save
+            using (var writer = new System.IO.StreamWriter(path))
+            {
+                serializer.Serialize(writer, fbKeywords);
+                writer.Flush();
             }
         }
     }

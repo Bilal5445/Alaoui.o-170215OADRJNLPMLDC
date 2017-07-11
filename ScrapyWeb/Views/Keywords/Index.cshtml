@@ -1,0 +1,76 @@
+﻿@{
+    ViewBag.Title = "Keywords";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts {
+    @Scripts.Render("~/bundles/jskeywords")
+}
+
+@{ var fbKeywords = (List<ScrapyWeb.Models.FB_KEYWORD>)ViewBag.fbKeywords; }
+
+<h2>Keywords</h2>
+
+@using (Html.BeginForm("FetchFBPostsByKeyword", "Keywords", FormMethod.Post))
+{
+    <div class="form-group row">
+        <div class="col-sm-4" style="border: 0px solid black;">
+            @Html.TextBox("keyword", null, new { @required = "required" })
+        </div>
+        <div class="col-sm-8" style="border: 0px solid black;">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </div>
+}
+
+@foreach (var fbKeyword in fbKeywords)
+{
+    if (fbKeywords.IndexOf(fbKeyword) % 2 == 0) { 
+        <span class="label label-primary">@fbKeyword.keyword</span>
+    }
+    else
+    {
+        <span class="label label-success">@fbKeyword.keyword</span>
+    }
+}
+<!-- Rounded switch -->
+<label class="switch" style="float: right;">
+    <input type="checkbox" onchange="onMoroccoOnlyCheckBoxChange()">
+    <div class="slider round"></div>
+</label>
+<span style="float: right; padding-left:5px; padding-right: 5px;">Morocco Only</span>
+
+<!-- Place where you will insert your partial -->
+<div id="partialPlaceHolder" style="display:true;"> </div>
+@* @Html.Partial("~/Views/Keywords/_IndexPartial_keywords.cshtml")
+
+    <table class="posts">
+        <tr class="header">
+            <th class="row-0 center">Keyword</th>
+            <th class="row-1 center">In Posts</th>
+            <th class="row-2 center">In Comments</th>
+            <th class="row-3 center">Total Likes</th>
+            <th class="row-4 center">Total Comments</th>
+            <th class="row-5 center">Total Shares</th>
+            <th class="row-6 center">Period</th>
+            <th class="row-7 center">&nbsp;</th>
+        </tr>
+        @foreach (var fbKeyword in fbKeywords)
+        {
+            // using (Html.BeginForm("FetchFBInfluencerPosts", "Data", FormMethod.Post, new { appId = @ViewBag.AppId }))
+            {
+                <tr>
+                    <td class="center">@fbKeyword.keyword</td>
+                    <td class="number">@fbKeyword.matched_posts_count</td>
+                    <td class="number">@fbKeyword.matched_comments_count</td>
+                    <td class="number">@fbKeyword.social_stats_likes</td>
+                    <td class="number">@fbKeyword.social_stats_comments</td>
+                    <td class="number">@fbKeyword.social_stats_shares</td>
+                    <td class="number">Last @(Convert.ToUInt32((fbKeyword.date_latest_retrieve - fbKeyword.date_oldest_retrieve).TotalDays)) Days</td>
+                    <td class="center"><button type="submit" class="btn btn-primary btn-xs">Refresh</button></td>
+                </tr>
+            }
+        }
+    </table>
+*@
+

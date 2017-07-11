@@ -22,9 +22,19 @@ namespace ScrapyWeb
             // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include("~/Scripts/modernizr-*"));
 
+            bundles.Add(new ScriptBundle("~/bundles/js").Include(
+                "~/Scripts/mysite.js"
+                ));
+
+            // local to keywords page
+            bundles.Add(new ScriptBundle("~/bundles/jskeywords").Include(
+                "~/Scripts/mysite_keywords.js"
+                ));
+
             bundles.Add(new StyleBundle("~/Content/css").Include(
                 "~/Content/site.css",
-                "~/Content/mysite.css"
+                "~/Content/mysite.css",
+                "~/Content/mysite_bootstrap_switch.css"
                 ));
 
             // bundles.Add(new StyleBundle("~/Content/bootstrap").Include("~/Content/bootstrap.min.css"));
