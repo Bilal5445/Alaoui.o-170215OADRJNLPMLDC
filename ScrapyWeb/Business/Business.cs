@@ -65,12 +65,8 @@ namespace ScrapyWeb.Business
 
                             getTweetFromJObj(status, ref tweet);
                             AddTweetTODb(tweet);
-
-
                         }
                     }
-
-
 
                 }
                 catch (Exception twit_error)
@@ -115,7 +111,6 @@ namespace ScrapyWeb.Business
                 var baseFormat = "";
                 baseFormat = "geocode={6}&oauth_consumer_key={0}&oauth_nonce={1}&oauth_signature_method={2}" +
                 "&oauth_timestamp={3}&oauth_token={4}&oauth_version={5}";//&count=" + search.Count_toSearch;//&rpp=" + tweetCount + "&include_entities=true" + "&page=" + page +"&until=
-
 
                 var baseString = string.Format(baseFormat,
                                             oauth_consumer_key,
@@ -1002,71 +997,6 @@ namespace ScrapyWeb.Business
             feed.PostText = message;
         }*/
 
-        public static void AddGroupFeedTODb(FacebookGroupFeed feed)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                var result = context.FacebookGroupFeeds.SingleOrDefault(f => f.GroupPostId == feed.GroupPostId);
-                if (result == null)
-                {
-                    context.FacebookGroupFeeds.Add(feed);
-                    context.SaveChanges();
-                }
-            }
-        }
-
-        public static void AddFBPostsToDB(List<T_FB_POST> posts)
-        {
-            // posts = posts.Take(15).ToList();
-            using (var context = new ScrapyWebEntities())
-            {
-                foreach(var post in posts)
-                {
-                    context.T_FB_POST.Add(post);
-                }
-                context.SaveChanges();
-            }
-        }
-
-        public static void getFBPostsFromDB(ref List<T_FB_POST> posts)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                posts = context.T_FB_POST.ToList();
-            }
-        }
-
-        public static void AddFbGroupTODb(FBGroup fbGroup)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                // int id
-                int? max = context.FBGroups.Max(x => (int?)x.GroupId);
-                fbGroup.GroupId = max ?? 0 + 1;
-
-                //
-                var result = context.FBGroups.SingleOrDefault(f => f.FbGroupId == fbGroup.FbGroupId);
-                if (result == null)
-                {
-                    context.FBGroups.Add(fbGroup);
-                    context.SaveChanges();
-                }
-            }
-        }
-
-        public static void AddFeedCommentToDb(FBFeedComment feedComment)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                var result = context.FBFeedComments.SingleOrDefault(f => f.Id == feedComment.Id);
-                if (result == null)
-                {
-                    context.FBFeedComments.Add(feedComment);
-                    context.SaveChanges();
-                }
-            }
-        }
-
         public static T_FB_INFLUENCER getFBInfluencerInfoFromFB(String fbInfluencerUrlName, String pro_or_anti, FBApplication app, String fbAccessToken)
         {
             // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
@@ -1134,6 +1064,128 @@ namespace ScrapyWeb.Business
             return fbKeyword;
         }
 
+        #region FRONT YARD PERSIST
+        public static void AddGroupFeedTODb(FacebookGroupFeed feed)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                var result = context.FacebookGroupFeeds.SingleOrDefault(f => f.GroupPostId == feed.GroupPostId);
+                if (result == null)
+                {
+                    context.FacebookGroupFeeds.Add(feed);
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        public static void AddFBPostsToDB(List<T_FB_POST> posts)
+        {
+            // posts = posts.Take(15).ToList();
+            using (var context = new ScrapyWebEntities())
+            {
+                foreach (var post in posts)
+                {
+                    context.T_FB_POST.Add(post);
+                }
+                context.SaveChanges();
+            }
+        }
+
+        public static void getFBPostsFromDB(ref List<T_FB_POST> posts)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                posts = context.T_FB_POST.ToList();
+            }
+        }
+
+        public static void AddFbGroupTODb(FBGroup fbGroup)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                // int id
+                int? max = context.FBGroups.Max(x => (int?)x.GroupId);
+                fbGroup.GroupId = max ?? 0 + 1;
+
+                //
+                var result = context.FBGroups.SingleOrDefault(f => f.FbGroupId == fbGroup.FbGroupId);
+                if (result == null)
+                {
+                    context.FBGroups.Add(fbGroup);
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        public static void AddFeedCommentToDb(FBFeedComment feedComment)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                var result = context.FBFeedComments.SingleOrDefault(f => f.Id == feedComment.Id);
+                if (result == null)
+                {
+                    context.FBFeedComments.Add(feedComment);
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        public static void AddFBInfluencerToDB(T_FB_INFLUENCER influencer)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                context.T_FB_INFLUENCER.Add(influencer);
+                context.SaveChanges();
+            }
+        }
+
+        public static void addFBKeywordToSerialization(FB_KEYWORD fbKeyword, String path)
+        {
+            //
+            List<FB_KEYWORD> fbKeywords = new List<FB_KEYWORD>();
+            XmlSerializer serializer = new XmlSerializer(fbKeywords.GetType());
+
+            // deserialize / serialize FB keywords : read / add / write back
+            using (var reader = new System.IO.StreamReader(path))
+            {
+                fbKeywords = (List<FB_KEYWORD>)serializer.Deserialize(reader);
+            }
+
+            // add or update
+            var infbKeyword = fbKeywords.Find(m => m.keyword == fbKeyword.keyword);
+            if (infbKeyword != null)
+            {
+                // MC110717 for now we do not manage merging overlapping date keywords, later we will need to keep data for keayword day by day 
+                // in order to be able to cumulate/update keyword refresh of numbers
+
+                // for now replace (TODO later cumulate see above comment)
+                infbKeyword.date_oldest_retrieve = fbKeyword.date_oldest_retrieve;
+                infbKeyword.date_latest_retrieve = fbKeyword.date_latest_retrieve;
+                infbKeyword.matched_posts_count = fbKeyword.matched_posts_count;
+                infbKeyword.matched_comments_count = fbKeyword.matched_comments_count;
+                infbKeyword.matched_total_count = fbKeyword.matched_total_count;
+                infbKeyword.social_stats_likes = fbKeyword.social_stats_likes;
+                infbKeyword.social_stats_comments = fbKeyword.social_stats_comments;
+                infbKeyword.social_stats_shares = fbKeyword.social_stats_shares;
+                infbKeyword.matched_posts_count_ma = fbKeyword.matched_posts_count_ma;
+                infbKeyword.matched_comments_count_ma = fbKeyword.matched_comments_count_ma;
+                infbKeyword.matched_total_count_ma = fbKeyword.matched_total_count_ma;
+                infbKeyword.social_stats_likes_ma = fbKeyword.social_stats_likes_ma;
+                infbKeyword.social_stats_comments_ma = fbKeyword.social_stats_comments_ma;
+                infbKeyword.social_stats_shares_ma = fbKeyword.social_stats_shares_ma;
+            }
+            else
+                fbKeywords.Add(fbKeyword);
+
+            // save
+            using (var writer = new System.IO.StreamWriter(path))
+            {
+                serializer.Serialize(writer, fbKeywords);
+                writer.Flush();
+            }
+        }
+        #endregion
+
         #region BACK YARD BO
         private static void getInfluencerFirstInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out String id, out String name)
         {
@@ -1179,19 +1231,6 @@ namespace ScrapyWeb.Business
                 influencers = context.T_FB_INFLUENCER.ToList();
             }
         }
-        #endregion
-
-        #region BACK YARD PERSIST
-        public static void AddFBInfluencerToDB(T_FB_INFLUENCER influencer)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                context.T_FB_INFLUENCER.Add(influencer);
-                context.SaveChanges();
-            }
-        }
-
-        #endregion
 
         private static void getKeywordInfoFromFBViaTwingly(FB_KEYWORD fbKeyword, String twinglyApi15Url, String access_token, bool limitToMorocco = false)
         {
@@ -1228,7 +1267,8 @@ namespace ScrapyWeb.Business
                         fbKeyword.social_stats_likes += Convert.ToInt32(item["social_stats"]["likes"]);
                         fbKeyword.social_stats_comments += Convert.ToInt32(item["social_stats"]["comments"]);
                         fbKeyword.social_stats_shares += Convert.ToInt32(item["social_stats"]["shares"]);
-                    } else
+                    }
+                    else
                     {
                         fbKeyword.matched_posts_count_ma += Convert.ToInt32(item["matched_posts_count"]);
                         fbKeyword.matched_comments_count_ma += Convert.ToInt32(item["matched_comments_count"]);
@@ -1240,50 +1280,6 @@ namespace ScrapyWeb.Business
                 }
             }
         }
-
-        public static void addFBKeywordToSerialization(FB_KEYWORD fbKeyword, String path)
-        {
-            //
-            List<FB_KEYWORD> fbKeywords = new List<FB_KEYWORD>();
-            XmlSerializer serializer = new XmlSerializer(fbKeywords.GetType());
-
-            // deserialize / serialize FB keywords : read / add / write back
-            using (var reader = new System.IO.StreamReader(path))
-            {
-                fbKeywords = (List<FB_KEYWORD>)serializer.Deserialize(reader);
-            }
-
-            // add or update
-            var infbKeyword = fbKeywords.Find(m => m.keyword == fbKeyword.keyword);
-            if (infbKeyword != null) {
-                // MC110717 for now we do not manage merging overlapping date keywords, later we will need to keep data for keayword day by day 
-                // in order to be able to cumulate/update keyword refresh of numbers
-
-                // for now replace (TODO later cumulate see above comment)
-                infbKeyword.date_oldest_retrieve = fbKeyword.date_oldest_retrieve;
-                infbKeyword.date_latest_retrieve = fbKeyword.date_latest_retrieve;
-                infbKeyword.matched_posts_count = fbKeyword.matched_posts_count;
-                infbKeyword.matched_comments_count = fbKeyword.matched_comments_count;
-                infbKeyword.matched_total_count = fbKeyword.matched_total_count;
-                infbKeyword.social_stats_likes = fbKeyword.social_stats_likes;
-                infbKeyword.social_stats_comments = fbKeyword.social_stats_comments;
-                infbKeyword.social_stats_shares = fbKeyword.social_stats_shares;
-                infbKeyword.matched_posts_count_ma = fbKeyword.matched_posts_count_ma;
-                infbKeyword.matched_comments_count_ma = fbKeyword.matched_comments_count_ma;
-                infbKeyword.matched_total_count_ma = fbKeyword.matched_total_count_ma;
-                infbKeyword.social_stats_likes_ma = fbKeyword.social_stats_likes_ma;
-                infbKeyword.social_stats_comments_ma = fbKeyword.social_stats_comments_ma;
-                infbKeyword.social_stats_shares_ma = fbKeyword.social_stats_shares_ma;
-            }
-            else
-                fbKeywords.Add(fbKeyword);
-
-            // save
-            using (var writer = new System.IO.StreamWriter(path))
-            {
-                serializer.Serialize(writer, fbKeywords);
-                writer.Flush();
-            }
-        }
+        #endregion
     }
 }
