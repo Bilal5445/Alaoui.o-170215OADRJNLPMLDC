@@ -237,9 +237,8 @@ namespace ScrapyWeb.Business
         /// </summary>
         /// <param name="jobj"></param>
         /// <param name="tweet"></param>
-        static void getTweetFromJObj(dynamic jobj, ref ScrapyWeb.Models.TweetSet tweet)
+        static void getTweetFromJObj(dynamic jobj, ref TweetSet tweet)
         {
-
             var HashTags = "";
             var Mentions = "";
 
@@ -280,10 +279,6 @@ namespace ScrapyWeb.Business
             tweet.Language = Convert.ToString(jobj["lang"]);
             tweet.FollowersCount = Convert.ToInt32(user["followers_count"]);
             tweet.FriendsCouunt = Convert.ToInt32(user["friends_count"]);
-
-
-
-
         }
 
         /// <summary>
