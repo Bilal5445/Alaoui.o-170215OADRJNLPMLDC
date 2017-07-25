@@ -50,6 +50,34 @@ namespace OADRJNLPCommon.Business
             //
             return fbKeyword;
         }
+
+        public static FB_KEYWORD getFBKeywordInfoFromFBViaTwinglyMaOnly(String fbKeywordKeyword, String access_token, String twinglyApi15Url)
+        {
+            // create object and set values whatever available
+            var fbKeyword = new FB_KEYWORD();
+            fbKeyword.keyword = fbKeywordKeyword;
+            fbKeyword.date_oldest_retrieve = DateTime.Today;
+            fbKeyword.date_latest_retrieve = DateTime.Today;
+            fbKeyword.matched_posts_count = 0;
+            fbKeyword.matched_comments_count = 0;
+            fbKeyword.matched_total_count = 0;
+            fbKeyword.social_stats_likes = 0;
+            fbKeyword.social_stats_comments = 0;
+            fbKeyword.social_stats_shares = 0;
+            fbKeyword.matched_posts_count_ma = 0;
+            fbKeyword.matched_comments_count_ma = 0;
+            fbKeyword.matched_total_count_ma = 0;
+            fbKeyword.social_stats_likes_ma = 0;
+            fbKeyword.social_stats_comments_ma = 0;
+            fbKeyword.social_stats_shares_ma = 0;
+
+            // assign object rest of value from FB via twingly
+            // getKeywordInfoFromFBViaTwingly(fbKeyword, twinglyApi15Url, access_token);
+            getKeywordInfoFromFBViaTwingly(fbKeyword, twinglyApi15Url, access_token, limitToMorocco: true);
+
+            //
+            return fbKeyword;
+        }
         #endregion
 
         #region BACK YARD BO
@@ -105,8 +133,12 @@ namespace OADRJNLPCommon.Business
         public static String getPostBasedOnKeywordFromFBViaTwingly(String keyword, String twinglyApi15Url, String access_token, bool limitToMorocco = false)
         {
             String url = twinglyApi15Url + "search" + "?apikey=" + access_token + "&one=\"" + keyword + "\""
-                + "&scope=posting"
-                + "&post_type=status";  // we filter on status only (not comments because usually more formal than comments)
+                // + "&scope=posting"
+                // + "&scope=comment"      // to increase our chances to find a match
+                + "&scope=all"
+                // + "&post_type=status"   // we filter on status only (not comments because usually more formal than comments)
+                + "&post_type=all"
+                + "&size=1";            // take first one
 
             // limit to Morocco
             if (limitToMorocco)
@@ -123,21 +155,48 @@ namespace OADRJNLPCommon.Business
                 String objText = reader.ReadToEnd();
                 JObject jObjects = JObject.Parse(objText);
                 JObject Objects = new JObject(jObjects);
-                JArray items = (JArray)Objects["data"];
-
-                //
-                foreach (var item in items)
+                JArray dataitems = (JArray)Objects["data"];
+                if (dataitems.Count == 0)
+                    return String.Empty;
+                JObject post = null;
+                foreach (var item in dataitems)
                 {
-                    String postText = Convert.ToString(item["post"]["message"]);
-                    posts.Add(new FB_POST
+                    post = (JObject)item["post"];
+                    break;
+                }
+
+                // find in posts
+                String postText = Convert.ToString(post["message"]);
+                if (postText.Contains(keyword))
+                {
+                    return postText;
+                }
+
+                // find in comments
+                JArray commentitems = null;
+                // if (dataitems.Count > 0)
+                commentitems = (JArray)dataitems[0]["post"]["comments"];
+                /*else
+                    return String.Empty;*/
+                foreach (var item in commentitems)
+                {
+                    // String postText = Convert.ToString(item["post"]["message"]);
+                    postText = Convert.ToString(item["comment"]["message"]);
+                    /*posts.Add(new FB_POST
                     {
                         post_text = postText
                     });
+                    break;*/
+                    if (postText.Contains(keyword))
+                        return postText;
                 }
             }
 
             //
-            return posts[0].post_text;
+            if (posts.Count > 0)
+                return posts[0].post_text;
+            else
+                return String.Empty;
         }
 
         public static String getMostPopularVariantFromFBViaTwingly(List<String> variants, String twinglyApi15Url, String twinglyApiKey)
@@ -146,7 +205,7 @@ namespace OADRJNLPCommon.Business
             FB_KEYWORD mostPopular = null;
             foreach (String variant in variants)
             {
-                FB_KEYWORD fbKeyword = OADRJNLPCommon.Business.Business.getFBKeywordInfoFromFBViaTwingly(variant, twinglyApiKey, twinglyApi15Url);
+                FB_KEYWORD fbKeyword = OADRJNLPCommon.Business.Business.getFBKeywordInfoFromFBViaTwinglyMaOnly(variant, twinglyApiKey, twinglyApi15Url);
                 if (mostPopular == null)
                     mostPopular = fbKeyword;
                 else
