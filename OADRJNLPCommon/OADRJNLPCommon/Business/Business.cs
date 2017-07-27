@@ -78,6 +78,34 @@ namespace OADRJNLPCommon.Business
             //
             return fbKeyword;
         }
+
+        public static FB_KEYWORD getFBKeywordInfoFromFBViaTwinglyMaExcluded(String fbKeywordKeyword, String access_token, String twinglyApi15Url)
+        {
+            // create object and set values whatever available
+            var fbKeyword = new FB_KEYWORD();
+            fbKeyword.keyword = fbKeywordKeyword;
+            fbKeyword.date_oldest_retrieve = DateTime.Today;
+            fbKeyword.date_latest_retrieve = DateTime.Today;
+            fbKeyword.matched_posts_count = 0;
+            fbKeyword.matched_comments_count = 0;
+            fbKeyword.matched_total_count = 0;
+            fbKeyword.social_stats_likes = 0;
+            fbKeyword.social_stats_comments = 0;
+            fbKeyword.social_stats_shares = 0;
+            fbKeyword.matched_posts_count_ma = 0;
+            fbKeyword.matched_comments_count_ma = 0;
+            fbKeyword.matched_total_count_ma = 0;
+            fbKeyword.social_stats_likes_ma = 0;
+            fbKeyword.social_stats_comments_ma = 0;
+            fbKeyword.social_stats_shares_ma = 0;
+
+            // assign object rest of value from FB via twingly
+            // getKeywordInfoFromFBViaTwingly(fbKeyword, twinglyApi15Url, access_token);
+            getKeywordInfoFromFBViaTwingly(fbKeyword, twinglyApi15Url, access_token, limitToMorocco: false);
+
+            //
+            return fbKeyword;
+        }
         #endregion
 
         #region BACK YARD BO
@@ -205,16 +233,28 @@ namespace OADRJNLPCommon.Business
             FB_KEYWORD mostPopular = null;
             foreach (String variant in variants)
             {
-                FB_KEYWORD fbKeyword = OADRJNLPCommon.Business.Business.getFBKeywordInfoFromFBViaTwinglyMaOnly(variant, twinglyApiKey, twinglyApi15Url);
+                FB_KEYWORD fbKeyword = getFBKeywordInfoFromFBViaTwinglyMaOnly(variant, twinglyApiKey, twinglyApi15Url);
                 if (mostPopular == null)
                     mostPopular = fbKeyword;
-                else
-                if (mostPopular.matched_total_count_ma < fbKeyword.matched_total_count_ma)
+                else if (mostPopular.matched_total_count_ma < fbKeyword.matched_total_count_ma)
                     mostPopular = fbKeyword;
             }
 
-            // if no occurences at all, return empty string
-            if (mostPopular.matched_comments_count_ma == 0)
+            // if no occurences at all, then serach not morococco only
+            if (mostPopular.matched_total_count_ma == 0)
+            {
+                foreach (String variant in variants)
+                {
+                    FB_KEYWORD fbKeyword = getFBKeywordInfoFromFBViaTwinglyMaExcluded(variant, twinglyApiKey, twinglyApi15Url);
+                    if (mostPopular == null)
+                        mostPopular = fbKeyword;
+                    else if (mostPopular.matched_total_count < fbKeyword.matched_total_count)
+                        mostPopular = fbKeyword;
+                }
+            }
+
+            // worst case return empty string
+            if (mostPopular.matched_total_count == 0)
                 return String.Empty;
 
             //
