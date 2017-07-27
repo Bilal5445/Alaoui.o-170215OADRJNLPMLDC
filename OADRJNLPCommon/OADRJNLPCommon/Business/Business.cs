@@ -169,7 +169,7 @@ namespace OADRJNLPCommon.Business
                 String postText = Convert.ToString(post["message"]);
                 if (postText.Contains(keyword))
                 {
-                    return postText;
+                    return postText.Replace("\r\n", " "); // make it one line
                 }
 
                 // find in comments
@@ -188,13 +188,13 @@ namespace OADRJNLPCommon.Business
                     });
                     break;*/
                     if (postText.Contains(keyword))
-                        return postText;
+                        return postText.Replace("\r\n", " "); // make it one line
                 }
             }
 
             //
             if (posts.Count > 0)
-                return posts[0].post_text;
+                return posts[0].post_text.Replace("\r\n", " "); // make it one line
             else
                 return String.Empty;
         }
@@ -212,6 +212,10 @@ namespace OADRJNLPCommon.Business
                 if (mostPopular.matched_total_count_ma < fbKeyword.matched_total_count_ma)
                     mostPopular = fbKeyword;
             }
+
+            // if no occurences at all, return empty string
+            if (mostPopular.matched_comments_count_ma == 0)
+                return String.Empty;
 
             //
             return mostPopular.keyword;
