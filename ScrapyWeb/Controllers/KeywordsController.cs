@@ -65,6 +65,9 @@ namespace ScrapyWeb.Controllers
                 fbKeywords = (List<FB_KEYWORD>)serializer.Deserialize(reader);
             }
 
+            //
+            fbKeywords.Reverse();
+
             // pass FB keywords to partial view via the model (instead of the bag for a view)
             if (moroccoOnly == 1)
                 return PartialView("_IndexPartial_keywords_morocco", fbKeywords);
