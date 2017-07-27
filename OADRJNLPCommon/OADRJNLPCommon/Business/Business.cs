@@ -229,6 +229,8 @@ namespace OADRJNLPCommon.Business
 
         public static String getMostPopularVariantFromFBViaTwingly(List<String> variants, String twinglyApi15Url, String twinglyApiKey)
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+
             //
             FB_KEYWORD mostPopular = null;
             foreach (String variant in variants)
@@ -238,6 +240,15 @@ namespace OADRJNLPCommon.Business
                     mostPopular = fbKeyword;
                 else if (mostPopular.matched_total_count_ma < fbKeyword.matched_total_count_ma)
                     mostPopular = fbKeyword;
+
+                // small timer to workaout the twingly limit of 60 sec
+                // the code that you want to measure comes here
+                var elapsedMs = watch.ElapsedMilliseconds;
+                if (elapsedMs > 55000)
+                {
+                    System.Threading.Thread.Sleep(80000);
+                    watch.Reset();
+                }
             }
 
             // if no occurences at all, then serach not morococco only
@@ -250,8 +261,19 @@ namespace OADRJNLPCommon.Business
                         mostPopular = fbKeyword;
                     else if (mostPopular.matched_total_count < fbKeyword.matched_total_count)
                         mostPopular = fbKeyword;
+
+                    // small timer to workaout the twingly limit of 60 sec
+                    // the code that you want to measure comes here
+                    var elapsedMs = watch.ElapsedMilliseconds;
+                    if (elapsedMs > 55000)
+                    {
+                        System.Threading.Thread.Sleep(80000);
+                        watch.Reset();
+                    }
                 }
             }
+
+            watch.Stop();
 
             // worst case return empty string
             if (mostPopular.matched_total_count == 0)
