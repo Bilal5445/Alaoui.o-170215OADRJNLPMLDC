@@ -271,9 +271,16 @@ namespace OADRJNLPCommon.Business
                         watch.Reset();
                     }
                 }
+                watch.Stop();
             }
+            else
+            {
+                watch.Stop();
 
-            watch.Stop();
+                //
+                return mostPopular.keyword;
+            }
+            
 
             // worst case return empty string
             if (mostPopular.matched_total_count == 0)
