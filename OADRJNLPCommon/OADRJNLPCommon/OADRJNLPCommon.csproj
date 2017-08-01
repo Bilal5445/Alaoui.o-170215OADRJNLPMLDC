@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Business\Business.cs" />
+    <Compile Include="Business\PathConstant.cs" />
     <Compile Include="Business\RegexConstant.cs" />
     <Compile Include="Business\Util.cs" />
     <Compile Include="Models\FB_POST.cs" />
