@@ -161,10 +161,7 @@ namespace OADRJNLPCommon.Business
         public static String getPostBasedOnKeywordFromFBViaTwingly(String keyword, String twinglyApi15Url, String access_token, bool limitToMorocco = false)
         {
             String url = twinglyApi15Url + "search" + "?apikey=" + access_token + "&one=\"" + keyword + "\""
-                // + "&scope=posting"
-                // + "&scope=comment"      // to increase our chances to find a match
                 + "&scope=all"
-                // + "&post_type=status"   // we filter on status only (not comments because usually more formal than comments)
                 + "&post_type=all"
                 + "&size=1";            // take first one
 
@@ -288,6 +285,25 @@ namespace OADRJNLPCommon.Business
 
             //
             return mostPopular.keyword;
+        }
+
+        public static int getTwinglyAccountInfo_calls_free(String twinglyApi15Url, String twinglyApiKey)
+        {
+            String url = twinglyApi15Url + "usage" + "?apikey=" + twinglyApiKey;
+
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                String objText = reader.ReadToEnd();
+                JObject jObjects = JObject.Parse(objText);
+                JObject Objects = new JObject(jObjects);
+                int calls_free = Convert.ToInt32(Objects["usage"]["calls_free"]);
+
+                //
+                return calls_free;
+            }
         }
         #endregion
     }
