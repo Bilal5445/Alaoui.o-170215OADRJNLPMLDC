@@ -15,7 +15,8 @@ namespace OADRJNLPCommon.Business
         public static String maChRule = @"\bma *(" + LatinWords + @"+?)(ch|sh|x)\b";    // ? => not-greedy + warning . can be also space
         public static String alWaRule = @"\b(al|l|el) *(" + LatinWords + @"+\b) ((wou|wal|wel|wl|ou|o|wa) *(al|l|el|)) *(" + LatinWords + @"+\b)";
         public static String alRule = @"\b(al|l|el) *(" + LatinWords + @"+\b)";
-        public static String leRule = @"\b(le|la)\b";
+        // public static String leRule = @"\b(le|la)\b";
+        public static String leRule = @"\b(le|les)\b";
 
         // public static String notPreceededByMark = @"\w*(?<!mark>)";  // find the match only if not preceeded by mark> : (?<!xxxx) means "only if it doesn't have "x" before this point".
         // public static String notPreceededByMark = @"\w*(?<!>)";  // find the match only if not preceeded by > : (?<!xxxx) means "only if -it doesn't have "x" before this point".
