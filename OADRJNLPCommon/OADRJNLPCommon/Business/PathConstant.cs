@@ -11,11 +11,11 @@ namespace OADRJNLPCommon.Business
     {
         public PathConstant()
         {
-            pathToArabiziEnv = ConfigurationManager.AppSettings["pathToPerlScript"].ToString();
+            var setting = ConfigurationManager.AppSettings["pathToPerlScript"];
+
+            pathToArabiziEnv = setting != null ? setting.ToString() : String.Empty;
         }
 
         public String pathToArabiziEnv;
-        // public const String pathToArabiziEnv = @"C:\Users\Yahia Alaoui\Desktop\DEV\17028OADRJNLPARBZ\";
-        // public const String pathToArabiziEnv = @"C:\script\namatedev-17028oadrjnlparbz-991d3268755f\namatedev-17028oadrjnlparbz-991d3268755f\";
     }
 }
