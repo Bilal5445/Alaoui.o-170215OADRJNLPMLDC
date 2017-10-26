@@ -9,6 +9,12 @@ namespace OADRJNLPCommon.Business
 {
     public class PathConstant
     {
+        // for UT only
+        public PathConstant(String pathToArabiziEnv)
+        {
+            this.pathToArabiziEnv = pathToArabiziEnv;
+        }
+
         public PathConstant()
         {
             var setting = ConfigurationManager.AppSettings["pathToPerlScript"];
