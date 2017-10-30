@@ -52,8 +52,6 @@
     <Compile Include="Business\PathConstant.cs" />
     <Compile Include="Business\RegexConstant.cs" />
     <Compile Include="Business\Util.cs" />
-    <Compile Include="DataTablesNet\DataTableParameters.cs" />
-    <Compile Include="DataTablesNet\DataTableResultSet.cs" />
     <Compile Include="Models\FB_POST.cs" />
     <Compile Include="Models\FB_KEYWORD.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
