@@ -46,11 +46,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Business\AccessMode.cs" />
     <Compile Include="Business\Business.cs" />
     <Compile Include="Business\Logging.cs" />
     <Compile Include="Business\PathConstant.cs" />
     <Compile Include="Business\RegexConstant.cs" />
     <Compile Include="Business\Util.cs" />
+    <Compile Include="DataTablesNet\DataTableParameters.cs" />
+    <Compile Include="DataTablesNet\DataTableResultSet.cs" />
     <Compile Include="Models\FB_POST.cs" />
     <Compile Include="Models\FB_KEYWORD.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
