@@ -21,6 +21,7 @@ namespace OADRJNLPCommon.Business
         public static String dlRule = @"\b(dl|del)(?: |\.)*(" + LatinWords + @"+\b)";
         // public static String leRule = @"\b(le|la)\b";
         public static String leRule = @"\b(le|les)\b";
+        public static String walRule = @"\b(wal)\b";
 
         // public static String notPreceededByMark = @"\w*(?<!mark>)";  // find the match only if not preceeded by mark> : (?<!xxxx) means "only if it doesn't have "x" before this point".
         // public static String notPreceededByMark = @"\w*(?<!>)";  // find the match only if not preceeded by > : (?<!xxxx) means "only if -it doesn't have "x" before this point".
