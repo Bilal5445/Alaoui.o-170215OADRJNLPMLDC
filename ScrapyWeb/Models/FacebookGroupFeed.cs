@@ -11,9 +11,13 @@ namespace ScrapyWeb.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
+    [Table("FacebookGroupFeed")]
     public partial class FacebookGroupFeed
     {
+        [Key]
         public string GroupPostId { get; set; }
         public string PostText { get; set; }
         public System.DateTime UpdatedTime { get; set; }

@@ -11,9 +11,11 @@ namespace ScrapyWeb.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class TwitterApplication
     {
+        [Key]
         public int ApplicationId { get; set; }
         public string ApplicationName { get; set; }
         public string ConsumerKey { get; set; }

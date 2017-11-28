@@ -11,9 +11,13 @@ namespace ScrapyWeb.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
+    [Table("FBFeedComments")]
     public partial class FBFeedComment
     {
+        [Key]
         public string Id { get; set; }
         public string message { get; set; }
         public System.DateTime created_time { get; set; }

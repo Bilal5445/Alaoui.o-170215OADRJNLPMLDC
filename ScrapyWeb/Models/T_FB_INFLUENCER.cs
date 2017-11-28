@@ -11,9 +11,11 @@ namespace ScrapyWeb.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class T_FB_INFLUENCER
     {
+        [Key]
         public string id { get; set; }
         public string name { get; set; }
         public string url_name { get; set; }

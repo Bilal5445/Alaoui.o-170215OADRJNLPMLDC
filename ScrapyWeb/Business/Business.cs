@@ -603,7 +603,7 @@ namespace ScrapyWeb.Business
 
         public static void getDownloadedGroupFeeds(ref List<FacebookGroupFeed> _fbFeedList)
         {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            using (var context = new ScrapyWebEntities())
             {
                 // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
                 // since I can not use split inside a lambda expression, take the 15 first chars

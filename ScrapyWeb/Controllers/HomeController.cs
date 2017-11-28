@@ -15,7 +15,7 @@ namespace ScrapyWeb.Controllers
             ViewBag.Message = "";
 
             // Twitter
-            var TweetSets=new List<TweetSet>();
+            var TweetSets = new List<TweetSet>();
             clBusiness.getDownloadedTweetSets(ref TweetSets);
             ViewBag.TweetSets = TweetSets;
 

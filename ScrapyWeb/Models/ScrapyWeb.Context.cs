@@ -22,7 +22,7 @@ namespace ScrapyWeb.Models
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            throw new UnintentionalCodeFirstException();
+            // throw new UnintentionalCodeFirstException();
         }
     
         public DbSet<TweetSet> TweetSets { get; set; }

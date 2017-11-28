@@ -11,9 +11,13 @@ namespace ScrapyWeb.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
+    [Table("TweetSet")]
     public partial class TweetSet
     {
+        [Key]
         public string Tweet_Id { get; set; }
         public string TweetText { get; set; }
         public System.DateTime DateDownload { get; set; }
