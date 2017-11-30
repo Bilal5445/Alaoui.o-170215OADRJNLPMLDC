@@ -910,6 +910,7 @@ namespace ScrapyWeb.Business
                     post.date_publishing = date;
                     post.likes_count = likes_count;
                     post.comments_count = comments_count;
+                    //Add themeid in fb posts as the foreign key for the post
 
                     // influencer
                     post.fk_influencer = feedId.Split(new char[] { '_' })[0];
@@ -992,7 +993,7 @@ namespace ScrapyWeb.Business
             feed.PostText = message;
         }*/
 
-        public static T_FB_INFLUENCER getFBInfluencerInfoFromFB(String fbInfluencerUrlName, String pro_or_anti, FBApplication app, String fbAccessToken)
+        public static T_FB_INFLUENCER getFBInfluencerInfoFromFB(String fbInfluencerUrlName, String pro_or_anti, FBApplication app, String fbAccessToken, string themeid = "")
         {
             // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
             JObject jObject = JObject.Parse(fbAccessToken);
@@ -1021,6 +1022,8 @@ namespace ScrapyWeb.Business
             // date last update
             fbInfluencer.date_last_update = DateTime.Now;
 
+            //set the themeid as foreign key in fluencer table
+            fbInfluencer.fk_theme = themeid;
             //
             return fbInfluencer;
         }

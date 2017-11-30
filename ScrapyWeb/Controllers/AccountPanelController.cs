@@ -145,14 +145,14 @@ namespace ScrapyWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddFBInfluencer(T_FB_INFLUENCER influencer, int id)
+        public ActionResult AddFBInfluencer(T_FB_INFLUENCER influencer, int id,string themeid="")
         {
             // Get from FB
             var fbApp = clBusiness.GetFbApplication(id);
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
 
             // get data from FB
-            influencer = clBusiness.getFBInfluencerInfoFromFB(influencer.url_name, influencer.pro_or_anti, fbApp, fbAccessToken);
+            influencer = clBusiness.getFBInfluencerInfoFromFB(influencer.url_name, influencer.pro_or_anti, fbApp, fbAccessToken, themeid);
 
             // Save to DB
             clBusiness.AddFBInfluencerToDB(influencer);
