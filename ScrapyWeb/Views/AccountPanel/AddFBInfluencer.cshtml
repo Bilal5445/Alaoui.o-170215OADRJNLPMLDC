@@ -1,0 +1,40 @@
+﻿@model ScrapyWeb.Models.T_FB_INFLUENCER
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <div>
+
+        <h2>Add FB Influencer</h2>
+
+        @using (Html.BeginForm("AddFBInfluencer", "AccountPanel", FormMethod.Post, new { id = @ViewBag.AppId }))
+        {
+            <div class="form-group row">
+                <label for="lgFormGroupInput" class="col-sm-2 col-form-label col-form-label-lg">Influencer Name</label>
+                <div class="col-sm-10">
+                    @Html.TextBoxFor(m => m.url_name, new { @required = "required" })
+                </div>
+                <label for="lgFormGroupInput" class="col-sm-2 col-form-label col-form-label-lg">Influencer Bias</label>
+                <div class="col-sm-10">
+                    @Html.DropDownListFor(m => m.pro_or_anti, new[]{
+                        new SelectListItem() {Text = "Pro", Value="Pro"},
+                        new SelectListItem() {Text = "Anti", Value="Anti"}
+                        }, "Choose Bias", new { @required = "required" })
+                </div>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        }
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,8 @@
+syntax: glob
+ScrapyWeb/bin
+ScrapyWeb/obj
+.vs/ScrapyWeb/v14/.suo
+packages
+.vs/config/applicationhost.config
+OADRJNLPCommon/OADRJNLPCommon/bin
+OADRJNLPCommon/OADRJNLPCommon/obj

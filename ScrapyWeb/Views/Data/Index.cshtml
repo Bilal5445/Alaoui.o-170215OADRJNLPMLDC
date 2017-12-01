@@ -1,0 +1,60 @@
+﻿@model ScrapyWeb.Models.T_FB_INFLUENCER
+@{
+    ViewBag.Title = "Data";
+}
+
+@{ var fbInfluencers = (List<ScrapyWeb.Models.T_FB_INFLUENCER>)ViewBag.Influencers; }
+
+<h2>Data</h2>
+<h3>Influencers</h3>
+<table class="influencers">
+    <tr class="header">
+        <th class="row-0">Id</th>
+        <th class="row-1">FB Name</th>
+        <th class="row-2">Name</th>
+        <th class="row-3">Bias</th>
+        <th class="row-4">Fan Count</th>
+        <th class="row-5">&nbsp;</th>
+    </tr>
+    @foreach (var fbInfluencer in fbInfluencers)
+    {
+        using (Html.BeginForm("FetchFBInfluencerPosts", "Data", FormMethod.Post, new { appId = @ViewBag.AppId }))
+        {
+            <tr>
+                <td class="center">@fbInfluencer.id @Html.Hidden("id", fbInfluencer.id, new { @id = "id" })</td>
+                <td>@fbInfluencer.url_name @Html.Hidden("url_name", fbInfluencer.url_name, new { @id = "url_name" })</td>
+                <td>@fbInfluencer.name @Html.Hidden("name", fbInfluencer.name, new { @id = "name" })</td>
+                <td>@fbInfluencer.pro_or_anti @Html.Hidden("pro_or_anti", fbInfluencer.pro_or_anti, new { @id = "pro_or_anti" })</td>
+                <td class="number">@fbInfluencer.fan_count.ToString("N0") @Html.Hidden("fan_count", fbInfluencer.fan_count, new { @id = "fan_count" })</td>
+                <td class="center"><button type="submit" class="btn btn-primary btn-xs">Fetch Posts</button></td>
+            </tr>
+        }
+    }
+</table>
+
+@foreach (var fbInfluencer in fbInfluencers)
+{
+    var fbPosts = ((List<ScrapyWeb.Models.T_FB_POST>)ViewBag.FeedSets).Where(x => x.id.Substring(0, 15) == fbInfluencer.id).Take(5).ToList();
+    <h3>Posts @fbInfluencer.name</h3>
+    <table class="posts">
+        <tr class="header">
+            <th class="row-25">Id</th>
+            <th>Text</th>
+            <th class="row-15">Publishing Date</th>
+            <th class="row-10">Likes</th>
+            <th class="row-10">Comments</th>
+        </tr>
+        @foreach (var fbPost in fbPosts)
+        {
+            <tr>
+                <td class="center">@fbPost.id</td>
+                <td class="arabic-text">@fbPost.post_text</td>
+                <td class="date">@fbPost.date_publishing.ToString("yyyy-MM-dd")</td>
+                <td class="number">@fbPost.likes_count</td>
+                <td class="number">@fbPost.comments_count</td>
+            </tr>
+        }
+    </table>
+}
+
+

@@ -1,0 +1,102 @@
+﻿.fb_apps th, .fb_apps td {
+    border: solid 1px black;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.influencers {
+    table-layout: fixed;
+    width: 100%;
+    font-size: 13px;
+    overflow-x: scroll;
+    font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
+}
+
+.posts {
+    table-layout: fixed;
+    width: 100%;
+    font-size: 12px;
+    overflow-x: scroll;
+    font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
+}
+
+.influencers .header .row-0 {
+    width: 15%;
+}
+
+.influencers .header .row-1 {
+    width: 15%;
+}
+
+.influencers .header .row-2 {
+    width: 25%;
+}
+
+.influencers .header .row-3 {
+    width: 10%;
+}
+
+.influencers .header .row-4 {
+    width: 25%;
+}
+
+.influencers .header .row-5 {
+    width: 10%;
+}
+
+.posts .header .row-10 {
+    width: 10%;
+}
+.posts .header .row-15 {
+    width: 15%;
+}
+.posts .header .row-25 {
+    width: 25%;
+}
+.posts .header .row-30 {
+    width: 30%;
+}
+.posts .header .row-50 {
+    width: 50%;
+}
+
+.influencers td, .influencers th {
+    border: 1px solid black;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.posts td, .posts th {
+    border: 1px solid black;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.influencers tr {
+    height: 30px;
+}
+
+/*.posts tr
+{
+    height: 30px;
+}*/
+
+.number {
+    text-align: right;
+}
+
+.date {
+    text-align: right;
+}
+
+.center {
+    text-align: center;
+}
+
+.arabic-text {
+    direction: rtl;
+    vertical-align: top;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

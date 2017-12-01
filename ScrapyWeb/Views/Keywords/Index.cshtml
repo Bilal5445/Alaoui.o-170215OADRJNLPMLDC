@@ -1,0 +1,44 @@
+﻿@{
+    ViewBag.Title = "Keywords";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts {
+    @Scripts.Render("~/bundles/jskeywords")
+}
+
+@{ var fbKeywords = (List<ScrapyWeb.Models.FB_KEYWORD>)ViewBag.fbKeywords; }
+
+<h2>Keywords</h2>
+
+@using (Html.BeginForm("FetchFBPostsByKeyword", "Keywords", FormMethod.Post))
+{
+    <div class="form-group row">
+        <div class="col-sm-4" style="border: 0px solid black;">
+            @Html.TextBox("keyword", null, new { @required = "required" })
+        </div>
+        <div class="col-sm-8" style="border: 0px solid black;">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </div>
+}
+
+@foreach (var fbKeyword in fbKeywords)
+{
+    if (fbKeywords.IndexOf(fbKeyword) % 2 == 0) { 
+        <span class="label label-primary">@fbKeyword.keyword</span>
+    }
+    else
+    {
+        <span class="label label-success">@fbKeyword.keyword</span>
+    }
+}
+<!-- Rounded switch -->
+<label class="switch" style="float: right;">
+    <input type="checkbox" onchange="onMoroccoOnlyCheckBoxChange()">
+    <div class="slider round"></div>
+</label>
+<span style="float: right; padding-left:5px; padding-right: 5px;">Morocco Only</span>
+
+<!-- Place where you will insert your partial -->
+<div id="partialPlaceHolder" style="display:inline;"> </div>

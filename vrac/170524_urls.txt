@@ -1,0 +1,40 @@
+﻿https://graph.facebook.com/oauth/access_token?client_id=360921534307030&client_secret=e7622d158d04babc3bdc5e5687174040&grant_type=client_credentials
+
+https://graph.facebook.com/oauth/access_token?client_id=360921534307030&client_secret=e7622d158d04babc3bdc5e5687174040&grant_type=client_credentials
+
+https://graph.facebook.com/v2.8/142220009186235/feed?key=360921534307030&{"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
+
+https://graph.facebook.com/v2.8/142220009186235/feed?key=360921534307030&access_token=360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk&token_type=bearer
+
+https://graph.facebook.com/v2.8/142220009186235/feed?key=360921534307030&access_token=360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk&token_type=bearer
+
+https://web.facebook.com/tanjazzofficiel/
+
+https://graph.facebook.com/v2.8/tanjazzofficiel/feed?key=360921534307030&access_token=360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk&token_type=bearer
+
+https://graph.facebook.com/v2.8/BouachrineTaoufik/feed?key=360921534307030&access_token=360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk&token_type=bearer
+
+Comments
+https://graph.facebook.com/v2.8/946166772123762_1538159976257769/comments (946166772123762_1538159976257769 being the id of a post in the page of BouachrineTaoufik)
+
+eg:
+{
+  "data": [
+    {
+      "created_time": "2017-05-24T12:14:00+0000",
+      "from": {
+        "name": "Khalid Araki",
+        "id": "217737318615572"
+      },
+      "message": "الريف لديه مطالب اجتماعية ..... وسط الريف كاينين العنصريين و الشوفينيين ...... الحكومة و النظام يتجاهلون مطالب الريف المشروعة ...... ((( زعماء الدكاكين السياسية )))) خونوا حراك الريف بدون خجل ......... (( زعماء الحراك ))) ينعتون كل من انتقدهم (( بالعياش )) ..... (( العياشة ))) ينعتون الريفيين ب (( الاوباش ))) .... الحركة الامازيغية والتي تعتبر اكبر فاعل و داعم لحراك الريف تصف نفسها على انها علمانية .......... بعض رموز حراك الريف يستهلون كلمتهم ( الثورية ) بنصوص قرانية و احاديث نبوية ........ شباط مع الريف .........جزء من بعض الاحزاب يخون الريف ......... الجزء الاخر يتضامن مع الريف ......... ريتشرد عزوز معا الريف ..................بعض (( الاسلاميين )) انسحبوا من حراك الريف ........ و البعض الاخر انضم الى حراك الريف .............الخ الخ الخ ........المهم هوا ان كولشي معا كولشي ..او كولشي ضد كلشي .......اصبح الريف و كانه ساحة حرب يستخدمها ( الميكيافيليون ) لتصفية الحسابات ...... او فالاخير يجيك واحد من هؤلاء الرهط او يقولك ( أسوأ مكان في الجحيم محجوز لهؤلاء الذين يبقون على الحياد في أوقات المعارك الأخلاقية العظيمة ) ......ياااااااااااااااك اخويا ؟؟؟؟ اوا راه خاصنا بعدا نحددوا من هم اصحاب المعارك الاخلاقية العظيمة ......مع العلم انه لا يمكن ان نصف هذه الجهة او تلك بانها هي صاحبة الاخلاق العظيمة على اعتبار ان كل المشاركين ينطلقون من فكرة مفادها ( نحن على حق .....كلكم على خطأ .....نحن افضل منكم جميعا ) ..... مع ضرورة وجوب الاشارة الى اني اندرج ضمن اصحاب هذه الفكرة و الدليل على ذلك هو هاته الخربشة البئيسة .......سيييييييييييييير عالله",
+      "id": "1538159976257769_1538162199590880"
+    },
+    {
+      "created_time": "2017-05-24T12:43:18+0000",
+      "from": {
+        "name": "Abdellah Sainane",
+        "id": "10204492446046198"
+      },
+      "message": "KAN 3LIH ITLAB ITHAKEM F MAROC, koune radou lih laslousse li kan kaye khalesse.",
+      "id": "1538159976257769_1538190279588072"
+    }, ...

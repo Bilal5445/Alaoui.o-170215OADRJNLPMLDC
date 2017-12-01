@@ -1,0 +1,123 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+}
+@section featured {
+    <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+                <h1>@ViewBag.Title</h1>
+                <h2>@ViewBag.Message</h2>
+            </hgroup>
+            <p>
+            </p>
+        </div>
+    </section>
+}
+@{ var tweetList = (List<ScrapyWeb.Models.TweetSet>)ViewBag.TweetSets;
+    var feedList = (List<ScrapyWeb.Models.FacebookGroupFeed>)ViewBag.FeedSets;
+    var fbGroupsList = (List<ScrapyWeb.Models.FBGroup>)ViewBag.GroupSets;
+    var fbCommentsList = (List<ScrapyWeb.Models.FBFeedComment>)ViewBag.CommentSets;
+}
+
+<style>
+    tr.header, tr.subheader, tr.feed {
+        cursor: pointer;
+    }
+
+    tr.header th:nth-child(3) span {
+        float: right;
+    }
+
+    tr.subheader th span {
+        float: right;
+    }
+</style>
+<h1 id="twitter">Twitter <span class="badge">@tweetList.Count</span></h1>
+<table class="users">
+    <tr class="header">
+        <th class="row-1 row-ID">Group Post Id</th>
+        <th class="row-2 row-ID">Updated Time</th>
+        <th class="row-3 row-Tweet">Post Text<span>-</span></th>
+    </tr>
+    @foreach (var tweet in tweetList.Take(20))
+    {
+        <tr>
+            <td>@tweet.ScreenName</td>
+            <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", tweet.DateCreated)</td>
+            <td>@tweet.TweetText</td>
+        </tr>
+    }
+</table>
+<h1 id="facebook">Facebook <span class="badge">@feedList.Count</span></h1>
+<table class="users">
+    <tr class="header">
+        <th class="row-1 row-ID">Group Post Id</th>
+        <th class="row-2 row-Time">Updated Time</th>
+        <th class="row-3 row-Tweet">Post Text<span>-</span></th>
+    </tr>
+    @foreach (var grp in fbGroupsList)
+    {
+        var groupFeedList = feedList.Where(x => x.GroupPostId.StartsWith(grp.FbGroupId));
+        <tr class="subheader">
+            <th class="row-full" colspan="3">@grp.GroupName (@grp.FbGroupId) [@groupFeedList.Count()]<span>-</span></th>
+        </tr>
+        foreach (var feed in groupFeedList)
+        {
+            <tr class="feed">
+                <th>@feed.GroupPostId</th>
+                <th>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", feed.UpdatedTime)</th>
+                <th>@feed.PostText</th>
+            </tr>
+            var feedId = feed.GroupPostId.Split(new char[] { '_' })[1];
+            var commentList = fbCommentsList.Where(x => x.Id.StartsWith(feedId));
+            foreach (var comment in commentList)
+            {
+                <tr class="feedcomment">
+                    <td>@comment.Id</td>
+                    <td>@String.Format("{0:MM/dd/yyyy HH:mm:ss}", comment.created_time)</td>
+                    <td>@comment.message</td>
+                </tr>
+            }
+        }
+    }
+
+</table>
+<script>
+    // on click on blue
+    $('.header').click(function () {
+        $(this).find('span').text(function (_, value) {
+            return value == '-' ? '+' : '-'
+        });
+
+        $(this).nextUntil('tr.header').slideToggle(100, function () {
+        });
+    })
+
+    // on click on orange
+    $('.subheader').click(function () {
+        $(this).find('span').text(function (_, value) {
+            return value == '-' ? '+' : '-'
+        });
+
+        $(this).nextUntil('tr.subheader').slideToggle(100, function () {
+        });
+    })
+
+    // on click on feed
+    $('.feed').click(function () {
+        /*$(this).find('span').text(function (_, value) {
+            return value == '-' ? '+' : '-'
+        });*/
+        // $(this).find('th').css({ "font-weight": "bold !important" });
+
+        $(this).nextUntil('tr.feed').slideToggle(100, function () {
+        });
+    })
+
+    // at load, trigger click to toggle up
+    // $('.header').click();
+    // $('.feed').click();
+    // $('.subheader').click();
+    // $('.header').click();
+
+</script>
