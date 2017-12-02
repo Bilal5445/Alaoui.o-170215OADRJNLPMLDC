@@ -806,7 +806,24 @@ namespace ScrapyWeb.Business
                                 // not starting with a digit ex : tanjazzofficiel then page then we use created_time
                                 updated_created_time = Convert.ToString(status["created_time"]);
                             }
-                            var date = DateTime.Parse(updated_created_time);
+                            var date = DateTime.Now;
+                            try
+                            {
+                                if(updated_created_time==null)
+                                {
+                                    date = DateTime.Parse(updated_created_time);
+                                }
+                                else
+                                {
+                                    date = DateTime.Parse(Convert.ToString(status["created_time"]));
+                                }
+                                
+                            }
+                            catch(Exception e)
+                            {
+
+                            }
+                           
 
                             // get comments as well
                             var feedId = Convert.ToString(status["id"]);
@@ -980,6 +997,34 @@ namespace ScrapyWeb.Business
             {
                 Error = ex.Message;
             }
+        }
+
+        public static void getFacebookFeedManually(Search search, FBApplication app,List<T_FB_POST>Posts, ref string Error)
+        {
+            JObject jObject = JObject.Parse(search.FbAccessToken);
+            String access_token = (String)jObject["access_token"];
+            String token_type = (String)jObject["token_type"];
+            if (Posts!=null && Posts.Count>0)
+            {
+                using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+                {
+                    foreach (var item in Posts.Where(c=>c.comments_count>0))
+                    {
+                        FacebookGroupFeed facebookGroupFeed = new FacebookGroupFeed();
+                        facebookGroupFeed.GroupPostId = item.id;
+                        facebookGroupFeed.PostText = item.post_text;
+                        facebookGroupFeed.UpdatedTime = item.date_publishing;
+                        AddGroupFeedTODb(facebookGroupFeed);
+                        getFacebookGroupFeedComment(search, access_token, item.id, app, ref Error);
+
+                    }
+                    var group = new FBGroup();
+                    group.FbGroupId = Posts.FirstOrDefault().fk_influencer;
+                    group.GroupName = search.GroupId;
+                    AddFbGroupTODb(group);
+                }
+                   
+            }         
         }
 
         /*static void getgroupFeedFromJObj(dynamic jobj, ref ScrapyWeb.Models.FacebookGroupFeed feed)

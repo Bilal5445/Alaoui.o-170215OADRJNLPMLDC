@@ -145,7 +145,7 @@ namespace ScrapyWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddFBInfluencer(T_FB_INFLUENCER influencer, int id,string themeid="")
+        public ActionResult AddFBInfluencer(T_FB_INFLUENCER influencer, int id,string themeid="",string CallFrom="")
         {
             // Get from FB
             var fbApp = clBusiness.GetFbApplication(id);
@@ -158,7 +158,16 @@ namespace ScrapyWeb.Controllers
             clBusiness.AddFBInfluencerToDB(influencer);
 
             // return to main screen
-            return RedirectToAction("Index", "Home");
+            if (!string.IsNullOrEmpty(CallFrom))
+            {
+                return Json(new { status = true });
+            }
+            else
+            {
+                // return to main screen
+                return RedirectToAction("Index", "Home");
+            }
+            
         }
     }
 }

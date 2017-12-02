@@ -32,20 +32,39 @@ namespace ScrapyWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult FetchFBInfluencerPosts(T_FB_INFLUENCER influencer, int appId = 1)
+        public ActionResult FetchFBInfluencerPosts(T_FB_INFLUENCER influencer, int appId = 1,string CallFrom="")
         {
             // Get FB application
             var fbApp = clBusiness.GetFbApplication(appId);
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
 
             // get data from FB
+            if(!string.IsNullOrEmpty(CallFrom))
+            {
+                influencer.url_name = CallFrom;
+            }
             var posts = clBusiness.getFBInfluencerPostsFromFB(influencer.url_name, fbApp.FbAppId, fbAccessToken);
 
             // Save to DB
             clBusiness.AddFBPostsToDB(posts);
-
-            // return to main screen
-            return RedirectToAction("Index", "Home");
+            if(!string.IsNullOrEmpty(CallFrom))
+            {
+                //List<T_FB_POST> postFetch = posts;
+                if(posts != null && posts.Count>0)
+                {
+                    string errmsg = string.Empty;
+                    Search search = new Search();
+                    search.FbAccessToken = fbAccessToken;
+                    clBusiness.getFacebookFeedManually(search, fbApp,posts,ref errmsg);
+                }
+                return Json(new { status=true});
+            }
+            else
+            {
+                // return to main screen
+                return RedirectToAction("Index", "Home");
+            }
+           
         }
     }
 }
