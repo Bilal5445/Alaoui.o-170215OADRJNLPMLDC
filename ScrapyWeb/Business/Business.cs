@@ -1128,9 +1128,14 @@ namespace ScrapyWeb.Business
             {
                 foreach (var post in posts)
                 {
-                    context.T_FB_POST.Add(post);
+                    var result = context.T_FB_POST.SingleOrDefault(f => f.id ==post.id);
+                    if (result == null)
+                    {
+                        context.T_FB_POST.Add(post);
+                        context.SaveChanges();
+                    }                   
                 }
-                context.SaveChanges();
+               
             }
         }
 
