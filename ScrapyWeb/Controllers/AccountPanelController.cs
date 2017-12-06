@@ -152,10 +152,19 @@ namespace ScrapyWeb.Controllers
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
 
             // get data from FB
-            influencer = clBusiness.getFBInfluencerInfoFromFB(influencer.url_name, influencer.pro_or_anti, fbApp, fbAccessToken, themeid);
+            try
+            {
+               influencer = clBusiness.getFBInfluencerInfoFromFB(influencer.url_name, influencer.pro_or_anti, fbApp, fbAccessToken, themeid);
 
             // Save to DB
-            clBusiness.AddFBInfluencerToDB(influencer);
+            
+                clBusiness.AddFBInfluencerToDB(influencer);
+            }
+            catch(Exception e)
+            {
+
+            }
+           
 
             // return to main screen
             if (!string.IsNullOrEmpty(CallFrom))

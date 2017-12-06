@@ -1018,10 +1018,18 @@ namespace ScrapyWeb.Business
                         getFacebookGroupFeedComment(search, access_token, item.id, app, ref Error);
 
                     }
-                    var group = new FBGroup();
-                    group.FbGroupId = Posts.FirstOrDefault().fk_influencer;
-                    group.GroupName = search.GroupId;
-                    AddFbGroupTODb(group);
+                    try
+                    {
+                        var group = new FBGroup();
+                        group.FbGroupId = Posts.FirstOrDefault().fk_influencer;
+                        group.GroupName = search.GroupId!=null? search.GroupId: Posts.FirstOrDefault().fk_influencer;
+                        AddFbGroupTODb(group);
+                    }
+                    catch(Exception e)
+                    {
+
+                    }
+                   
                 }
                    
             }         

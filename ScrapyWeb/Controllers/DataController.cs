@@ -1,5 +1,6 @@
 ﻿using ScrapyWeb.Business;
 using ScrapyWeb.Models;
+using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
 
@@ -55,7 +56,15 @@ namespace ScrapyWeb.Controllers
                     string errmsg = string.Empty;
                     Search search = new Search();
                     search.FbAccessToken = fbAccessToken;
-                    clBusiness.getFacebookFeedManually(search, fbApp,posts,ref errmsg);
+                    try
+                    {
+                        clBusiness.getFacebookFeedManually(search, fbApp, posts, ref errmsg);
+                    }
+                    catch(Exception e)
+                    {
+
+                    }
+                   
                 }
                 return Json(new { status=true});
             }
