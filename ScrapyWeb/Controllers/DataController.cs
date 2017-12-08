@@ -38,7 +38,8 @@ namespace ScrapyWeb.Controllers
             // Get FB application
             var fbApp = clBusiness.GetFbApplication(appId);
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
-
+            bool status = false;
+            string message = string.Empty;
             // get data from FB
             if(!string.IsNullOrEmpty(CallFrom))
             {
@@ -58,15 +59,27 @@ namespace ScrapyWeb.Controllers
                     search.FbAccessToken = fbAccessToken;
                     try
                     {
-                        clBusiness.getFacebookFeedManually(search, fbApp, posts, ref errmsg);
+                       var IsCommentSave= clBusiness.getFacebookFeedManually(search, fbApp, posts, ref errmsg);
+                        if(IsCommentSave==true)
+                        {
+                            status = true;
+                            message = errmsg;
+                        }
+                        else
+                        {
+                            status = false;
+                            message = errmsg;
+                        }
+
                     }
                     catch(Exception e)
                     {
-
+                        status = false;
+                        message = e.Message;
                     }
                    
                 }
-                return Json(new { status=true});
+                return Json(new { status=status,message=message});
             }
             else
             {
