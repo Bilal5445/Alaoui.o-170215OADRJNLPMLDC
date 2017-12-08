@@ -770,7 +770,7 @@ namespace ScrapyWeb.Business
                 JObject jObject = JObject.Parse(search.FbAccessToken);
                 String access_token = (String)jObject["access_token"];
                 String token_type = (String)jObject["token_type"];
-
+                string error = string.Empty;
                 // first get page/group feed (ie: list of posts)
                 string objText = "";
                 string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed" + "?key=" + app.FbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
@@ -821,7 +821,7 @@ namespace ScrapyWeb.Business
                             }
                             catch(Exception e)
                             {
-
+                                error = e.Message;
                             }
                            
 
@@ -999,8 +999,9 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static void getFacebookFeedManually(Search search, FBApplication app,List<T_FB_POST>Posts, ref string Error)
+        public static bool getFacebookFeedManually(Search search, FBApplication app,List<T_FB_POST>Posts, ref string Error)
         {
+            bool status = false;
             JObject jObject = JObject.Parse(search.FbAccessToken);
             String access_token = (String)jObject["access_token"];
             String token_type = (String)jObject["token_type"];
@@ -1015,7 +1016,16 @@ namespace ScrapyWeb.Business
                         facebookGroupFeed.PostText = item.post_text;
                         facebookGroupFeed.UpdatedTime = item.date_publishing;
                         AddGroupFeedTODb(facebookGroupFeed);
-                        getFacebookGroupFeedComment(search, access_token, item.id, app, ref Error);
+                        try
+                        {
+                            getFacebookGroupFeedComment(search, access_token, item.id, app, ref Error);                           
+                            status = true;
+                        }
+                        catch(Exception e)
+                        {
+                            status = false;
+                        }
+                        
 
                     }
                     try
@@ -1024,15 +1034,18 @@ namespace ScrapyWeb.Business
                         group.FbGroupId = Posts.FirstOrDefault().fk_influencer;
                         group.GroupName = search.GroupId!=null? search.GroupId: Posts.FirstOrDefault().fk_influencer;
                         AddFbGroupTODb(group);
+                        status = true;
                     }
                     catch(Exception e)
                     {
-
+                        status = false;
+                        Error = e.Message;
                     }
                    
                 }
                    
-            }         
+            }
+            return status;
         }
 
         /*static void getgroupFeedFromJObj(dynamic jobj, ref ScrapyWeb.Models.FacebookGroupFeed feed)
@@ -1062,11 +1075,11 @@ namespace ScrapyWeb.Business
             fbInfluencer.pro_or_anti = pro_or_anti;
 
             // first get influencer name and id
-            String id, name;
+            String id, name;           
+           
             getInfluencerFirstInfoFromFB(fbInfluencerUrlName, app.FbAppId, graphFBApi28Url, access_token, token_type, out id, out name);
-            fbInfluencer.id = id;
-            fbInfluencer.name = name;
-
+                
+           
             // second get influencer fan count
             int fan_count;
             getInfluencerSecondInfoFromFB(fbInfluencerUrlName, app.FbAppId, graphFBApi28Url, access_token, token_type, out fan_count);
@@ -1246,20 +1259,25 @@ namespace ScrapyWeb.Business
         private static void getInfluencerFirstInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out String id, out String name)
         {
             string objText = "";
+            string idofpage = string.Empty;
+            string nameofpage = string.Empty;
             string url = graphFBApi28Url + fbInfluencerUrlName + "?key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+           
+                HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+                using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                {
+                    StreamReader reader = new StreamReader(response.GetResponseStream());
 
-            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-            {
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-
-                objText = reader.ReadToEnd();
-                JObject obj = JObject.Parse(objText);
+                    objText = reader.ReadToEnd();
+                    JObject obj = JObject.Parse(objText);
 
                 // set id, name
                 id = Convert.ToString(obj["id"]);
                 name = Convert.ToString(obj["name"]);
-            }
+                  
+                    
+                }
+         
         }
 
         private static void getInfluencerSecondInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out int fan_count)

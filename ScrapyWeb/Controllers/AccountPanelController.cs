@@ -151,6 +151,8 @@ namespace ScrapyWeb.Controllers
             var fbApp = clBusiness.GetFbApplication(id);
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
 
+            bool status = false;
+            string message = string.Empty;
             // get data from FB
             try
             {
@@ -159,17 +161,20 @@ namespace ScrapyWeb.Controllers
             // Save to DB
             
                 clBusiness.AddFBInfluencerToDB(influencer);
+                status = true;
+                message = "Influencer created successfully.";
             }
             catch(Exception e)
             {
-
+                status = false;
+                message = e.Message;
             }
            
 
             // return to main screen
             if (!string.IsNullOrEmpty(CallFrom))
             {
-                return Json(new { status = true });
+                return Json(new { status = status,message=message });
             }
             else
             {
