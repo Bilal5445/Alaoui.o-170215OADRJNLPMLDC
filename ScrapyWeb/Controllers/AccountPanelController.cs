@@ -145,7 +145,7 @@ namespace ScrapyWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddFBInfluencer(T_FB_INFLUENCER influencer, int id,string themeid="",string CallFrom="")
+        public ActionResult AddFBInfluencer(T_FB_INFLUENCER influencer, int id, string themeid = "", string CallFrom = "")
         {
             // Get from FB
             var fbApp = clBusiness.GetFbApplication(id);
@@ -153,35 +153,38 @@ namespace ScrapyWeb.Controllers
 
             bool status = false;
             string message = string.Empty;
-            // get data from FB
+
             try
             {
-               influencer = clBusiness.getFBInfluencerInfoFromFB(influencer.url_name, influencer.pro_or_anti, fbApp, fbAccessToken, themeid);
+                // get data from FB
+                influencer = clBusiness.getFBInfluencerInfoFromFB(influencer.url_name, influencer.pro_or_anti, fbApp, fbAccessToken, themeid);
 
-            // Save to DB
-            
+                // Save to DB
                 clBusiness.AddFBInfluencerToDB(influencer);
                 status = true;
                 message = "Influencer created successfully.";
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 status = false;
-                message = e.Message;
+                if (e.InnerException != null && e.InnerException.InnerException != null)
+                    message = e.InnerException.InnerException.Message;
+                else if (e.InnerException != null && e.InnerException.InnerException == null)
+                    message = e.InnerException.Message;
+                else
+                    message = e.Message;
             }
-           
 
             // return to main screen
             if (!string.IsNullOrEmpty(CallFrom))
             {
-                return Json(new { status = status,message=message });
+                return Json(new { status = status, message = message });
             }
             else
             {
                 // return to main screen
                 return RedirectToAction("Index", "Home");
             }
-            
         }
     }
 }
