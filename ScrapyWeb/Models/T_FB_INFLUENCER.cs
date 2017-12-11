@@ -12,16 +12,18 @@ namespace ScrapyWeb.Models
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     public partial class T_FB_INFLUENCER
     {
-        [Key]
+        [Key, Column(Order = 0)]
         public string id { get; set; }
+        [Key, Column(Order = 1)]
+        public string fk_theme { get; set; }
         public string name { get; set; }
         public string url_name { get; set; }
         public string pro_or_anti { get; set; }
         public int fan_count { get; set; }
         public System.DateTime date_last_update { get; set; }
-        public string fk_theme { get; set; }
     }
 }
