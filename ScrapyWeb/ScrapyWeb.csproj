@@ -326,6 +326,7 @@
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>ScrapyWeb.Designer.cs</LastGenOutput>
     </EntityDeploy>
+    <Content Include="Migrations\201712121036136_UP_TO_201712111752136_FBAccess_CompositeKey.sql" />
     <Content Include="Models\ScrapyWeb.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>ScrapyWeb.edmx</DependentUpon>
@@ -410,6 +411,7 @@
     <Content Include="Views\Keywords\Index.cshtml" />
     <Content Include="Views\Keywords\_IndexPartial_keywords.cshtml" />
     <Content Include="Views\Keywords\_IndexPartial_keywords_morocco.cshtml" />
+    <Content Include="Web.config.server" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
