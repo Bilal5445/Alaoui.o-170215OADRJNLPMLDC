@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using ScrapyWeb.Business;
 using ScrapyWeb.Models;
+
 namespace ScrapyWeb.Controllers
 {
     public class AccountPanelController : Controller
@@ -145,7 +144,7 @@ namespace ScrapyWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddFBInfluencer(T_FB_INFLUENCER influencer, int id, string themeid = "", string CallFrom = "")
+        public ActionResult AddFBInfluencer(T_FB_INFLUENCER influencer, int id, String themeid = "", String CallFrom = "")
         {
             // Get from FB
             var fbApp = clBusiness.GetFbApplication(id);
