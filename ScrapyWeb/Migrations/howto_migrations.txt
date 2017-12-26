@@ -1,0 +1,5 @@
+﻿SQL Server Management Studio
+USE master; CREATE DATABASE ScrapyWeb
+execute 171129_script_create_db_with_data.sql
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Update-Database -StartUpProjectName ScrapyWeb
