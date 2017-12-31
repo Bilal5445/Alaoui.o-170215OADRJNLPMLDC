@@ -14,6 +14,7 @@ using System.Net;
 using System.Xml;
 using System.Globalization;
 using System.Xml.Serialization;
+using System.Data.Entity;
 
 namespace ScrapyWeb.Business
 {
@@ -538,7 +539,7 @@ namespace ScrapyWeb.Business
                         result.AccessTokenSecret = app.AccessTokenSecret;
                         result.AccessToken = app.AccessToken;
                         //context.TwitterApplications.Attach(app);
-                        context.Entry(result).State = System.Data.EntityState.Modified;
+                        context.Entry(result).State = EntityState.Modified;
                     }
                     else
                     {
@@ -572,7 +573,7 @@ namespace ScrapyWeb.Business
                         result.FbAppId = app.FbAppId;
                         result.FbAppSecret = app.FbAppSecret;
 
-                        context.Entry(result).State = System.Data.EntityState.Modified;
+                        context.Entry(result).State = EntityState.Modified;
                     }
                     else
                     {
