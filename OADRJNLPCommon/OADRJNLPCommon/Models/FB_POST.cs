@@ -20,6 +20,7 @@ namespace OADRJNLPCommon.Models
         public System.DateTime date_publishing { get; set; }
         public string translated_text { get; set; }
     }
+
     [Table("FBFeedComments")]
     public partial class FBFeedComment
     {
