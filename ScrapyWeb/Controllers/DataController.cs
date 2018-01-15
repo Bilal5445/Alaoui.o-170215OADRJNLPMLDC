@@ -33,60 +33,57 @@ namespace ScrapyWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult FetchFBInfluencerPosts(T_FB_INFLUENCER influencer, int appId = 1,string CallFrom="")
+        public ActionResult FetchFBInfluencerPosts(T_FB_INFLUENCER influencer, int appId = 1, string CallFrom = "")
         {
             // Get FB application
             var fbApp = clBusiness.GetFbApplication(appId);
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
             bool status = false;
             string message = string.Empty;
-            // get data from FB
-            if(!string.IsNullOrEmpty(CallFrom))
-            {
+
+            //
+            if (!string.IsNullOrEmpty(CallFrom))
                 influencer.url_name = CallFrom;
-            }
+
+            // get page posts from FB
             var posts = clBusiness.getFBInfluencerPostsFromFB(influencer.url_name, fbApp.FbAppId, fbAccessToken);
 
-            // Save to DB
+            // Save posts to DB
             clBusiness.AddFBPostsToDB(posts);
-            if(!string.IsNullOrEmpty(CallFrom))
-            {
-                //List<T_FB_POST> postFetch = posts;
-                if(posts != null && posts.Count>0)
-                {
-                    string errmsg = string.Empty;
-                    Search search = new Search();
-                    search.FbAccessToken = fbAccessToken;
-                    try
-                    {
-                       var IsCommentSave= clBusiness.getFacebookFeedManually(search, fbApp, posts, ref errmsg);
-                        if(IsCommentSave==true)
-                        {
-                            status = true;
-                            message = errmsg;
-                        }
-                        else
-                        {
-                            status = false;
-                            message = errmsg;
-                        }
 
+            //
+            if (string.IsNullOrEmpty(CallFrom))
+                return RedirectToAction("Index", "Home");   // we are done with the fb posts and return to main screen
+
+            // retrieve  from FB comments associated with retrieved posts
+            if (posts != null && posts.Count > 0)
+            {
+                string errmsg = string.Empty;
+                Search search = new Search();
+                search.FbAccessToken = fbAccessToken;
+
+                try
+                {
+                    var IsCommentSave = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref errmsg);
+                    if (IsCommentSave == true)
+                    {
+                        status = true;
+                        message = errmsg;
                     }
-                    catch(Exception e)
+                    else
                     {
                         status = false;
-                        message = e.Message;
+                        message = errmsg;
                     }
-                   
                 }
-                return Json(new { status=status,message=message});
+                catch (Exception e)
+                {
+                    status = false;
+                    message = e.Message;
+                }
             }
-            else
-            {
-                // return to main screen
-                return RedirectToAction("Index", "Home");
-            }
-           
+
+            return Json(new { status = status, message = message });
         }
     }
 }
