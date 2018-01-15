@@ -158,7 +158,7 @@ namespace ScrapyWeb.Controllers
                 // get data from FB
                 influencer = clBusiness.getFBInfluencerInfoFromFB(influencer.url_name, influencer.pro_or_anti, fbApp, fbAccessToken, themeid);
 
-                // Save to DB
+                // Save FB influencer (ie : the public FB page) to DB
                 clBusiness.AddFBInfluencerToDB(influencer);
                 status = true;
                 message = "Influencer created successfully.";

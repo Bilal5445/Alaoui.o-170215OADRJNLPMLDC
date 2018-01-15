@@ -65,7 +65,7 @@ namespace ScrapyWeb.Business
                             ScrapyWeb.Models.TweetSet tweet = new ScrapyWeb.Models.TweetSet();
 
                             getTweetFromJObj(status, ref tweet);
-                            AddTweetTODb(tweet);
+                            AddTweetToDb(tweet);
                         }
                     }
 
@@ -184,20 +184,14 @@ namespace ScrapyWeb.Business
                             ScrapyWeb.Models.TweetSet tweet = new ScrapyWeb.Models.TweetSet();
 
                             getTweetFromJObj(status, ref tweet);
-                            AddTweetTODb(tweet);
-
-
+                            AddTweetToDb(tweet);
                         }
                     }
-
-
-
                 }
                 catch (Exception twit_error)
                 {
                     Console.WriteLine(twit_error.ToString());
                 }
-
             }
             catch (Exception err)
             {
@@ -219,7 +213,7 @@ namespace ScrapyWeb.Business
             };
         }
 
-        public static void AddTweetTODb(TweetSet tweet)
+        public static void AddTweetToDb(TweetSet tweet)
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
             {
@@ -398,7 +392,7 @@ namespace ScrapyWeb.Business
                     ScrapyWeb.Models.TweetSet tweet = new ScrapyWeb.Models.TweetSet();
 
                     getTweetFromJObj(status, ref tweet);
-                    AddTweetTODb(tweet);
+                    AddTweetToDb(tweet);
 
 
                 }
@@ -825,10 +819,9 @@ namespace ScrapyWeb.Business
                                 error = e.Message;
                             }
 
-
                             // get comments as well
                             var feedId = Convert.ToString(status["id"]);
-                            getFacebookGroupFeedComment(search, access_token, feedId, app, ref Error);
+                            getFacebookGroupFeedCommentFromFB(search, access_token, feedId, app, ref Error);
 
                             // save FB feed to DB
                             feed.GroupPostId = feedId;
@@ -941,7 +934,7 @@ namespace ScrapyWeb.Business
             return posts;
         }
 
-        public static void getFacebookGroupFeedComment(Search search, String access_token, String feedId, FBApplication app, ref string Error)
+        public static void getFacebookGroupFeedCommentFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
         {
             try
             {
@@ -1000,40 +993,41 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static bool getFacebookFeedManually(Search search, FBApplication app, List<T_FB_POST> Posts, ref string Error)
+        public static bool getFacebookFeedManually(Search search, FBApplication app, List<T_FB_POST> posts, ref string Error)
         {
             bool status = false;
             JObject jObject = JObject.Parse(search.FbAccessToken);
             String access_token = (String)jObject["access_token"];
             String token_type = (String)jObject["token_type"];
-            if (Posts != null && Posts.Count > 0)
+
+            if (posts != null && posts.Count > 0)
             {
-                using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+                using (var context = new ScrapyWebEntities())
                 {
-                    foreach (var item in Posts.Where(c => c.comments_count > 0))
+                    foreach (var item in posts.Where(c => c.comments_count > 0))
                     {
                         FacebookGroupFeed facebookGroupFeed = new FacebookGroupFeed();
                         facebookGroupFeed.GroupPostId = item.id;
                         facebookGroupFeed.PostText = item.post_text;
                         facebookGroupFeed.UpdatedTime = item.date_publishing;
                         AddGroupFeedTODb(facebookGroupFeed);
+
                         try
                         {
-                            getFacebookGroupFeedComment(search, access_token, item.id, app, ref Error);
+                            getFacebookGroupFeedCommentFromFB(search, access_token, item.id, app, ref Error);
                             status = true;
                         }
                         catch (Exception e)
                         {
                             status = false;
                         }
-
-
                     }
+
                     try
                     {
                         var group = new FBGroup();
-                        group.FbGroupId = Posts.FirstOrDefault().fk_influencer;
-                        group.GroupName = search.GroupId != null ? search.GroupId : Posts.FirstOrDefault().fk_influencer;
+                        group.FbGroupId = posts.FirstOrDefault().fk_influencer;
+                        group.GroupName = search.GroupId != null ? search.GroupId : posts.FirstOrDefault().fk_influencer;
                         AddFbGroupTODb(group);
                         status = true;
                     }
@@ -1042,10 +1036,9 @@ namespace ScrapyWeb.Business
                         status = false;
                         Error = e.Message;
                     }
-
                 }
-
             }
+
             return status;
         }
 
