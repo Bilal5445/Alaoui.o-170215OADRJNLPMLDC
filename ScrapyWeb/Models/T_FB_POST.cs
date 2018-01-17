@@ -23,6 +23,7 @@ namespace ScrapyWeb.Models
         public int likes_count { get; set; }
         public int comments_count { get; set; }
         public System.DateTime date_publishing { get; set; }
+        public System.DateTime? EntryDate { get; set; }
        
     }
 }
