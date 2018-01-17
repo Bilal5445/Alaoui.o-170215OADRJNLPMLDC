@@ -921,6 +921,8 @@ namespace ScrapyWeb.Business
                     post.date_publishing = date;
                     post.likes_count = likes_count;
                     post.comments_count = comments_count;
+                    //Add the entry date in table of the posts
+                    post.EntryDate = DateTime.Now;
                     //Add themeid in fb posts as the foreign key for the post
 
                     // influencer
@@ -969,6 +971,8 @@ namespace ScrapyWeb.Business
                             feedComment.Id = Convert.ToString(status["id"]);
                             feedComment.message = message;
                             feedComment.created_time = date;
+                            //Add entry date on comment
+                            feedComment.EntryDate = DateTime.Now;
                             AddFeedCommentToDb(feedComment);
                         }
                     }
@@ -1010,6 +1014,7 @@ namespace ScrapyWeb.Business
                         facebookGroupFeed.GroupPostId = item.id;
                         facebookGroupFeed.PostText = item.post_text;
                         facebookGroupFeed.UpdatedTime = item.date_publishing;
+                        facebookGroupFeed.EntryDate = DateTime.Now;
                         AddGroupFeedTODb(facebookGroupFeed);
 
                         try
