@@ -1000,44 +1000,44 @@ namespace ScrapyWeb.Business
             String access_token = (String)jObject["access_token"];
             String token_type = (String)jObject["token_type"];
 
-            if (posts != null && posts.Count > 0)
+            // for each post with one or more comments
+            foreach (var item in posts.Where(c => c.comments_count > 0))
             {
-                using (var context = new ScrapyWebEntities())
+                // save the post to DB : info : this table FacebookGroupFeed is more or less duplicate of table T_FB_POST
+                // TODO : remove one of the 2 preferable the older : FacebookGroupFeed
+                FacebookGroupFeed facebookGroupFeed = new FacebookGroupFeed();
+                facebookGroupFeed.GroupPostId = item.id;
+                facebookGroupFeed.PostText = item.post_text;
+                facebookGroupFeed.UpdatedTime = item.date_publishing;
+                AddGroupFeedTODb(facebookGroupFeed);
+
+                /*try
+                {*/
+                // retrieve comments from FB and save them in DB into table FBFeedComment
+                getFacebookGroupFeedCommentFromFB(search, access_token, item.id, app, ref Error);
+                status = true;
+                /*}
+                catch (Exception e)
                 {
-                    foreach (var item in posts.Where(c => c.comments_count > 0))
-                    {
-                        FacebookGroupFeed facebookGroupFeed = new FacebookGroupFeed();
-                        facebookGroupFeed.GroupPostId = item.id;
-                        facebookGroupFeed.PostText = item.post_text;
-                        facebookGroupFeed.UpdatedTime = item.date_publishing;
-                        AddGroupFeedTODb(facebookGroupFeed);
-
-                        try
-                        {
-                            getFacebookGroupFeedCommentFromFB(search, access_token, item.id, app, ref Error);
-                            status = true;
-                        }
-                        catch (Exception e)
-                        {
-                            status = false;
-                        }
-                    }
-
-                    try
-                    {
-                        var group = new FBGroup();
-                        group.FbGroupId = posts.FirstOrDefault().fk_influencer;
-                        group.GroupName = search.GroupId != null ? search.GroupId : posts.FirstOrDefault().fk_influencer;
-                        AddFbGroupTODb(group);
-                        status = true;
-                    }
-                    catch (Exception e)
-                    {
-                        status = false;
-                        Error = e.Message;
-                    }
-                }
+                    status = false;
+                }*/
             }
+
+            /*try
+            {*/
+            // save the group to DB : info : this table FBGroups is more or less duplicate of table T_FB_INFLUENCER
+            // TODO : remove one of the 2 preferable the older : FBGroups
+            var group = new FBGroup();
+            group.FbGroupId = posts.FirstOrDefault().fk_influencer;
+            group.GroupName = search.GroupId != null ? search.GroupId : posts.FirstOrDefault().fk_influencer;
+            AddFbGroupTODb(group);
+            status = true;
+            /*}
+            catch (Exception e)
+            {
+                status = false;
+                Error = e.Message;
+            }*/
 
             return status;
         }
@@ -1139,7 +1139,6 @@ namespace ScrapyWeb.Business
 
         public static void AddFBPostsToDB(List<T_FB_POST> posts)
         {
-            // posts = posts.Take(15).ToList();
             using (var context = new ScrapyWebEntities())
             {
                 foreach (var post in posts)
@@ -1151,7 +1150,6 @@ namespace ScrapyWeb.Business
                         context.SaveChanges();
                     }
                 }
-
             }
         }
 

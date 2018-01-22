@@ -11,20 +11,17 @@
         <th class="row-7 center">&nbsp;</th>
     </tr>
     @{List<ScrapyWeb.Models.FB_KEYWORD>fbKeywords = (List<ScrapyWeb.Models.FB_KEYWORD>)ViewData["fbKeywords"];}
-    @foreach (var fbKeyword in /*fbKeywords*/Model)
+    @foreach (var fbKeyword in Model)
     {
-        // using (Html.BeginForm("FetchFBInfluencerPosts", "Data", FormMethod.Post, new { appId = @ViewBag.AppId }))
-        {
-            <tr>
-                <td class="center">@fbKeyword.keyword</td>
-                <td class="number">@fbKeyword.matched_posts_count</td>
-                <td class="number">@fbKeyword.matched_comments_count</td>
-                <td class="number">@fbKeyword.social_stats_likes</td>
-                <td class="number">@fbKeyword.social_stats_comments</td>
-                <td class="number">@fbKeyword.social_stats_shares</td>
-                <td class="number">Last @(Convert.ToUInt32((fbKeyword.date_latest_retrieve - fbKeyword.date_oldest_retrieve).TotalDays)) Days</td>
-                <td class="center"><button type="submit" class="btn btn-primary btn-xs">Refresh</button></td>
-            </tr>
-        }
+        <tr>
+            <td class="center">@fbKeyword.keyword</td>
+            <td class="number">@fbKeyword.matched_posts_count</td>
+            <td class="number">@fbKeyword.matched_comments_count</td>
+            <td class="number">@fbKeyword.social_stats_likes</td>
+            <td class="number">@fbKeyword.social_stats_comments</td>
+            <td class="number">@fbKeyword.social_stats_shares</td>
+            <td class="number">Last @(Convert.ToUInt32((fbKeyword.date_latest_retrieve - fbKeyword.date_oldest_retrieve).TotalDays)) Days</td>
+            <td class="center"><button type="submit" class="btn btn-primary btn-xs">Refresh</button></td>
+        </tr>        
     }
 </table>
