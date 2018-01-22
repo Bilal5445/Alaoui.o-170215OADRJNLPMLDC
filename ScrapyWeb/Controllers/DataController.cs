@@ -54,24 +54,19 @@ namespace ScrapyWeb.Controllers
             //
             if (!string.IsNullOrEmpty(CallFrom))
             {
+                // MC220118 comments should be retrieved from FB for posts in DB instead of for posts from FB, because paging in FB
+                // may not be chronological and thus comments for a recent post may be not be refreshed
+                clBusiness.getFBPostsFromDB(ref posts);
                 if (posts != null && posts.Count > 0)
                 {
                     string errmsg = string.Empty;
                     Search search = new Search();
                     search.FbAccessToken = fbAccessToken;
 
-                    /*try
-                    {*/
                     // retrieve from FB comments associated with retrieved posts
                     var IsCommentSave = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref errmsg);
                     message = errmsg;
                     status = IsCommentSave;
-                    /*}
-                    catch (Exception e)
-                    {
-                        status = false;
-                        message = e.Message;
-                    }*/
                 }
 
                 return Json(new { status = status, message = message });

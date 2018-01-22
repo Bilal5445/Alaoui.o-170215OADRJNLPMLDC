@@ -882,6 +882,7 @@ namespace ScrapyWeb.Business
             string objText = "";
             string url = graphFBApi28Url + fbInfluencerUrlName + "/feed"
                 + "?limit=100"
+                + "&order=reverse_chronological"
                 + "&fields=comments.limit(0).summary(true),likes.limit(0).summary(true),message,created_time"
                 + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
 
@@ -895,6 +896,10 @@ namespace ScrapyWeb.Business
                 JObject jObjects = JObject.Parse(objText);
                 JObject Objects = new JObject(jObjects);
                 JArray items = (JArray)Objects["data"];
+
+                // if next retrieve and add to items
+                // recursively find the post using the FB paging
+                RecursivelyGetFBPosts(Objects, items, 0);
 
                 //
                 foreach (var status in items)
@@ -934,26 +939,80 @@ namespace ScrapyWeb.Business
             return posts;
         }
 
-        public static void getFacebookGroupFeedCommentFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
+        private static void RecursivelyGetFBPosts(JObject Objects, JArray items, int deepLevel)
+        {
+            // if next retrieve and add to items
+            JValue paginationNext = null;
+            if (Objects["paging"] != null) if (Objects["paging"]["next"] != null)
+                    paginationNext = (JValue)Objects["paging"]["next"];
+            if (paginationNext != null && deepLevel <= 10)
+            {
+                var urlNext = Convert.ToString(paginationNext).Replace("limit=25", "limit=100");
+                urlNext = urlNext.Replace("limit=100&access", "limit=100&order=reverse_chronological&access");
+                
+                HttpWebRequest requestNext = WebRequest.Create(urlNext) as HttpWebRequest;
+                using (HttpWebResponse responseNext = requestNext.GetResponse() as HttpWebResponse)
+                {
+                    StreamReader readerNext = new StreamReader(responseNext.GetResponseStream());
+                    String objTextNext = readerNext.ReadToEnd();
+                    JObject jObjectsNext = JObject.Parse(objTextNext);
+                    JObject ObjectsNext = new JObject(jObjectsNext);
+                    JArray itemsNext = (JArray)ObjectsNext["data"];
+
+                    // recursie add ?
+                    RecursivelyGetFBPosts(ObjectsNext, itemsNext, deepLevel + 1);
+
+                    // add to items
+                    for (int i = 0; i < itemsNext.Count; i++)
+                        items.Add(itemsNext[i]);
+                }
+            }
+        }
+
+        private static void getFacebookGroupFeedCommentFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
         {
             try
             {
                 //
-                string objText = "";
                 string url = search.FbAccessGroupFeedURL + feedId + "/comments"
-                    + "?key=" + app.FbAppId
+                    + "?limit=100"
+                    + "&key=" + app.FbAppId
                     + "&access_token=" + access_token;
 
+                // ex : url : https://graph.facebook.com/v2.8/106286359953523_193506621231496/comments?key=360921534307030&access_token=360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk
+                // ie : https://graph.facebook.com/v2.8/post_id/comments?
                 HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
                 using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
                 {
                     StreamReader reader = new StreamReader(response.GetResponseStream());
 
-                    objText = reader.ReadToEnd();
-
+                    String objText = reader.ReadToEnd();
                     JObject jObjects = JObject.Parse(objText);
                     JObject Objects = new JObject(jObjects);
                     JArray items = (JArray)Objects["data"];
+
+                    // if next retrieve and add to items
+                    JValue paginationNext = null;
+                    if (Objects["paging"] != null) if (Objects["paging"]["next"] != null)
+                            paginationNext = (JValue)Objects["paging"]["next"];
+                    // ex : "next": "https://graph.facebook.com/v2.11/191616720877982_1725409007498738/comments?access_token=EAACEdEose0cBAJG8GcB1zBZA1MwBwFIP4hBi4JZBqSuR9JiotXr9ZCZBDglqr0ZBbZAVOzw8HkwEYDgbHqY1ZCfuVyq1cUJx8ibY6aJxxqxw5CeyoA9yiuG0RQZCSOfFyOXAVAIKzgs6thxyfjk9Ac9DfJTt2yoxtI5q9rWX5bITqk7pb61dE9DjdfhB6VpXb0gZD&pretty=0&limit=25&after=ODQZD"
+                    if (paginationNext != null)
+                    {
+                        var urlNext = Convert.ToString(paginationNext).Replace("limit=25", "limit=100");
+                        HttpWebRequest requestNext = WebRequest.Create(urlNext) as HttpWebRequest;
+                        using (HttpWebResponse responseNext = requestNext.GetResponse() as HttpWebResponse)
+                        {
+                            StreamReader readerNext = new StreamReader(responseNext.GetResponseStream());
+                            String objTextNext = readerNext.ReadToEnd();
+                            JObject jObjectsNext = JObject.Parse(objTextNext);
+                            JObject ObjectsNext = new JObject(jObjectsNext);
+                            JArray itemsNext = (JArray)ObjectsNext["data"];
+
+                            // add to items
+                            for (int i = 0; i < itemsNext.Count; i++)
+                                items.Add(itemsNext[i]);
+                        }
+                    }
 
                     foreach (var status in items)
                     {
@@ -1011,16 +1070,9 @@ namespace ScrapyWeb.Business
                 facebookGroupFeed.UpdatedTime = item.date_publishing;
                 AddGroupFeedTODb(facebookGroupFeed);
 
-                /*try
-                {*/
                 // retrieve comments from FB and save them in DB into table FBFeedComment
                 getFacebookGroupFeedCommentFromFB(search, access_token, item.id, app, ref Error);
                 status = true;
-                /*}
-                catch (Exception e)
-                {
-                    status = false;
-                }*/
             }
 
             /*try
