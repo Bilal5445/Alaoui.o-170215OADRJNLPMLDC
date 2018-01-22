@@ -35,55 +35,49 @@ namespace ScrapyWeb.Controllers
         [HttpPost]
         public ActionResult FetchFBInfluencerPosts(T_FB_INFLUENCER influencer, int appId = 1, string CallFrom = "")
         {
+            //
+            bool status = false;
+            string message = string.Empty;
+
             // Get FB application
             var fbApp = clBusiness.GetFbApplication(appId);
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
-            bool status = false;
-            string message = string.Empty;
 
             //
             if (!string.IsNullOrEmpty(CallFrom))
                 influencer.url_name = CallFrom;
 
-            // get page posts from FB
+            // get page posts from FB & Save posts to DB
             var posts = clBusiness.getFBInfluencerPostsFromFB(influencer.url_name, fbApp.FbAppId, fbAccessToken);
-
-            // Save posts to DB
             clBusiness.AddFBPostsToDB(posts);
 
             //
-            if (string.IsNullOrEmpty(CallFrom))
-                return RedirectToAction("Index", "Home");   // we are done with the fb posts and return to main screen
-
-            // retrieve  from FB comments associated with retrieved posts
-            if (posts != null && posts.Count > 0)
+            if (!string.IsNullOrEmpty(CallFrom))
             {
-                string errmsg = string.Empty;
-                Search search = new Search();
-                search.FbAccessToken = fbAccessToken;
-
-                try
+                if (posts != null && posts.Count > 0)
                 {
+                    string errmsg = string.Empty;
+                    Search search = new Search();
+                    search.FbAccessToken = fbAccessToken;
+
+                    /*try
+                    {*/
+                    // retrieve from FB comments associated with retrieved posts
                     var IsCommentSave = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref errmsg);
-                    if (IsCommentSave == true)
-                    {
-                        status = true;
-                        message = errmsg;
-                    }
-                    else
+                    message = errmsg;
+                    status = IsCommentSave;
+                    /*}
+                    catch (Exception e)
                     {
                         status = false;
-                        message = errmsg;
-                    }
+                        message = e.Message;
+                    }*/
                 }
-                catch (Exception e)
-                {
-                    status = false;
-                    message = e.Message;
-                }
-            }
 
-            return Json(new { status = status, message = message });
+                return Json(new { status = status, message = message });
+            }
+            else
+                return RedirectToAction("Index", "Home");   // we are done with the fb posts and return to main screen of scrappyweb
         }
     }
 }
