@@ -63,7 +63,7 @@ namespace ScrapyWeb.Controllers
                     Search search = new Search();
                     search.FbAccessToken = fbAccessToken;
 
-                    // retrieve from FB comments associated with retrieved posts
+                    // retrieve from FB the comments associated with retrieved posts
                     var IsCommentSave = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref errmsg);
                     message = errmsg;
                     status = IsCommentSave;
