@@ -17,5 +17,6 @@ namespace OADRJNLPCommon.Models
         public int fan_count { get; set; }
         public System.DateTime date_last_update { get; set; }
         public string fk_theme { get; set; }
+        public string TargetEntities { get; set; }
     }
 }
