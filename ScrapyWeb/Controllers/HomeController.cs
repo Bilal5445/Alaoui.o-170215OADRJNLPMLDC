@@ -27,32 +27,14 @@ namespace ScrapyWeb.Controllers
             // FB feeds
             var FeedSets = new List<FacebookGroupFeed>();
             clBusiness.getDownloadedGroupFeeds(ref FeedSets);
-            ViewBag.FeedSets = FeedSets;//.Take(5).ToList();
+            ViewBag.FeedSets = FeedSets.Take(5).ToList();   // because we can have a lot
 
             // FB comments
             var CommentSets = new List<FBFeedComment>();
             clBusiness.getDownloadedFeedComments(ref CommentSets);
-            ViewBag.CommentSets = CommentSets;//.Take(5).ToList();
+            ViewBag.CommentSets = CommentSets.Take(5).ToList(); // because we can have up to +100k
 
             return View();
         }
-
-        /*public ActionResult Data()
-        {
-            ViewBag.Message = "";
-
-            // FB influencers
-            var influencers = new List<T_FB_INFLUENCER>();
-            clBusiness.getFBInfluencersFromDB(ref influencers);
-            ViewBag.Influencers = influencers;
-
-            // FB feeds
-            var posts = new List<FacebookGroupFeed>();
-            clBusiness.getDownloadedGroupFeeds(ref posts);
-            ViewBag.FeedSets = posts;
-
-            //
-            return View();
-        }*/
     }
 }

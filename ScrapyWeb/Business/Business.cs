@@ -609,20 +609,6 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static void getFBPostsFromDB(ref List<FacebookGroupFeed> posts, String influencerId)
-        {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-                // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
-                // since I can not use split inside a lambda expression, take the 15 first chars
-                // MC290617 not sure if working everytime
-                posts = context.FacebookGroupFeeds
-                    .Where(x => x.GroupPostId.Substring(0, 15) == influencerId)
-                    .OrderByDescending(x => x.UpdatedTime)
-                    .ToList();
-            }
-        }
-
         public static void getDownloadedFeedComments(ref List<FBFeedComment> _fbCommentList)
         {
             using (var context = new ScrapyWebEntities())
@@ -700,18 +686,6 @@ namespace ScrapyWeb.Business
                 return query.FirstOrDefault<FBApplication>();
             }
         }
-
-        /*public static Models.FBGroup GetFbGroup(int GroupId)
-        {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-                var query = (from app in context.FBGroups
-                             where app.GroupId == GroupId
-
-                             select app).Take(1);
-                return query.FirstOrDefault<FBGroup>();
-            }
-        }*/
 
         public static FBApplication GetFbApplication(int ApplicationId)
         {
@@ -1094,17 +1068,6 @@ namespace ScrapyWeb.Business
             return status;
         }
 
-        /*static void getgroupFeedFromJObj(dynamic jobj, ref ScrapyWeb.Models.FacebookGroupFeed feed)
-        {
-            var message = jobj["message"] != null ? Convert.ToString(jobj["message"]) : null;
-
-            var updated_time = Convert.ToString(jobj["updated_time"]);
-
-            var date = DateTime.Parse(updated_time);
-            feed.GroupPostId = Convert.ToString(jobj["id"]);
-            feed.PostText = message;
-        }*/
-
         public static T_FB_INFLUENCER getFBInfluencerInfoFromFB(String fbInfluencerUrlName, String pro_or_anti, FBApplication app, String fbAccessToken, string themeid = "")
         {
             // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
@@ -1205,15 +1168,7 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static void getFBPostsFromDB(ref List<T_FB_POST> posts)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                posts = context.T_FB_POST.ToList();
-            }
-        }
-
-        public static void AddFbGroupTODb(FBGroup fbGroup)
+       public static void AddFbGroupTODb(FBGroup fbGroup)
         {
             using (var context = new ScrapyWebEntities())
             {
@@ -1300,6 +1255,40 @@ namespace ScrapyWeb.Business
         }
         #endregion
 
+        #region BACK YARD DB LOAD
+        public static void getFBPostsFromDB(ref List<T_FB_POST> posts)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                posts = context.T_FB_POST.ToList();
+            }
+        }
+
+        public static List<T_FB_POST> load_FB_POSTs_EFSQL(String influencerId)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                return context.T_FB_POST.Where(m => m.fk_influencer == influencerId).ToList();
+            }
+        }
+
+        public static void getFBInfluencersFromDB(ref List<T_FB_INFLUENCER> influencers)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                influencers = context.T_FB_INFLUENCER.ToList();
+            }
+        }
+
+        public static T_FB_INFLUENCER load_FB_INFLUENCER_EFSQL(String influencerName)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                return context.T_FB_INFLUENCER.FirstOrDefault(m => m.url_name == influencerName);
+            }
+        }
+        #endregion
+
         #region BACK YARD BO
         private static void getInfluencerFirstInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out String id, out String name)
         {
@@ -1337,14 +1326,6 @@ namespace ScrapyWeb.Business
 
                 // set fan_count
                 fan_count = Convert.ToInt32(obj["fan_count"]);
-            }
-        }
-
-        public static void getFBInfluencersFromDB(ref List<T_FB_INFLUENCER> influencers)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                influencers = context.T_FB_INFLUENCER.ToList();
             }
         }
 

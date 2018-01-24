@@ -35,9 +35,8 @@ namespace ScrapyWeb.Controllers
         [HttpPost]
         public ActionResult FetchFBInfluencerPosts(T_FB_INFLUENCER influencer, int appId = 1, string CallFrom = "")
         {
-            //
-            bool status = false;
-            string message = string.Empty;
+            // MC240118 this fct is used by the ScrappyWeb app directely and undirectly by the ArabicTextAnalyzer app.
+            // In second case, influencer is not filled
 
             // Get FB application
             var fbApp = clBusiness.GetFbApplication(appId);
@@ -47,16 +46,22 @@ namespace ScrapyWeb.Controllers
             if (!string.IsNullOrEmpty(CallFrom))
                 influencer.url_name = CallFrom;
 
-            // get page posts from FB & Save posts to DB
+            // get FB page posts from FB & save them to DB
             var posts = clBusiness.getFBInfluencerPostsFromFB(influencer.url_name, fbApp.FbAppId, fbAccessToken);
             clBusiness.AddFBPostsToDB(posts);
 
             //
             if (!string.IsNullOrEmpty(CallFrom))
             {
+                //
+                bool status = false;
+                string message = string.Empty;
+
                 // MC220118 comments should be retrieved from FB for posts in DB instead of for posts from FB, because paging in FB
                 // may not be chronological and thus comments for a recent post may be not be refreshed
-                clBusiness.getFBPostsFromDB(ref posts);
+                // MC240118 but first we need influencer id to filter on the posts of the page only. We have the name so we get the id from the db (1to1)
+                influencer = clBusiness.load_FB_INFLUENCER_EFSQL(influencer.url_name);
+                posts = clBusiness.load_FB_POSTs_EFSQL(influencerId: influencer.id);
                 if (posts != null && posts.Count > 0)
                 {
                     string errmsg = string.Empty;
