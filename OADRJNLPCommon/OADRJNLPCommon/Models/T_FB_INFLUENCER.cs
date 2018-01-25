@@ -18,5 +18,6 @@ namespace OADRJNLPCommon.Models
         public System.DateTime date_last_update { get; set; }
         public string fk_theme { get; set; }
         public string TargetEntities { get; set; }
+        public bool AutoRetrieveFBPostAndComments { get; set; }
     }
 }

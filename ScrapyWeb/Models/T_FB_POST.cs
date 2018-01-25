@@ -24,6 +24,8 @@ namespace ScrapyWeb.Models
         public int comments_count { get; set; }
         public System.DateTime date_publishing { get; set; }
         public System.DateTime? EntryDate { get; set; }
-       
+        public string MailBody { get; set; }
+        public int? NoOfTimeMailSend{get;set;}
+        public DateTime? LastMailSendOn { get; set; }
     }
 }
