@@ -758,7 +758,7 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static List<T_FB_POST> RetrieveFBPageLatestPosts(String fbPageUrlName, String fbAppId, String fbAccessToken)
+        public static List<T_FB_POST> RetrieveFBPagePosts(String fbPageUrlName, String fbAppId, String fbAccessToken)
         {
             // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
             JObject jObject = JObject.Parse(fbAccessToken);
@@ -771,7 +771,8 @@ namespace ScrapyWeb.Business
 
             // first get page/group feed (ie: list of posts) with count of like and count of comments
             string url = graphFBApi28Url + fbPageUrlName + "/feed"
-                + "?fields=comments.limit(0).summary(true),likes.limit(0).summary(true),message,created_time"
+                + "?limit=100"
+                + "&fields=comments.limit(0).summary(true),likes.limit(0).summary(true),message,created_time"
                 + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
 
             HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
@@ -782,6 +783,10 @@ namespace ScrapyWeb.Business
                 string objText = reader.ReadToEnd();
                 JObject jObjects = JObject.Parse(objText);
                 JArray items = (JArray)jObjects["data"];
+
+                // if next retrieve and add to items
+                // recursively (up to 10 times) find the posts using the FB paging
+                RecursivelyGetFBPosts(jObjects, items, 0);
 
                 //
                 var posts = new List<T_FB_POST>();
@@ -825,7 +830,6 @@ namespace ScrapyWeb.Business
             Util.getKeyValueFromAppSetting("FbTokenURL");
 
             // first get page/group feed (ie: list of posts) with count of like and count of comments
-            string objText = "";
             string url = graphFBApi28Url + fbInfluencerUrlName + "/feed"
                 + "?limit=100"
                 + "&order=reverse_chronological"
@@ -837,45 +841,34 @@ namespace ScrapyWeb.Business
             {
                 StreamReader reader = new StreamReader(response.GetResponseStream());
 
-                objText = reader.ReadToEnd();
-
+                string objText = reader.ReadToEnd();
                 JObject jObjects = JObject.Parse(objText);
-                JObject Objects = new JObject(jObjects);
-                JArray items = (JArray)Objects["data"];
+                JArray items = (JArray)jObjects["data"];
 
                 // if next retrieve and add to items
-                // recursively find the post using the FB paging
-                RecursivelyGetFBPosts(Objects, items, 0);
+                // recursively (up to 10 times) find the posts using the FB paging
+                RecursivelyGetFBPosts(jObjects, items, 0);
 
                 //
                 var posts = new List<T_FB_POST>();
                 foreach (var status in items)
                 {
-                    var post = new T_FB_POST();
-
-                    //
+                    // data from retrieved json
                     var message = status["message"] != null ? Convert.ToString(status["message"]) : String.Empty;
-
-                    //
-                    String updated_created_time = Convert.ToString(status["created_time"]);
-                    var date = DateTime.Parse(updated_created_time);
-
-                    //
+                    var date = DateTime.Parse(Convert.ToString(status["created_time"]));
                     var feedId = Convert.ToString(status["id"]);
-
-                    //
                     int likes_count = Convert.ToInt32(status["likes"]["summary"]["total_count"]);
                     int comments_count = Convert.ToInt32(status["comments"]["summary"]["total_count"]);
 
-                    //
+                    // fill fb post
+                    var post = new T_FB_POST();
                     post.id = feedId;
                     post.post_text = message;
                     post.date_publishing = date;
                     post.likes_count = likes_count;
                     post.comments_count = comments_count;
 
-                    // Add themeid in fb posts as the foreign key for the post
-                    // influencer
+                    // Add themeid in fb posts as the foreign key for the post influencer
                     post.fk_influencer = feedId.Split(new char[] { '_' })[0];
 
                     //
@@ -1093,7 +1086,8 @@ namespace ScrapyWeb.Business
             if (paginationNext != null && deepLevel <= 10)
             {
                 var urlNext = Convert.ToString(paginationNext).Replace("limit=25", "limit=100");
-                urlNext = urlNext.Replace("limit=100&access", "limit=100&order=reverse_chronological&access");
+                // urlNext = urlNext.Replace("limit=100&access", "limit=100&order=reverse_chronological&access");
+                urlNext += "&fields=comments.limit(0).summary(true),likes.limit(0).summary(true),message,created_time";
 
                 HttpWebRequest requestNext = WebRequest.Create(urlNext) as HttpWebRequest;
                 using (HttpWebResponse responseNext = requestNext.GetResponse() as HttpWebResponse)
