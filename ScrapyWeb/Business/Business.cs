@@ -633,63 +633,6 @@ namespace ScrapyWeb.Business
             catch (Exception ex)
             {
                 error = ex.Message;
-
-            }
-        }
-
-        public static void getDownloadedGroupFeeds(ref List<FacebookGroupFeed> _fbFeedList)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
-                // since I can not use split inside a lambda expression, take the 15 first chars
-                _fbFeedList = context.FacebookGroupFeeds
-                    // .OrderBy(x => x.GroupPostId.Substring(0, 15))
-                    .OrderByDescending(x => x.UpdatedTime)
-                    .ToList();
-            }
-        }
-
-        public static void getDownloadedFeedComments(ref List<FBFeedComment> _fbCommentList)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                _fbCommentList = context.FBFeedComments
-                    .OrderByDescending(x => x.created_time)
-                    .ToList();
-            }
-        }
-
-        public static void getDownloadedFBGroups(ref List<FBGroup> _fbGroupList)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                _fbGroupList = context.FBGroups
-                    .ToList();
-            }
-        }
-
-        public static FBApplication GetFBApplication(int ApplicationId)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                var query = (from app in context.FBApplications
-                             where app.ApplicationId == ApplicationId
-                             select app).Take(1);
-                return query.FirstOrDefault<FBApplication>();
-            }
-        }
-
-        public static void getFBApplications(ref List<FBApplication> _appList)
-        {
-
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-
-                _appList = context.FBApplications
-                                      .ToList();
-
-
             }
         }
 
@@ -710,7 +653,7 @@ namespace ScrapyWeb.Business
             return vals;
         }
 
-        public static void getFacebookGroupFeed(Search search, FBApplication app, ref string Error)
+        public static void getFacebookGroupFeedFromFB(Search search, FBApplication app, ref string Error)
         {
             try
             {
@@ -890,6 +833,112 @@ namespace ScrapyWeb.Business
             }
         }
 
+        public static bool getFacebookFeedManually(Search search, FBApplication app, List<T_FB_POST> posts, ref string Error)
+        {
+            bool status = false;
+            JObject jObject = JObject.Parse(search.FbAccessToken);
+            String access_token = (String)jObject["access_token"];
+            String token_type = (String)jObject["token_type"];
+
+            // for each post with one or more comments
+            foreach (var item in posts.Where(c => c.comments_count > 0))
+            {
+                // save the post to DB : info : this table FacebookGroupFeed is more or less duplicate of table T_FB_POST
+                // TODO : remove one of the 2 preferable the older : FacebookGroupFeed
+                FacebookGroupFeed facebookGroupFeed = new FacebookGroupFeed();
+                facebookGroupFeed.GroupPostId = item.id;
+                facebookGroupFeed.PostText = item.post_text;
+                facebookGroupFeed.UpdatedTime = item.date_publishing;
+                AddGroupFeedTODb(facebookGroupFeed);
+
+                // retrieve comments from FB and save them in DB into table FBFeedComment
+                getFacebookGroupFeedCommentFromFB(search, access_token, item.id, app, ref Error);
+                status = true;
+            }
+
+            // save the group to DB : info : this table FBGroups is more or less duplicate of table T_FB_INFLUENCER
+            // TODO : remove one of the 2 preferable the older : FBGroups
+            var group = new FBGroup();
+            group.FbGroupId = posts.FirstOrDefault().fk_influencer;
+            group.GroupName = search.GroupId != null ? search.GroupId : posts.FirstOrDefault().fk_influencer;
+            AddFbGroupTODb(group);
+            status = true;
+
+            return status;
+        }
+
+        public static T_FB_INFLUENCER getFBInfluencerInfoFromFB(String fbInfluencerUrlName, String pro_or_anti, FBApplication app, String fbAccessToken, string themeid = "")
+        {
+            // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
+            JObject jObject = JObject.Parse(fbAccessToken);
+            String access_token = (String)jObject["access_token"];
+            String token_type = (String)jObject["token_type"];
+
+            //
+            var graphFBApi28Url = Util.getKeyValueFromAppSetting("FbGroupFeed");
+
+            // create influencer and set url name and bias
+            var fbInfluencer = new T_FB_INFLUENCER();
+            fbInfluencer.url_name = fbInfluencerUrlName;
+            fbInfluencer.pro_or_anti = pro_or_anti;
+
+            // first get influencer name and id
+            String id, name;
+            getInfluencerFirstInfoFromFB(fbInfluencerUrlName, app.FbAppId, graphFBApi28Url, access_token, token_type, out id, out name);
+            fbInfluencer.id = id;
+            fbInfluencer.name = name;
+
+            // second get influencer fan count
+            int fan_count;
+            getInfluencerSecondInfoFromFB(fbInfluencerUrlName, app.FbAppId, graphFBApi28Url, access_token, token_type, out fan_count);
+            fbInfluencer.fan_count = fan_count;
+
+            // date last update
+            fbInfluencer.date_last_update = DateTime.Now;
+
+            // set the themeid as foreign key in fluencer table
+            fbInfluencer.fk_theme = themeid;
+
+            //
+            return fbInfluencer;
+        }
+
+        public static FB_KEYWORD getFBKeywordInfoFromFBViaTwingly(String fbKeywordKeyword)
+        {
+            //
+            String access_token = Util.getKeyValueFromAppSetting("TwinglyApiKey");
+
+            //
+            var twinglyApi15Url = Util.getKeyValueFromAppSetting("TwinglyApi15Url");
+
+            // create object and set values whatever available
+            var fbKeyword = new FB_KEYWORD();
+            fbKeyword.keyword = fbKeywordKeyword;
+            fbKeyword.date_oldest_retrieve = DateTime.Today;
+            fbKeyword.date_latest_retrieve = DateTime.Today;
+            fbKeyword.matched_posts_count = 0;
+            fbKeyword.matched_comments_count = 0;
+            fbKeyword.matched_total_count = 0;
+            fbKeyword.social_stats_likes = 0;
+            fbKeyword.social_stats_comments = 0;
+            fbKeyword.social_stats_shares = 0;
+            fbKeyword.matched_posts_count_ma = 0;
+            fbKeyword.matched_comments_count_ma = 0;
+            fbKeyword.matched_total_count_ma = 0;
+            fbKeyword.social_stats_likes_ma = 0;
+            fbKeyword.social_stats_comments_ma = 0;
+            fbKeyword.social_stats_shares_ma = 0;
+
+            // assign object rest of value from FB via twingly
+            getKeywordInfoFromFBViaTwingly(fbKeyword, twinglyApi15Url, access_token);
+            getKeywordInfoFromFBViaTwingly(fbKeyword, twinglyApi15Url, access_token, limitToMorocco: true);
+
+            //
+            return fbKeyword;
+        }
+        #endregion
+
+        #region BACK YARD BO FB
         private static void RecursivelyGetFBPosts(JObject Objects, JArray items, int deepLevel)
         {
             // if next retrieve and add to items
@@ -1002,109 +1051,59 @@ namespace ScrapyWeb.Business
                 Error = ex.Message;
             }
         }
+        #endregion
 
-        public static bool getFacebookFeedManually(Search search, FBApplication app, List<T_FB_POST> posts, ref string Error)
+        #region BACK YARD DB FB
+        public static void getDownloadedGroupFeedsFromDB(ref List<FacebookGroupFeed> _fbFeedList)
         {
-            bool status = false;
-            JObject jObject = JObject.Parse(search.FbAccessToken);
-            String access_token = (String)jObject["access_token"];
-            String token_type = (String)jObject["token_type"];
-
-            // for each post with one or more comments
-            foreach (var item in posts.Where(c => c.comments_count > 0))
+            using (var context = new ScrapyWebEntities())
             {
-                // save the post to DB : info : this table FacebookGroupFeed is more or less duplicate of table T_FB_POST
-                // TODO : remove one of the 2 preferable the older : FacebookGroupFeed
-                FacebookGroupFeed facebookGroupFeed = new FacebookGroupFeed();
-                facebookGroupFeed.GroupPostId = item.id;
-                facebookGroupFeed.PostText = item.post_text;
-                facebookGroupFeed.UpdatedTime = item.date_publishing;
-                AddGroupFeedTODb(facebookGroupFeed);
-
-                // retrieve comments from FB and save them in DB into table FBFeedComment
-                getFacebookGroupFeedCommentFromFB(search, access_token, item.id, app, ref Error);
-                status = true;
+                // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
+                // since I can not use split inside a lambda expression, take the 15 first chars
+                _fbFeedList = context.FacebookGroupFeeds
+                    // .OrderBy(x => x.GroupPostId.Substring(0, 15))
+                    .OrderByDescending(x => x.UpdatedTime)
+                    .ToList();
             }
-
-            // save the group to DB : info : this table FBGroups is more or less duplicate of table T_FB_INFLUENCER
-            // TODO : remove one of the 2 preferable the older : FBGroups
-            var group = new FBGroup();
-            group.FbGroupId = posts.FirstOrDefault().fk_influencer;
-            group.GroupName = search.GroupId != null ? search.GroupId : posts.FirstOrDefault().fk_influencer;
-            AddFbGroupTODb(group);
-            status = true;
-
-            return status;
         }
 
-        public static T_FB_INFLUENCER getFBInfluencerInfoFromFB(String fbInfluencerUrlName, String pro_or_anti, FBApplication app, String fbAccessToken, string themeid = "")
+        public static void getDownloadedFeedCommentsFromDB(ref List<FBFeedComment> _fbCommentList)
         {
-            // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
-            JObject jObject = JObject.Parse(fbAccessToken);
-            String access_token = (String)jObject["access_token"];
-            String token_type = (String)jObject["token_type"];
-
-            //
-            var graphFBApi28Url = Util.getKeyValueFromAppSetting("FbGroupFeed");
-
-            // create influencer and set url name and bias
-            var fbInfluencer = new T_FB_INFLUENCER();
-            fbInfluencer.url_name = fbInfluencerUrlName;
-            fbInfluencer.pro_or_anti = pro_or_anti;
-
-            // first get influencer name and id
-            String id, name;
-            getInfluencerFirstInfoFromFB(fbInfluencerUrlName, app.FbAppId, graphFBApi28Url, access_token, token_type, out id, out name);
-            fbInfluencer.id = id;
-            fbInfluencer.name = name;
-
-            // second get influencer fan count
-            int fan_count;
-            getInfluencerSecondInfoFromFB(fbInfluencerUrlName, app.FbAppId, graphFBApi28Url, access_token, token_type, out fan_count);
-            fbInfluencer.fan_count = fan_count;
-
-            // date last update
-            fbInfluencer.date_last_update = DateTime.Now;
-
-            // set the themeid as foreign key in fluencer table
-            fbInfluencer.fk_theme = themeid;
-
-            //
-            return fbInfluencer;
+            using (var context = new ScrapyWebEntities())
+            {
+                _fbCommentList = context.FBFeedComments
+                    .OrderByDescending(x => x.created_time)
+                    .ToList();
+            }
         }
 
-        public static FB_KEYWORD getFBKeywordInfoFromFBViaTwingly(String fbKeywordKeyword)
+        public static void getDownloadedFBGroupsFromDB(ref List<FBGroup> _fbGroupList)
         {
-            //
-            String access_token = Util.getKeyValueFromAppSetting("TwinglyApiKey");
+            using (var context = new ScrapyWebEntities())
+            {
+                _fbGroupList = context.FBGroups
+                    .ToList();
+            }
+        }
 
-            //
-            var twinglyApi15Url = Util.getKeyValueFromAppSetting("TwinglyApi15Url");
+        public static FBApplication GetFBApplicationFromDB(int ApplicationId)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                var query = (from app in context.FBApplications
+                             where app.ApplicationId == ApplicationId
+                             select app).Take(1);
+                return query.FirstOrDefault<FBApplication>();
+            }
+        }
 
-            // create object and set values whatever available
-            var fbKeyword = new FB_KEYWORD();
-            fbKeyword.keyword = fbKeywordKeyword;
-            fbKeyword.date_oldest_retrieve = DateTime.Today;
-            fbKeyword.date_latest_retrieve = DateTime.Today;
-            fbKeyword.matched_posts_count = 0;
-            fbKeyword.matched_comments_count = 0;
-            fbKeyword.matched_total_count = 0;
-            fbKeyword.social_stats_likes = 0;
-            fbKeyword.social_stats_comments = 0;
-            fbKeyword.social_stats_shares = 0;
-            fbKeyword.matched_posts_count_ma = 0;
-            fbKeyword.matched_comments_count_ma = 0;
-            fbKeyword.matched_total_count_ma = 0;
-            fbKeyword.social_stats_likes_ma = 0;
-            fbKeyword.social_stats_comments_ma = 0;
-            fbKeyword.social_stats_shares_ma = 0;
-
-            // assign object rest of value from FB via twingly
-            getKeywordInfoFromFBViaTwingly(fbKeyword, twinglyApi15Url, access_token);
-            getKeywordInfoFromFBViaTwingly(fbKeyword, twinglyApi15Url, access_token, limitToMorocco: true);
-
-            //
-            return fbKeyword;
+        public static void getFBApplicationsFromDB(ref List<FBApplication> _appList)
+        {
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            {
+                _appList = context.FBApplications
+                                      .ToList();
+            }
         }
         #endregion
 
