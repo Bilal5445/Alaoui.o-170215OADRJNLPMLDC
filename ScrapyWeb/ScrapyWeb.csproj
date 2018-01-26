@@ -217,6 +217,10 @@
     <Compile Include="Migrations\201712111752136_FBAccess_CompositeKey.Designer.cs">
       <DependentUpon>201712111752136_FBAccess_CompositeKey.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201801261828379_newCommentsWaiting.cs" />
+    <Compile Include="Migrations\201801261828379_newCommentsWaiting.Designer.cs">
+      <DependentUpon>201801261828379_newCommentsWaiting.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\FacebookGroupFeed.cs">
       <DependentUpon>ScrapyWeb.tt</DependentUpon>
@@ -442,6 +446,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201712111752136_FBAccess_CompositeKey.resx">
       <DependentUpon>201712111752136_FBAccess_CompositeKey.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801261828379_newCommentsWaiting.resx">
+      <DependentUpon>201801261828379_newCommentsWaiting.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

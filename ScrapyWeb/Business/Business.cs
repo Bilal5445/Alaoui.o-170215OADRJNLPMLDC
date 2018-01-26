@@ -758,6 +758,63 @@ namespace ScrapyWeb.Business
             }
         }
 
+        public static List<T_FB_POST> RetrieveFBPageLatestPosts(String fbPageUrlName, String fbAppId, String fbAccessToken)
+        {
+            // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
+            JObject jObject = JObject.Parse(fbAccessToken);
+            String access_token = (String)jObject["access_token"];
+            String token_type = (String)jObject["token_type"];
+
+            //
+            var graphFBApi28Url = Util.getKeyValueFromAppSetting("FbGroupFeed");
+            Util.getKeyValueFromAppSetting("FbTokenURL");
+
+            // first get page/group feed (ie: list of posts) with count of like and count of comments
+            string url = graphFBApi28Url + fbPageUrlName + "/feed"
+                + "?fields=comments.limit(0).summary(true),likes.limit(0).summary(true),message,created_time"
+                + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                string objText = reader.ReadToEnd();
+                JObject jObjects = JObject.Parse(objText);
+                // JObject Objects = new JObject(jObjects);
+                // JArray items = (JArray)Objects["data"];
+                JArray items = (JArray)jObjects["data"];
+
+                //
+                var posts = new List<T_FB_POST>();
+                foreach (var status in items)
+                {
+                    // data from retrieved json
+                    var message = status["message"] != null ? Convert.ToString(status["message"]) : String.Empty;
+                    var date = DateTime.Parse(Convert.ToString(status["created_time"]));
+                    var feedId = Convert.ToString(status["id"]);
+                    int likes_count = Convert.ToInt32(status["likes"]["summary"]["total_count"]);
+                    int comments_count = Convert.ToInt32(status["comments"]["summary"]["total_count"]);
+
+                    // fill fb post
+                    var post = new T_FB_POST();
+                    post.id = feedId;
+                    post.post_text = message;
+                    post.date_publishing = date;
+                    post.likes_count = likes_count;
+                    post.comments_count = comments_count;
+
+                    // Add themeid in fb posts as the foreign key for the post influencer
+                    post.fk_influencer = feedId.Split(new char[] { '_' })[0];
+
+                    //
+                    posts.Add(post);
+                }
+
+                return posts;
+            }
+        }
+
         public static List<T_FB_POST> getFBInfluencerPostsFromFB(String fbInfluencerUrlName, String fbAppId, String fbAccessToken)
         {
             // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
@@ -922,29 +979,37 @@ namespace ScrapyWeb.Business
             String access_token = (String)jObject["access_token"];
             String token_type = (String)jObject["token_type"];
 
+            // MC260118 posts are filtered upstream on only posts with new comments
             // for each post with one or more comments
-            foreach (var item in posts.Where(c => c.comments_count > 0))
+            // foreach (var item in posts.Where(c => c.comments_count > 0))
+            foreach (var item in posts)
             {
                 // save the post to DB : info : this table FacebookGroupFeed is more or less duplicate of table T_FB_POST
                 // TODO : remove one of the 2 preferable the older : FacebookGroupFeed
-                FacebookGroupFeed facebookGroupFeed = new FacebookGroupFeed();
+                /*FacebookGroupFeed facebookGroupFeed = new FacebookGroupFeed();
                 facebookGroupFeed.GroupPostId = item.id;
                 facebookGroupFeed.PostText = item.post_text;
                 facebookGroupFeed.UpdatedTime = item.date_publishing;
-                AddGroupFeedTODb(facebookGroupFeed);
+                AddGroupFeedTODb(facebookGroupFeed);*/
 
                 // retrieve comments from FB and save them in DB into table FBFeedComment
                 getFacebookGroupFeedCommentFromFB(search, access_token, item.id, app, ref Error);
                 status = true;
+
+                // clean posts back to no new comments waiting
+                item.newCommentsWaiting = false;
             }
+
+            // save back the posts to the DB with new status of no new comments waiting
+            UpdateFBPostsInDB(posts);
 
             // save the group to DB : info : this table FBGroups is more or less duplicate of table T_FB_INFLUENCER
             // TODO : remove one of the 2 preferable the older : FBGroups
-            var group = new FBGroup();
+            /*var group = new FBGroup();
             group.FbGroupId = posts.FirstOrDefault().fk_influencer;
             group.GroupName = search.GroupId != null ? search.GroupId : posts.FirstOrDefault().fk_influencer;
             AddFbGroupTODb(group);
-            status = true;
+            status = true;*/
 
             return status;
         }
@@ -1160,19 +1225,45 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static void AddFBPostsToDB(List<T_FB_POST> posts)
+        public static void AddFBPostsToDB(List<T_FB_POST> newposts)
         {
             using (var context = new ScrapyWebEntities())
             {
-                foreach (var post in posts)
+                foreach (var newpost in newposts)
                 {
-                    var result = context.T_FB_POST.SingleOrDefault(f => f.id == post.id);
-                    if (result == null)
+                    // if post already update
+                    // and if comments count changed, mark for retrieve new comments from FB
+                    var existingPost = context.T_FB_POST.SingleOrDefault(f => f.id == newpost.id);
+                    if (existingPost != null)
                     {
-                        context.T_FB_POST.Add(post);
-                        context.SaveChanges();
+                        existingPost.likes_count = newpost.likes_count;
+                        if (existingPost.comments_count != newpost.comments_count)
+                            existingPost.newCommentsWaiting = true;
+                        existingPost.comments_count = newpost.comments_count;
+                        continue;
                     }
+
+                    // otherwise if not here, insert it
+                    // while marking as well for comments retrving
+                    newpost.newCommentsWaiting = true;
+                    context.T_FB_POST.Add(newpost);
                 }
+
+                // commit once done with all posts
+                context.SaveChanges();
+            }
+        }
+
+        public static void UpdateFBPostsInDB(List<T_FB_POST> postsToUpdate)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                // mark the entity as marked
+                foreach (var newpost in postsToUpdate)
+                    context.Entry(newpost).State = EntityState.Modified;
+
+                // commit once done with all posts
+                context.SaveChanges();
             }
         }
 
@@ -1272,11 +1363,14 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static List<T_FB_POST> load_FB_POSTs_EFSQL(String influencerId)
+        public static List<T_FB_POST> load_FB_POSTs_EFSQL(String influencerId, bool postsWithNewCommentsWaitingOnly)
         {
             using (var context = new ScrapyWebEntities())
             {
-                return context.T_FB_POST.Where(m => m.fk_influencer == influencerId).ToList();
+                if (postsWithNewCommentsWaitingOnly)
+                    return context.T_FB_POST.Where(m => m.fk_influencer == influencerId && m.newCommentsWaiting == true).ToList();
+                else
+                    return context.T_FB_POST.Where(m => m.fk_influencer == influencerId).ToList();
             }
         }
 
