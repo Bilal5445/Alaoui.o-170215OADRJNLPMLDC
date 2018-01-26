@@ -221,6 +221,10 @@
     <Compile Include="Migrations\201801261828379_newCommentsWaiting.Designer.cs">
       <DependentUpon>201801261828379_newCommentsWaiting.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201801262102126_commentFeedId.cs" />
+    <Compile Include="Migrations\201801262102126_commentFeedId.Designer.cs">
+      <DependentUpon>201801262102126_commentFeedId.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\FacebookGroupFeed.cs">
       <DependentUpon>ScrapyWeb.tt</DependentUpon>
@@ -449,6 +453,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801261828379_newCommentsWaiting.resx">
       <DependentUpon>201801261828379_newCommentsWaiting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801262102126_commentFeedId.resx">
+      <DependentUpon>201801262102126_commentFeedId.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
