@@ -48,7 +48,10 @@ namespace ScrapyWeb.Controllers
 
             // get FB page posts from FB & save them to DB
             bool status = false;
-            var posts = clBusiness.getFBInfluencerPostsFromFB(influencer.url_name, fbApp.FbAppId, fbAccessToken);
+            // MC260118 this will retrieve only the most recents 25 posts from the FB page and will mark any existing post with changed 
+            // comments count or non-existing post for comments retrieving
+            // var posts = clBusiness.getFBInfluencerPostsFromFB(influencer.url_name, fbApp.FbAppId, fbAccessToken);
+            var posts = clBusiness.RetrieveFBPageLatestPosts(influencer.url_name, fbApp.FbAppId, fbAccessToken);
             clBusiness.AddFBPostsToDB(posts);
             status = true;
 
@@ -66,8 +69,10 @@ namespace ScrapyWeb.Controllers
                     // MC220118 comments should be retrieved from FB for posts in DB instead of for posts from FB, because paging in FB
                     // may not be chronological and thus comments for a recent post may be not be refreshed
                     // MC240118 but first we need influencer id to filter on the posts of the page only. We have the name so we get the id from the db (1to1)
-                    /*influencer = clBusiness.load_FB_INFLUENCER_EFSQL(influencer.url_name);
-                    posts = clBusiness.load_FB_POSTs_EFSQL(influencerId: influencer.id);
+                    // MC260118 we are going to retrieve the comments for the marked posts (newCommentsWaiting true) only 
+                    influencer = clBusiness.load_FB_INFLUENCER_EFSQL(influencer.url_name);
+                    // posts = clBusiness.load_FB_POSTs_EFSQL(influencerId: influencer.id);
+                    posts = clBusiness.load_FB_POSTs_EFSQL(influencerId: influencer.id, postsWithNewCommentsWaitingOnly: true);
                     if (posts != null && posts.Count > 0)
                     {
                         Search search = new Search();
@@ -75,7 +80,7 @@ namespace ScrapyWeb.Controllers
 
                         // retrieve from FB the comments associated with retrieved posts
                         status = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref message);
-                    }*/
+                    }
                 }
                 catch (Exception ex)
                 {
