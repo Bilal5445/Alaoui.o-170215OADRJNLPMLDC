@@ -60,9 +60,7 @@ namespace ScrapyWeb.Controllers
             {
                 //
                 string message = string.Empty;
-
-                // retrieved Posts Count
-                var retrievedPostsCount = posts.Count;
+                int retrievedPostsCount = 0;
 
                 try
                 {
@@ -73,7 +71,7 @@ namespace ScrapyWeb.Controllers
                     influencer = clBusiness.load_FB_INFLUENCER_EFSQL(influencer.url_name);
                     // posts = clBusiness.load_FB_POSTs_EFSQL(influencerId: influencer.id);
                     posts = clBusiness.load_FB_POSTs_EFSQL(influencerId: influencer.id, postsWithNewCommentsWaitingOnly: true);
-                    if (posts != null && posts.Count > 0)
+                    if (posts.Count > 0)
                     {
                         Search search = new Search();
                         search.FbAccessToken = fbAccessToken;
@@ -81,6 +79,9 @@ namespace ScrapyWeb.Controllers
                         // retrieve from FB the comments associated with retrieved posts
                         status = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref message);
                     }
+
+                    // retrieved Posts Count (limited to only new or with changed commount count)
+                    retrievedPostsCount = posts.Count;
                 }
                 catch (Exception ex)
                 {
