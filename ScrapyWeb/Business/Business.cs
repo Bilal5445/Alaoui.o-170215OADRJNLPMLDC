@@ -879,7 +879,7 @@ namespace ScrapyWeb.Business
             }
         }
 
-        private static void getFacebookGroupFeedCommentFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
+        private static int getFacebookGroupFeedCommentFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
         {
             try
             {
@@ -942,11 +942,11 @@ namespace ScrapyWeb.Business
                             fbComment.message = message;
                             fbComment.created_time = date;
                             fbComment.feedId = feedId;
-                            // AddFeedCommentToDb(fbComment);
                             fbComments.Add(fbComment);
                         }
                     }
-                    AddFbCommentsToDb(fbComments);
+                    var retrievedCommentsCount = AddFbCommentsToDb(fbComments);
+                    return retrievedCommentsCount;
                 }
             }
             catch (WebException wex)
@@ -966,21 +966,24 @@ namespace ScrapyWeb.Business
             {
                 Error = ex.Message;
             }
+
+            // if we get here, we have an error
+            return 0;
         }
 
-        public static bool getFacebookFeedManually(Search search, FBApplication app, List<T_FB_POST> posts, ref string Error)
+        public static int getFacebookFeedManually(Search search, FBApplication app, List<T_FB_POST> posts, ref string Error)
         {
-            bool status = false;
             JObject jObject = JObject.Parse(search.FbAccessToken);
             String access_token = (String)jObject["access_token"];
             String token_type = (String)jObject["token_type"];
+
+            var retrievedCommentsCount = 0;
 
             // MC260118 posts are filtered upstream on only posts with new comments
             foreach (var item in posts)
             {
                 // retrieve comments from FB and save them in DB into table FBFeedComment
-                getFacebookGroupFeedCommentFromFB(search, access_token, item.id, app, ref Error);
-                status = true;
+                retrievedCommentsCount = getFacebookGroupFeedCommentFromFB(search, access_token, item.id, app, ref Error);
 
                 // clean posts back to no new comments waiting
                 item.newCommentsWaiting = false;
@@ -989,7 +992,7 @@ namespace ScrapyWeb.Business
             // save back the posts to the DB with new status of no new comments waiting
             UpdateFBPostsInDB(posts);
 
-            return status;
+            return retrievedCommentsCount;
         }
 
         public static T_FB_INFLUENCER getFBInfluencerInfoFromFB(String fbInfluencerUrlName, String pro_or_anti, FBApplication app, String fbAccessToken, string themeid = "")
@@ -1277,18 +1280,25 @@ namespace ScrapyWeb.Business
             }
         }
 
-        private static void AddFbCommentsToDb(List<FBFeedComment> fbComments)
+        private static int AddFbCommentsToDb(List<FBFeedComment> fbComments)
         {
+            int retrievedCommentsCount = 0;
+
             using (var context = new ScrapyWebEntities())
             {
                 foreach(var fbComment in fbComments)
                 {
                     var result = context.FBFeedComments.SingleOrDefault(f => f.Id == fbComment.Id);
                     if (result == null)
+                    {
                         context.FBFeedComments.Add(fbComment);
+                        retrievedCommentsCount++;
+                    }
                 }
                 context.SaveChanges();
             }
+
+            return retrievedCommentsCount;
         }
 
         public static void AddFBInfluencerToDB(T_FB_INFLUENCER influencer)

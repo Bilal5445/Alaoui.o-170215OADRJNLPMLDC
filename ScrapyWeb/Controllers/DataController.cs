@@ -61,6 +61,7 @@ namespace ScrapyWeb.Controllers
                 //
                 string message = string.Empty;
                 int retrievedPostsCount = 0;
+                int retrievedCommentsCount = 0;
 
                 try
                 {
@@ -77,7 +78,9 @@ namespace ScrapyWeb.Controllers
                         search.FbAccessToken = fbAccessToken;
 
                         // retrieve from FB the comments associated with retrieved posts
-                        status = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref message);
+                        retrievedCommentsCount = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref message);
+                        if (message != String.Empty)
+                            status = false;
                     }
 
                     // retrieved Posts Count (limited to only new or with changed commount count)
@@ -88,7 +91,7 @@ namespace ScrapyWeb.Controllers
                     message = ex.Message;
                 }
 
-                return Json(new { status = status, message = message, retrievedPostsCount = retrievedPostsCount });
+                return Json(new { status = status, message = message, retrievedPostsCount = retrievedPostsCount, retrievedCommentsCount = retrievedCommentsCount });
             }
             else
                 return RedirectToAction("Index", "Home");   // we are done with the fb posts and return to main screen of scrappyweb
