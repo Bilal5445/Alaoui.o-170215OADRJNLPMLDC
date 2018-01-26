@@ -14,7 +14,7 @@ namespace ScrapyWeb.Controllers
 
             // passing fb app id : we take the first FB app available
             List<FBApplication> _fbAppList = new List<FBApplication>();
-            clBusiness.getFBApplications(ref _fbAppList);
+            clBusiness.getFBApplicationsFromDB(ref _fbAppList);
             ViewBag.FbApplications = _fbAppList;
             ViewBag.AppId = _fbAppList[0].ApplicationId;
 
@@ -39,7 +39,7 @@ namespace ScrapyWeb.Controllers
             // In second case, influencer is not filled
 
             // Get FB application
-            var fbApp = clBusiness.GetFBApplication(appId);
+            var fbApp = clBusiness.GetFBApplicationFromDB(appId);
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
 
             //
