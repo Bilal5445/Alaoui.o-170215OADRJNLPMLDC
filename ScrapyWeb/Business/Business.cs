@@ -899,7 +899,7 @@ namespace ScrapyWeb.Business
                     String objText = reader.ReadToEnd();
                     JObject jObjects = JObject.Parse(objText);
                     JObject Objects = new JObject(jObjects);
-                    JArray items = (JArray)Objects["data"];
+                    JArray jComments = (JArray)Objects["data"];
 
                     // if next retrieve and add to items
                     JValue paginationNext = null;
@@ -921,27 +921,32 @@ namespace ScrapyWeb.Business
 
                             // add to items
                             for (int i = 0; i < itemsNext.Count; i++)
-                                items.Add(itemsNext[i]);
+                                jComments.Add(itemsNext[i]);
                         }
                     }
 
-                    foreach (var status in items)
+                    //
+                    var fbComments = new List<FBFeedComment>();
+                    foreach (var jComment in jComments)
                     {
-                        if (status["message"] != null)
+                        if (jComment["message"] != null)
                         {
-                            var feedComment = new FBFeedComment();
+                            var fbComment = new FBFeedComment();
 
-                            var message = Convert.ToString(status["message"]);
-                            String created_time = Convert.ToString(status["created_time"]);
-                            var date = DateTime.Parse(created_time);
+                            var message = Convert.ToString(jComment["message"]);
+                            var date = DateTime.Parse(Convert.ToString(jComment["created_time"]));
 
                             // save FB feed comment to DB
-                            feedComment.Id = Convert.ToString(status["id"]);
-                            feedComment.message = message;
-                            feedComment.created_time = date;
-                            AddFeedCommentToDb(feedComment);
+                            // MC260118 plus we save as well the correspounding post id to easy join in sql for consolidation later
+                            fbComment.Id = Convert.ToString(jComment["id"]);
+                            fbComment.message = message;
+                            fbComment.created_time = date;
+                            fbComment.feedId = feedId;
+                            // AddFeedCommentToDb(fbComment);
+                            fbComments.Add(fbComment);
                         }
                     }
+                    AddFbCommentsToDb(fbComments);
                 }
             }
             catch (WebException wex)
@@ -971,18 +976,8 @@ namespace ScrapyWeb.Business
             String token_type = (String)jObject["token_type"];
 
             // MC260118 posts are filtered upstream on only posts with new comments
-            // for each post with one or more comments
-            // foreach (var item in posts.Where(c => c.comments_count > 0))
             foreach (var item in posts)
             {
-                // save the post to DB : info : this table FacebookGroupFeed is more or less duplicate of table T_FB_POST
-                // TODO : remove one of the 2 preferable the older : FacebookGroupFeed
-                /*FacebookGroupFeed facebookGroupFeed = new FacebookGroupFeed();
-                facebookGroupFeed.GroupPostId = item.id;
-                facebookGroupFeed.PostText = item.post_text;
-                facebookGroupFeed.UpdatedTime = item.date_publishing;
-                AddGroupFeedTODb(facebookGroupFeed);*/
-
                 // retrieve comments from FB and save them in DB into table FBFeedComment
                 getFacebookGroupFeedCommentFromFB(search, access_token, item.id, app, ref Error);
                 status = true;
@@ -993,14 +988,6 @@ namespace ScrapyWeb.Business
 
             // save back the posts to the DB with new status of no new comments waiting
             UpdateFBPostsInDB(posts);
-
-            // save the group to DB : info : this table FBGroups is more or less duplicate of table T_FB_INFLUENCER
-            // TODO : remove one of the 2 preferable the older : FBGroups
-            /*var group = new FBGroup();
-            group.FbGroupId = posts.FirstOrDefault().fk_influencer;
-            group.GroupName = search.GroupId != null ? search.GroupId : posts.FirstOrDefault().fk_influencer;
-            AddFbGroupTODb(group);
-            status = true;*/
 
             return status;
         }
@@ -1277,7 +1264,7 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static void AddFeedCommentToDb(FBFeedComment feedComment)
+        private static void AddFeedCommentToDb(FBFeedComment feedComment)
         {
             using (var context = new ScrapyWebEntities())
             {
@@ -1287,6 +1274,20 @@ namespace ScrapyWeb.Business
                     context.FBFeedComments.Add(feedComment);
                     context.SaveChanges();
                 }
+            }
+        }
+
+        private static void AddFbCommentsToDb(List<FBFeedComment> fbComments)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                foreach(var fbComment in fbComments)
+                {
+                    var result = context.FBFeedComments.SingleOrDefault(f => f.Id == fbComment.Id);
+                    if (result == null)
+                        context.FBFeedComments.Add(fbComment);
+                }
+                context.SaveChanges();
             }
         }
 
