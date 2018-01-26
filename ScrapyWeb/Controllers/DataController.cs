@@ -47,22 +47,26 @@ namespace ScrapyWeb.Controllers
                 influencer.url_name = CallFrom;
 
             // get FB page posts from FB & save them to DB
+            bool status = false;
             var posts = clBusiness.getFBInfluencerPostsFromFB(influencer.url_name, fbApp.FbAppId, fbAccessToken);
             clBusiness.AddFBPostsToDB(posts);
+            status = true;
 
             //
             if (!string.IsNullOrEmpty(CallFrom))
             {
                 //
-                bool status = false;
                 string message = string.Empty;
+
+                // retrieved Posts Count
+                var retrievedPostsCount = posts.Count;
 
                 try
                 {
                     // MC220118 comments should be retrieved from FB for posts in DB instead of for posts from FB, because paging in FB
                     // may not be chronological and thus comments for a recent post may be not be refreshed
                     // MC240118 but first we need influencer id to filter on the posts of the page only. We have the name so we get the id from the db (1to1)
-                    influencer = clBusiness.load_FB_INFLUENCER_EFSQL(influencer.url_name);
+                    /*influencer = clBusiness.load_FB_INFLUENCER_EFSQL(influencer.url_name);
                     posts = clBusiness.load_FB_POSTs_EFSQL(influencerId: influencer.id);
                     if (posts != null && posts.Count > 0)
                     {
@@ -71,14 +75,14 @@ namespace ScrapyWeb.Controllers
 
                         // retrieve from FB the comments associated with retrieved posts
                         status = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref message);
-                    }
+                    }*/
                 }
                 catch (Exception ex)
                 {
                     message = ex.Message;
                 }
 
-                return Json(new { status = status, message = message });
+                return Json(new { status = status, message = message, retrievedPostsCount = retrievedPostsCount });
             }
             else
                 return RedirectToAction("Index", "Home");   // we are done with the fb posts and return to main screen of scrappyweb

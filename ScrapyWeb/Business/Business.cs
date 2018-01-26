@@ -664,7 +664,7 @@ namespace ScrapyWeb.Business
                 string error = string.Empty;
                 // first get page/group feed (ie: list of posts)
                 string objText = "";
-                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed" 
+                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed"
                     + "?key=" + app.FbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
 
                 HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
@@ -855,7 +855,8 @@ namespace ScrapyWeb.Business
 
                     // if next retrieve and add to items
                     JValue paginationNext = null;
-                    if (Objects["paging"] != null) if (Objects["paging"]["next"] != null)
+                    if (Objects["paging"] != null)
+                        if (Objects["paging"]["next"] != null)
                             paginationNext = (JValue)Objects["paging"]["next"];
                     // ex : "next": "https://graph.facebook.com/v2.11/191616720877982_1725409007498738/comments?access_token=EAACEdEose0cBAJG8GcB1zBZA1MwBwFIP4hBi4JZBqSuR9JiotXr9ZCZBDglqr0ZBbZAVOzw8HkwEYDgbHqY1ZCfuVyq1cUJx8ibY6aJxxqxw5CeyoA9yiuG0RQZCSOfFyOXAVAIKzgs6thxyfjk9Ac9DfJTt2yoxtI5q9rWX5bITqk7pb61dE9DjdfhB6VpXb0gZD&pretty=0&limit=25&after=ODQZD"
                     if (paginationNext != null)
