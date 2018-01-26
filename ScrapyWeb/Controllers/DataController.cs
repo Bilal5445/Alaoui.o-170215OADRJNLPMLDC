@@ -64,12 +64,12 @@ namespace ScrapyWeb.Controllers
 
                 try
                 {
+                    // MC240118 first we need influencer id to filter on the posts of the page only. We have the name so we get the id from the db (1to1)
+                    influencer = clBusiness.load_FB_INFLUENCER_EFSQL(influencer.url_name);
+
                     // MC220118 comments should be retrieved from FB for posts in DB instead of for posts from FB, because paging in FB
                     // may not be chronological and thus comments for a recent post may be not be refreshed
-                    // MC240118 but first we need influencer id to filter on the posts of the page only. We have the name so we get the id from the db (1to1)
-                    // MC260118 we are going to retrieve the comments for the marked posts (newCommentsWaiting true) only 
-                    influencer = clBusiness.load_FB_INFLUENCER_EFSQL(influencer.url_name);
-                    // posts = clBusiness.load_FB_POSTs_EFSQL(influencerId: influencer.id);
+                    // MC260118 we are going to retrieve the comments for the marked posts (newCommentsWaiting true) only : can be existing or new
                     posts = clBusiness.load_FB_POSTs_EFSQL(influencerId: influencer.id, postsWithNewCommentsWaitingOnly: true);
                     if (posts.Count > 0)
                     {
