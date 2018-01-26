@@ -510,7 +510,6 @@ namespace ScrapyWeb.Business
             request.Method = "GET";
             request.ContentType = "application/x-www-form-urlencoded";
             return request;
-
         }
 
         /// <summary>
@@ -849,9 +848,6 @@ namespace ScrapyWeb.Business
             var graphFBApi28Url = Util.getKeyValueFromAppSetting("FbGroupFeed");
             Util.getKeyValueFromAppSetting("FbTokenURL");
 
-            //
-            var posts = new List<T_FB_POST>();
-
             // first get page/group feed (ie: list of posts) with count of like and count of comments
             string objText = "";
             string url = graphFBApi28Url + fbInfluencerUrlName + "/feed"
@@ -876,6 +872,7 @@ namespace ScrapyWeb.Business
                 RecursivelyGetFBPosts(Objects, items, 0);
 
                 //
+                var posts = new List<T_FB_POST>();
                 foreach (var status in items)
                 {
                     var post = new T_FB_POST();
@@ -1049,8 +1046,6 @@ namespace ScrapyWeb.Business
                 status = true;
             }
 
-            /*try
-            {*/
             // save the group to DB : info : this table FBGroups is more or less duplicate of table T_FB_INFLUENCER
             // TODO : remove one of the 2 preferable the older : FBGroups
             var group = new FBGroup();
@@ -1058,12 +1053,6 @@ namespace ScrapyWeb.Business
             group.GroupName = search.GroupId != null ? search.GroupId : posts.FirstOrDefault().fk_influencer;
             AddFbGroupTODb(group);
             status = true;
-            /*}
-            catch (Exception e)
-            {
-                status = false;
-                Error = e.Message;
-            }*/
 
             return status;
         }
