@@ -20,6 +20,7 @@ namespace ScrapyWeb.Business
 {
     public class clBusiness
     {
+        #region BACK YARD TWITTER
         /// <summary>
         /// Get Twitter Applications from DB for Listing
         /// </summary>
@@ -40,10 +41,7 @@ namespace ScrapyWeb.Business
         {
             try
             {
-
-                //Search searchTwitter = getSearchCriteria();
-
-                HttpWebRequest request = (HttpWebRequest)CreateOauthAndRequest(getApplicationDetails(appid), searchTwitter);
+                HttpWebRequest request = (HttpWebRequest)CreateOauthAndRequest(getTwitterApplicationDetails(appid), searchTwitter);
                 var response = (HttpWebResponse)request.GetResponse();
                 var reader = new StreamReader(response.GetResponseStream());
                 var objText = reader.ReadToEnd();
@@ -87,7 +85,7 @@ namespace ScrapyWeb.Business
             try
             {
 
-                ScrapyWeb.Models.TwitterApplication app = getApplicationDetails(null);
+                ScrapyWeb.Models.TwitterApplication app = getTwitterApplicationDetails(null);
                 //oauth application keys
                 var oauth_token = app.AccessToken;//Util.getKeyValueFromAppSetting("oauth_token");
                 var oauth_token_secret = app.AccessTokenSecret;// Util.getKeyValueFromAppSetting("oauth_token_secret");
@@ -199,20 +197,6 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static Search getSearchCriteria()
-        {
-            return new Search()
-            {
-                Latitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Latitude"), CultureInfo.InvariantCulture.NumberFormat),
-                Longitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Longitude"), CultureInfo.InvariantCulture.NumberFormat),
-                Radius = Convert.ToInt32(Util.getKeyValueFromAppSetting("Radius")),
-                IsRadiusInMiles = Convert.ToBoolean(Util.getKeyValueFromAppSetting("IsRadiusInMile")),
-                URL = Util.getKeyValueFromAppSetting("resource_url"),
-                Count_toSearch = Convert.ToString(Util.getKeyValueFromAppSetting("Count_toSearch")),
-                TimeLineURL = Util.getKeyValueFromAppSetting("TimeLineURL")
-            };
-        }
-
         public static void AddTweetToDb(TweetSet tweet)
         {
             using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
@@ -274,32 +258,6 @@ namespace ScrapyWeb.Business
             tweet.Language = Convert.ToString(jobj["lang"]);
             tweet.FollowersCount = Convert.ToInt32(user["followers_count"]);
             tweet.FriendsCouunt = Convert.ToInt32(user["friends_count"]);
-        }
-
-        /// <summary>
-        /// get Application from Config
-        /// </summary>
-        /// <returns></returns>
-        public static TwitterApplication getApplicationDetails(int? id)
-        {
-            if (id == null)
-            {// oauth application keys
-                return new TwitterApplication
-                {
-                    AccessToken = Util.getKeyValueFromAppSetting("oauth_token"),
-                    AccessTokenSecret = Util.getKeyValueFromAppSetting("oauth_token_secret"),
-                    ConsumerKey = Util.getKeyValueFromAppSetting("oauth_consumer_key"),
-                    ConsumerSecret = Util.getKeyValueFromAppSetting("oauth_consumer_secret")
-
-                };
-            }
-            else
-            {
-                return GetApplication(Convert.ToInt32(id));
-
-            }
-
-
         }
 
         public static void ReadUserTimelineInTwitter(Search search, TwitterApplication app)
@@ -402,6 +360,137 @@ namespace ScrapyWeb.Business
             {
                 //myDiv.InnerHtml = html + twit_error.ToString();
             }
+        }
+
+        /// <summary>
+        /// Add Twitter Application to Database
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="error"></param>
+        public static void AddTwitterApplication(TwitterApplication app, ref string error)
+        {
+            try
+            {
+                using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+                {
+                    var result = context.TwitterApplications.SingleOrDefault(a => a.ApplicationId == app.ApplicationId);
+                    if (result != null)
+                    {
+                        result.ApplicationName = app.ApplicationName;
+                        result.ConsumerKey = app.ConsumerSecret;
+                        result.ConsumerKey = app.ConsumerKey;
+                        result.AccessTokenSecret = app.AccessTokenSecret;
+                        result.AccessToken = app.AccessToken;
+                        //context.TwitterApplications.Attach(app);
+                        context.Entry(result).State = EntityState.Modified;
+                    }
+                    else
+                    {
+                        context.TwitterApplications.Add(app);
+                    }
+                    context.SaveChanges();
+                    error = "";
+                }
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+            }
+        }
+
+        /// <summary>
+        /// Get Downloaded Tweets from Database
+        /// </summary>
+        /// <param name="_tweetList"></param>
+        public static void getDownloadedTweetSets(ref List<TweetSet> _tweetList)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                _tweetList = context.TweetSets.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get Twitter Id from DB for Since_Id param
+        /// </summary>
+        /// <returns></returns>
+        public static string getSinceIdFromTweetSets()
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                var topTweet = (from tweet in context.TweetSets
+                                orderby tweet.Tweet_Id descending
+                                select tweet).Take(1);
+                var firstTopTweet = topTweet.FirstOrDefault<TweetSet>();
+                if (firstTopTweet == null)
+                    return String.Empty;
+                else
+                    return firstTopTweet.Tweet_Id;
+            }
+        }
+
+        public static string getMaxIdFromTweetSets(string Screen_name)
+        {
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            {
+                var topTweet = (from tweet in context.TweetSets
+                                orderby tweet.Tweet_Id ascending
+                                where tweet.ScreenName == Screen_name
+                                select tweet).Take(1);
+                return topTweet.FirstOrDefault<TweetSet>().Tweet_Id;
+
+            }
+
+        }
+
+        /// <summary>
+        /// get Application from Config
+        /// </summary>
+        /// <returns></returns>
+        public static TwitterApplication getTwitterApplicationDetails(int? id)
+        {
+            if (id == null)
+            {
+                // oauth application keys
+                return new TwitterApplication
+                {
+                    AccessToken = Util.getKeyValueFromAppSetting("oauth_token"),
+                    AccessTokenSecret = Util.getKeyValueFromAppSetting("oauth_token_secret"),
+                    ConsumerKey = Util.getKeyValueFromAppSetting("oauth_consumer_key"),
+                    ConsumerSecret = Util.getKeyValueFromAppSetting("oauth_consumer_secret")
+                };
+            }
+            else
+                return GetTwitterApplication(Convert.ToInt32(id));
+        }
+
+        public static TwitterApplication GetTwitterApplication(int ApplicationId)
+        {
+            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            {
+
+                var query = (from app in context.TwitterApplications
+                             where app.ApplicationId == ApplicationId
+
+                             select app).Take(1);
+                return query.FirstOrDefault<TwitterApplication>();
+
+            }
+        }
+        #endregion
+
+        public static Search getSearchCriteria()
+        {
+            return new Search()
+            {
+                Latitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Latitude"), CultureInfo.InvariantCulture.NumberFormat),
+                Longitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Longitude"), CultureInfo.InvariantCulture.NumberFormat),
+                Radius = Convert.ToInt32(Util.getKeyValueFromAppSetting("Radius")),
+                IsRadiusInMiles = Convert.ToBoolean(Util.getKeyValueFromAppSetting("IsRadiusInMile")),
+                URL = Util.getKeyValueFromAppSetting("resource_url"),
+                Count_toSearch = Convert.ToString(Util.getKeyValueFromAppSetting("Count_toSearch")),
+                TimeLineURL = Util.getKeyValueFromAppSetting("TimeLineURL")
+            };
         }
 
         /// <summary>
@@ -512,48 +601,13 @@ namespace ScrapyWeb.Business
             return request;
         }
 
-        /// <summary>
-        /// Add Twitter Application to Database
-        /// </summary>
-        /// <param name="app"></param>
-        /// <param name="error"></param>
-        public static void AddAplication(TwitterApplication app, ref string error)
-        {
-            try
-            {
-                using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-                {
-                    var result = context.TwitterApplications.SingleOrDefault(a => a.ApplicationId == app.ApplicationId);
-                    if (result != null)
-                    {
-                        result.ApplicationName = app.ApplicationName;
-                        result.ConsumerKey = app.ConsumerSecret;
-                        result.ConsumerKey = app.ConsumerKey;
-                        result.AccessTokenSecret = app.AccessTokenSecret;
-                        result.AccessToken = app.AccessToken;
-                        //context.TwitterApplications.Attach(app);
-                        context.Entry(result).State = EntityState.Modified;
-                    }
-                    else
-                    {
-                        context.TwitterApplications.Add(app);
-                    }
-                    context.SaveChanges();
-                    error = "";
-                }
-            }
-            catch (Exception ex)
-            {
-                error = ex.Message;
-            }
-        }
-
+        #region BACK YARD FB
         /// <summary>
         /// Add Facebook Application to Database
         /// </summary>
         /// <param name="app"></param>
         /// <param name="error"></param>
-        public static void AddFBAplication(FBApplication app, ref string error)
+        public static void AddFBApplication(FBApplication app, ref string error)
         {
             try
             {
@@ -580,18 +634,6 @@ namespace ScrapyWeb.Business
             {
                 error = ex.Message;
 
-            }
-        }
-
-        /// <summary>
-        /// Get Downloaded Tweets from Database
-        /// </summary>
-        /// <param name="_tweetList"></param>
-        public static void getDownloadedTweetSets(ref List<TweetSet> _tweetList)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                _tweetList = context.TweetSets.ToList();
             }
         }
 
@@ -627,76 +669,14 @@ namespace ScrapyWeb.Business
             }
         }
 
-        /// <summary>
-        /// Get Twitter Id from DB for Since_Id param
-        /// </summary>
-        /// <returns></returns>
-        public static string getSinceIdFromTweetSets()
+        public static FBApplication GetFBApplication(int ApplicationId)
         {
             using (var context = new ScrapyWebEntities())
             {
-                var topTweet = (from tweet in context.TweetSets
-                                orderby tweet.Tweet_Id descending
-                                select tweet).Take(1);
-                var firstTopTweet = topTweet.FirstOrDefault<TweetSet>();
-                if (firstTopTweet == null)
-                    return String.Empty;
-                else
-                    return firstTopTweet.Tweet_Id;
-            }
-        }
-
-        public static string getMaxIdFromTweetSets(string Screen_name)
-        {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-                var topTweet = (from tweet in context.TweetSets
-                                orderby tweet.Tweet_Id ascending
-                                where tweet.ScreenName == Screen_name
-                                select tweet).Take(1);
-                return topTweet.FirstOrDefault<TweetSet>().Tweet_Id;
-
-            }
-
-        }
-
-        public static TwitterApplication GetApplication(int ApplicationId)
-        {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-
-                var query = (from app in context.TwitterApplications
-                             where app.ApplicationId == ApplicationId
-
-                             select app).Take(1);
-                return query.FirstOrDefault<TwitterApplication>();
-
-            }
-        }
-
-        public static FBApplication GetFBApplication(int ApplicationId)
-        {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
                 var query = (from app in context.FBApplications
                              where app.ApplicationId == ApplicationId
-
                              select app).Take(1);
                 return query.FirstOrDefault<FBApplication>();
-            }
-        }
-
-        public static FBApplication GetFbApplication(int ApplicationId)
-        {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-
-                var query = (from app in context.FBApplications
-                             where app.ApplicationId == ApplicationId
-
-                             select app).Take(1);
-                return query.FirstOrDefault<FBApplication>();
-
             }
         }
 
@@ -905,9 +885,9 @@ namespace ScrapyWeb.Business
                     //
                     posts.Add(post);
                 }
-            }
 
-            return posts;
+                return posts;
+            }
         }
 
         private static void RecursivelyGetFBPosts(JObject Objects, JArray items, int deepLevel)
@@ -920,7 +900,7 @@ namespace ScrapyWeb.Business
             {
                 var urlNext = Convert.ToString(paginationNext).Replace("limit=25", "limit=100");
                 urlNext = urlNext.Replace("limit=100&access", "limit=100&order=reverse_chronological&access");
-                
+
                 HttpWebRequest requestNext = WebRequest.Create(urlNext) as HttpWebRequest;
                 using (HttpWebResponse responseNext = requestNext.GetResponse() as HttpWebResponse)
                 {
@@ -1126,6 +1106,7 @@ namespace ScrapyWeb.Business
             //
             return fbKeyword;
         }
+        #endregion
 
         #region FRONT YARD PERSIST
         public static void AddGroupFeedTODb(FacebookGroupFeed feed)
@@ -1157,7 +1138,7 @@ namespace ScrapyWeb.Business
             }
         }
 
-       public static void AddFbGroupTODb(FBGroup fbGroup)
+        public static void AddFbGroupTODb(FBGroup fbGroup)
         {
             using (var context = new ScrapyWebEntities())
             {
