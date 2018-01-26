@@ -781,8 +781,6 @@ namespace ScrapyWeb.Business
 
                 string objText = reader.ReadToEnd();
                 JObject jObjects = JObject.Parse(objText);
-                // JObject Objects = new JObject(jObjects);
-                // JArray items = (JArray)Objects["data"];
                 JArray items = (JArray)jObjects["data"];
 
                 //
