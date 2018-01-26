@@ -39,7 +39,7 @@ namespace ScrapyWeb.Controllers
             // In second case, influencer is not filled
 
             // Get FB application
-            var fbApp = clBusiness.GetFbApplication(appId);
+            var fbApp = clBusiness.GetFBApplication(appId);
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
 
             //

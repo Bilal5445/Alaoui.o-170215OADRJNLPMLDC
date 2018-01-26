@@ -26,7 +26,7 @@ namespace ScrapyWeb.Controllers
         {
             if (id > 0)
             {
-                var app = clBusiness.GetApplication(id);
+                var app = clBusiness.GetTwitterApplication(id);
                 return View(app);
             }
 
@@ -37,7 +37,7 @@ namespace ScrapyWeb.Controllers
         public ActionResult AddApplication(TwitterApplication app)
         {
             string error = "";
-            clBusiness.AddAplication(app, ref error);
+            clBusiness.AddTwitterApplication(app, ref error);
             if (string.IsNullOrEmpty(error))
             {
                 return RedirectToAction("Index");
@@ -61,7 +61,7 @@ namespace ScrapyWeb.Controllers
         public ActionResult AddFBApplication(FBApplication app)
         {
             string error = "";
-            clBusiness.AddFBAplication(app, ref error);
+            clBusiness.AddFBApplication(app, ref error);
             if (string.IsNullOrEmpty(error))
             {
                 return RedirectToAction("Index");
@@ -83,7 +83,7 @@ namespace ScrapyWeb.Controllers
             @ViewBag.Message = "";
             string Error = string.Empty;
             if (search.SearchUserTimeLine)
-                clBusiness.ReadUserTimelineInTwitter(search, clBusiness.getApplicationDetails(id));
+                clBusiness.ReadUserTimelineInTwitter(search, clBusiness.getTwitterApplicationDetails(id));
             else
             {
                 clBusiness.searchInTwitter(id, search, ref Error);
@@ -103,9 +103,7 @@ namespace ScrapyWeb.Controllers
         {
             ViewBag.AppId = id;
 
-            var view = View(clBusiness.getSearchCriteria());
-
-            return view;
+            return View(clBusiness.getSearchCriteria());
         }
 
         [HttpPost]
@@ -115,7 +113,7 @@ namespace ScrapyWeb.Controllers
             string Error = string.Empty;
 
             //
-            var fbApp = clBusiness.GetFbApplication(id);
+            var fbApp = clBusiness.GetFBApplication(id);
 
             //
             search.FbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
@@ -147,7 +145,7 @@ namespace ScrapyWeb.Controllers
         public ActionResult AddFBInfluencer(T_FB_INFLUENCER influencer, int id, String themeid = "", String CallFrom = "")
         {
             // Get from FB
-            var fbApp = clBusiness.GetFbApplication(id);
+            var fbApp = clBusiness.GetFBApplication(id);
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
 
             bool status = false;
