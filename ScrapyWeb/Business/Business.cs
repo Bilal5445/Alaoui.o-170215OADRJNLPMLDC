@@ -664,7 +664,8 @@ namespace ScrapyWeb.Business
                 string error = string.Empty;
                 // first get page/group feed (ie: list of posts)
                 string objText = "";
-                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed" + "?key=" + app.FbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed" 
+                    + "?key=" + app.FbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
 
                 HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
                 using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
@@ -697,18 +698,15 @@ namespace ScrapyWeb.Business
                                 // not starting with a digit ex : tanjazzofficiel then page then we use created_time
                                 updated_created_time = Convert.ToString(status["created_time"]);
                             }
+
                             var date = DateTime.Now;
+
                             try
                             {
                                 if (updated_created_time == null)
-                                {
                                     date = DateTime.Parse(updated_created_time);
-                                }
                                 else
-                                {
                                     date = DateTime.Parse(Convert.ToString(status["created_time"]));
-                                }
-
                             }
                             catch (Exception e)
                             {
@@ -820,8 +818,8 @@ namespace ScrapyWeb.Business
                     post.date_publishing = date;
                     post.likes_count = likes_count;
                     post.comments_count = comments_count;
-                    //Add themeid in fb posts as the foreign key for the post
 
+                    // Add themeid in fb posts as the foreign key for the post
                     // influencer
                     post.fk_influencer = feedId.Split(new char[] { '_' })[0];
 
@@ -830,6 +828,89 @@ namespace ScrapyWeb.Business
                 }
 
                 return posts;
+            }
+        }
+
+        private static void getFacebookGroupFeedCommentFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
+        {
+            try
+            {
+                //
+                string url = search.FbAccessGroupFeedURL + feedId + "/comments"
+                    + "?limit=100"
+                    + "&key=" + app.FbAppId
+                    + "&access_token=" + access_token;
+
+                // ex : url : https://graph.facebook.com/v2.8/106286359953523_193506621231496/comments?key=360921534307030&access_token=360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk
+                // ie : https://graph.facebook.com/v2.8/post_id/comments?
+                HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+                using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                {
+                    StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                    String objText = reader.ReadToEnd();
+                    JObject jObjects = JObject.Parse(objText);
+                    JObject Objects = new JObject(jObjects);
+                    JArray items = (JArray)Objects["data"];
+
+                    // if next retrieve and add to items
+                    JValue paginationNext = null;
+                    if (Objects["paging"] != null) if (Objects["paging"]["next"] != null)
+                            paginationNext = (JValue)Objects["paging"]["next"];
+                    // ex : "next": "https://graph.facebook.com/v2.11/191616720877982_1725409007498738/comments?access_token=EAACEdEose0cBAJG8GcB1zBZA1MwBwFIP4hBi4JZBqSuR9JiotXr9ZCZBDglqr0ZBbZAVOzw8HkwEYDgbHqY1ZCfuVyq1cUJx8ibY6aJxxqxw5CeyoA9yiuG0RQZCSOfFyOXAVAIKzgs6thxyfjk9Ac9DfJTt2yoxtI5q9rWX5bITqk7pb61dE9DjdfhB6VpXb0gZD&pretty=0&limit=25&after=ODQZD"
+                    if (paginationNext != null)
+                    {
+                        var urlNext = Convert.ToString(paginationNext).Replace("limit=25", "limit=100");
+                        HttpWebRequest requestNext = WebRequest.Create(urlNext) as HttpWebRequest;
+                        using (HttpWebResponse responseNext = requestNext.GetResponse() as HttpWebResponse)
+                        {
+                            StreamReader readerNext = new StreamReader(responseNext.GetResponseStream());
+                            String objTextNext = readerNext.ReadToEnd();
+                            JObject jObjectsNext = JObject.Parse(objTextNext);
+                            JObject ObjectsNext = new JObject(jObjectsNext);
+                            JArray itemsNext = (JArray)ObjectsNext["data"];
+
+                            // add to items
+                            for (int i = 0; i < itemsNext.Count; i++)
+                                items.Add(itemsNext[i]);
+                        }
+                    }
+
+                    foreach (var status in items)
+                    {
+                        if (status["message"] != null)
+                        {
+                            var feedComment = new FBFeedComment();
+
+                            var message = Convert.ToString(status["message"]);
+                            String created_time = Convert.ToString(status["created_time"]);
+                            var date = DateTime.Parse(created_time);
+
+                            // save FB feed comment to DB
+                            feedComment.Id = Convert.ToString(status["id"]);
+                            feedComment.message = message;
+                            feedComment.created_time = date;
+                            AddFeedCommentToDb(feedComment);
+                        }
+                    }
+                }
+            }
+            catch (WebException wex)
+            {
+                if (wex.Response != null)
+                {
+                    using (var errorResponse = (HttpWebResponse)wex.Response)
+                    {
+                        using (var reader = new StreamReader(errorResponse.GetResponseStream()))
+                        {
+                            Error = reader.ReadToEnd();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Error = ex.Message;
             }
         }
 
@@ -969,88 +1050,45 @@ namespace ScrapyWeb.Business
             }
         }
 
-        private static void getFacebookGroupFeedCommentFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
+        private static void getInfluencerFirstInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out String id, out String name)
         {
-            try
+            string objText = "";
+            string idofpage = string.Empty;
+            string nameofpage = string.Empty;
+            string url = graphFBApi28Url + fbInfluencerUrlName + "?key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
             {
-                //
-                string url = search.FbAccessGroupFeedURL + feedId + "/comments"
-                    + "?limit=100"
-                    + "&key=" + app.FbAppId
-                    + "&access_token=" + access_token;
+                StreamReader reader = new StreamReader(response.GetResponseStream());
 
-                // ex : url : https://graph.facebook.com/v2.8/106286359953523_193506621231496/comments?key=360921534307030&access_token=360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk
-                // ie : https://graph.facebook.com/v2.8/post_id/comments?
-                HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-                using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-                {
-                    StreamReader reader = new StreamReader(response.GetResponseStream());
+                objText = reader.ReadToEnd();
+                JObject obj = JObject.Parse(objText);
 
-                    String objText = reader.ReadToEnd();
-                    JObject jObjects = JObject.Parse(objText);
-                    JObject Objects = new JObject(jObjects);
-                    JArray items = (JArray)Objects["data"];
-
-                    // if next retrieve and add to items
-                    JValue paginationNext = null;
-                    if (Objects["paging"] != null) if (Objects["paging"]["next"] != null)
-                            paginationNext = (JValue)Objects["paging"]["next"];
-                    // ex : "next": "https://graph.facebook.com/v2.11/191616720877982_1725409007498738/comments?access_token=EAACEdEose0cBAJG8GcB1zBZA1MwBwFIP4hBi4JZBqSuR9JiotXr9ZCZBDglqr0ZBbZAVOzw8HkwEYDgbHqY1ZCfuVyq1cUJx8ibY6aJxxqxw5CeyoA9yiuG0RQZCSOfFyOXAVAIKzgs6thxyfjk9Ac9DfJTt2yoxtI5q9rWX5bITqk7pb61dE9DjdfhB6VpXb0gZD&pretty=0&limit=25&after=ODQZD"
-                    if (paginationNext != null)
-                    {
-                        var urlNext = Convert.ToString(paginationNext).Replace("limit=25", "limit=100");
-                        HttpWebRequest requestNext = WebRequest.Create(urlNext) as HttpWebRequest;
-                        using (HttpWebResponse responseNext = requestNext.GetResponse() as HttpWebResponse)
-                        {
-                            StreamReader readerNext = new StreamReader(responseNext.GetResponseStream());
-                            String objTextNext = readerNext.ReadToEnd();
-                            JObject jObjectsNext = JObject.Parse(objTextNext);
-                            JObject ObjectsNext = new JObject(jObjectsNext);
-                            JArray itemsNext = (JArray)ObjectsNext["data"];
-
-                            // add to items
-                            for (int i = 0; i < itemsNext.Count; i++)
-                                items.Add(itemsNext[i]);
-                        }
-                    }
-
-                    foreach (var status in items)
-                    {
-                        if (status["message"] != null)
-                        {
-                            var feedComment = new FBFeedComment();
-
-                            var message = Convert.ToString(status["message"]);
-                            String created_time = Convert.ToString(status["created_time"]);
-                            var date = DateTime.Parse(created_time);
-
-                            // save FB feed comment to DB
-                            feedComment.Id = Convert.ToString(status["id"]);
-                            feedComment.message = message;
-                            feedComment.created_time = date;
-                            AddFeedCommentToDb(feedComment);
-                        }
-                    }
-                }
-            }
-            catch (WebException wex)
-            {
-                if (wex.Response != null)
-                {
-                    using (var errorResponse = (HttpWebResponse)wex.Response)
-                    {
-                        using (var reader = new StreamReader(errorResponse.GetResponseStream()))
-                        {
-                            Error = reader.ReadToEnd();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Error = ex.Message;
+                // set id, name
+                id = Convert.ToString(obj["id"]);
+                name = Convert.ToString(obj["name"]);
             }
         }
+
+        private static void getInfluencerSecondInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out int fan_count)
+        {
+            string objText = "";
+            string url = graphFBApi28Url + fbInfluencerUrlName + "?fields=fan_count" + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                objText = reader.ReadToEnd();
+                JObject obj = JObject.Parse(objText);
+
+                // set fan_count
+                fan_count = Convert.ToInt32(obj["fan_count"]);
+            }
+        }
+
         #endregion
 
         #region BACK YARD DB FB
@@ -1259,45 +1297,6 @@ namespace ScrapyWeb.Business
         #endregion
 
         #region BACK YARD BO
-        private static void getInfluencerFirstInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out String id, out String name)
-        {
-            string objText = "";
-            string idofpage = string.Empty;
-            string nameofpage = string.Empty;
-            string url = graphFBApi28Url + fbInfluencerUrlName + "?key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
-
-            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-            {
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-
-                objText = reader.ReadToEnd();
-                JObject obj = JObject.Parse(objText);
-
-                // set id, name
-                id = Convert.ToString(obj["id"]);
-                name = Convert.ToString(obj["name"]);
-            }
-        }
-
-        private static void getInfluencerSecondInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out int fan_count)
-        {
-            string objText = "";
-            string url = graphFBApi28Url + fbInfluencerUrlName + "?fields=fan_count" + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
-
-            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-            {
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-
-                objText = reader.ReadToEnd();
-                JObject obj = JObject.Parse(objText);
-
-                // set fan_count
-                fan_count = Convert.ToInt32(obj["fan_count"]);
-            }
-        }
-
         private static void getKeywordInfoFromFBViaTwingly(FB_KEYWORD fbKeyword, String twinglyApi15Url, String access_token, bool limitToMorocco = false)
         {
             String url = twinglyApi15Url + "chart" + "?apikey=" + access_token + "&one=\"" + fbKeyword.keyword + "\"";
