@@ -57,21 +57,25 @@ namespace ScrapyWeb.Controllers
                 bool status = false;
                 string message = string.Empty;
 
-                // MC220118 comments should be retrieved from FB for posts in DB instead of for posts from FB, because paging in FB
-                // may not be chronological and thus comments for a recent post may be not be refreshed
-                // MC240118 but first we need influencer id to filter on the posts of the page only. We have the name so we get the id from the db (1to1)
-                influencer = clBusiness.load_FB_INFLUENCER_EFSQL(influencer.url_name);
-                posts = clBusiness.load_FB_POSTs_EFSQL(influencerId: influencer.id);
-                if (posts != null && posts.Count > 0)
+                try
                 {
-                    string errmsg = string.Empty;
-                    Search search = new Search();
-                    search.FbAccessToken = fbAccessToken;
+                    // MC220118 comments should be retrieved from FB for posts in DB instead of for posts from FB, because paging in FB
+                    // may not be chronological and thus comments for a recent post may be not be refreshed
+                    // MC240118 but first we need influencer id to filter on the posts of the page only. We have the name so we get the id from the db (1to1)
+                    influencer = clBusiness.load_FB_INFLUENCER_EFSQL(influencer.url_name);
+                    posts = clBusiness.load_FB_POSTs_EFSQL(influencerId: influencer.id);
+                    if (posts != null && posts.Count > 0)
+                    {
+                        Search search = new Search();
+                        search.FbAccessToken = fbAccessToken;
 
-                    // retrieve from FB the comments associated with retrieved posts
-                    var IsCommentSave = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref errmsg);
-                    message = errmsg;
-                    status = IsCommentSave;
+                        // retrieve from FB the comments associated with retrieved posts
+                        status = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref message);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    message = ex.Message;
                 }
 
                 return Json(new { status = status, message = message });
