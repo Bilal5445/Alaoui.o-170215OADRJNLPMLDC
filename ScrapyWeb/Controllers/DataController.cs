@@ -51,7 +51,7 @@ namespace ScrapyWeb.Controllers
             // MC260118 this will retrieve only the most recents 25 posts from the FB page and will mark any existing post with changed 
             // comments count or non-existing post for comments retrieving
             // var posts = clBusiness.getFBInfluencerPostsFromFB(influencer.url_name, fbApp.FbAppId, fbAccessToken);
-            var posts = clBusiness.RetrieveFBPageLatestPosts(influencer.url_name, fbApp.FbAppId, fbAccessToken);
+            var posts = clBusiness.RetrieveFBPagePosts(influencer.url_name, fbApp.FbAppId, fbAccessToken);
             clBusiness.AddFBPostsToDB(posts);
             status = true;
 
