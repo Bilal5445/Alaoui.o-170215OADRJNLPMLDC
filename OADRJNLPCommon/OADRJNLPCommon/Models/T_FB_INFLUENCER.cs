@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace OADRJNLPCommon.Models
 {
-   public partial class T_FB_INFLUENCER
+    [Table("T_FB_INFLUENCER")]
+    public partial class T_FB_INFLUENCER
     {
         [Key]
         public string id { get; set; }
@@ -17,5 +19,6 @@ namespace OADRJNLPCommon.Models
         public int fan_count { get; set; }
         public System.DateTime date_last_update { get; set; }
         public string fk_theme { get; set; }
+        public bool AutoRetrieveFBPostAndComments { get; set; }
     }
 }
