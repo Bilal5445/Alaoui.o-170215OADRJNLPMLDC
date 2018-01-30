@@ -15,3 +15,9 @@ Update-Database -StartUpProjectName ScrapyWeb
 VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
 Add-Migration commentFeedId
 Update-Database -StartUpProjectName ScrapyWeb
+
+---
+
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration autoFBPostComment
+Update-Database -StartUpProjectName ScrapyWeb

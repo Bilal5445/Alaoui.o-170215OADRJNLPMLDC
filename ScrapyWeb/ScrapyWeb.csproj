@@ -225,6 +225,10 @@
     <Compile Include="Migrations\201801262102126_commentFeedId.Designer.cs">
       <DependentUpon>201801262102126_commentFeedId.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201801301226380_autoFBPostComment.cs" />
+    <Compile Include="Migrations\201801301226380_autoFBPostComment.Designer.cs">
+      <DependentUpon>201801301226380_autoFBPostComment.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\FacebookGroupFeed.cs">
       <DependentUpon>ScrapyWeb.tt</DependentUpon>
@@ -456,6 +460,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801262102126_commentFeedId.resx">
       <DependentUpon>201801262102126_commentFeedId.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801301226380_autoFBPostComment.resx">
+      <DependentUpon>201801301226380_autoFBPostComment.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
