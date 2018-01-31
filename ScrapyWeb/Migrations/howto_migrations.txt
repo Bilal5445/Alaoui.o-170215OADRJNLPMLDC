@@ -27,3 +27,9 @@ Update-Database -StartUpProjectName ScrapyWeb
 VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
 Add-Migration targetEntities
 Update-Database -StartUpProjectName ScrapyWeb
+
+---
+
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration mailFBPosts
+Update-Database -StartUpProjectName ScrapyWeb
