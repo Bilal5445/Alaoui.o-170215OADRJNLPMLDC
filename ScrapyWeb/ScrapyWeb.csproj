@@ -233,6 +233,10 @@
     <Compile Include="Migrations\201801301301354_targetEntities.Designer.cs">
       <DependentUpon>201801301301354_targetEntities.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201801311556219_mailFBPosts.cs" />
+    <Compile Include="Migrations\201801311556219_mailFBPosts.Designer.cs">
+      <DependentUpon>201801311556219_mailFBPosts.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\FacebookGroupFeed.cs">
       <DependentUpon>ScrapyWeb.tt</DependentUpon>
@@ -470,6 +474,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801301301354_targetEntities.resx">
       <DependentUpon>201801301301354_targetEntities.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801311556219_mailFBPosts.resx">
+      <DependentUpon>201801311556219_mailFBPosts.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
