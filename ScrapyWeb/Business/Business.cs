@@ -818,67 +818,6 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static List<T_FB_POST> getFBInfluencerPostsFromFB(String fbInfluencerUrlName, String fbAppId, String fbAccessToken)
-        {
-            // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
-            JObject jObject = JObject.Parse(fbAccessToken);
-            String access_token = (String)jObject["access_token"];
-            String token_type = (String)jObject["token_type"];
-
-            //
-            var graphFBApi28Url = Util.getKeyValueFromAppSetting("FbGroupFeed");
-            Util.getKeyValueFromAppSetting("FbTokenURL");
-
-            // first get page/group feed (ie: list of posts) with count of like and count of comments
-            string url = graphFBApi28Url + fbInfluencerUrlName + "/feed"
-                + "?limit=100"
-                + "&order=reverse_chronological"
-                + "&fields=comments.limit(0).summary(true),likes.limit(0).summary(true),message,created_time"
-                + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
-
-            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-            {
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-
-                string objText = reader.ReadToEnd();
-                JObject jObjects = JObject.Parse(objText);
-                JArray items = (JArray)jObjects["data"];
-
-                // if next retrieve and add to items
-                // recursively (up to 10 times) find the posts using the FB paging
-                RecursivelyGetFBPosts(jObjects, items, 0);
-
-                //
-                var posts = new List<T_FB_POST>();
-                foreach (var status in items)
-                {
-                    // data from retrieved json
-                    var message = status["message"] != null ? Convert.ToString(status["message"]) : String.Empty;
-                    var date = DateTime.Parse(Convert.ToString(status["created_time"]));
-                    var feedId = Convert.ToString(status["id"]);
-                    int likes_count = Convert.ToInt32(status["likes"]["summary"]["total_count"]);
-                    int comments_count = Convert.ToInt32(status["comments"]["summary"]["total_count"]);
-
-                    // fill fb post
-                    var post = new T_FB_POST();
-                    post.id = feedId;
-                    post.post_text = message;
-                    post.date_publishing = date;
-                    post.likes_count = likes_count;
-                    post.comments_count = comments_count;
-
-                    // Add themeid in fb posts as the foreign key for the post influencer
-                    post.fk_influencer = feedId.Split(new char[] { '_' })[0];
-
-                    //
-                    posts.Add(post);
-                }
-
-                return posts;
-            }
-        }
-
         private static int getFacebookGroupFeedCommentFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
         {
             try
@@ -975,18 +914,17 @@ namespace ScrapyWeb.Business
         {
             JObject jObject = JObject.Parse(search.FbAccessToken);
             String access_token = (String)jObject["access_token"];
-            String token_type = (String)jObject["token_type"];
 
             var retrievedCommentsCount = 0;
 
             // MC260118 posts are filtered upstream on only posts with new comments
-            foreach (var item in posts)
+            foreach (var post in posts)
             {
                 // retrieve comments from FB and save them in DB into table FBFeedComment
-                retrievedCommentsCount = getFacebookGroupFeedCommentFromFB(search, access_token, item.id, app, ref Error);
+                retrievedCommentsCount += getFacebookGroupFeedCommentFromFB(search, access_token, post.id, app, ref Error);
 
                 // clean posts back to no new comments waiting
-                item.newCommentsWaiting = false;
+                post.newCommentsWaiting = false;
             }
 
             // save back the posts to the DB with new status of no new comments waiting
@@ -1213,7 +1151,7 @@ namespace ScrapyWeb.Business
             {
                 foreach (var newpost in newposts)
                 {
-                    // if post already update
+                    // if the post already there, update it
                     // and if comments count changed, mark for retrieve new comments from FB
                     var existingPost = context.T_FB_POST.SingleOrDefault(f => f.id == newpost.id);
                     if (existingPost != null)

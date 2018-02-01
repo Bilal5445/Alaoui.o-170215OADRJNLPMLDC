@@ -48,9 +48,9 @@ namespace ScrapyWeb.Controllers
 
             // get FB page posts from FB & save them to DB
             bool status = false;
-            // MC260118 this will retrieve only the most recents 25 posts from the FB page and will mark any existing post with changed 
-            // comments count or non-existing post for comments retrieving
-            // var posts = clBusiness.getFBInfluencerPostsFromFB(influencer.url_name, fbApp.FbAppId, fbAccessToken);
+            // MC260118 this will retrieve using graph fb api the maximum number of posts (using 10-fold recursivity) from the FB page, with their number of likes and of comments
+            // then this will mark any existing post with changed comments count for comments retrieving
+            // this will also mark any new never-retrived-before post for comments retrieving 
             var posts = clBusiness.RetrieveFBPagePosts(influencer.url_name, fbApp.FbAppId, fbAccessToken);
             clBusiness.AddFBPostsToDB(posts);
             status = true;
@@ -84,7 +84,7 @@ namespace ScrapyWeb.Controllers
                     }
 
                     // retrieved Posts Count (limited to only new or with changed commount count)
-                    retrievedPostsCount = posts.Count;
+                    retrievedPostsCount = posts.FindAll(m => String.IsNullOrEmpty(m.translated_text)).Count;
                 }
                 catch (Exception ex)
                 {
