@@ -435,7 +435,9 @@ namespace ScrapyWeb.Business
                                 where tweet.ScreenName == Screen_name
                                 select tweet).Take(1);
                 return topTweet.FirstOrDefault<TweetSet>().Tweet_Id;
+
             }
+
         }
 
         /// <summary>
@@ -453,7 +455,6 @@ namespace ScrapyWeb.Business
                     AccessTokenSecret = Util.getKeyValueFromAppSetting("oauth_token_secret"),
                     ConsumerKey = Util.getKeyValueFromAppSetting("oauth_consumer_key"),
                     ConsumerSecret = Util.getKeyValueFromAppSetting("oauth_consumer_secret")
-
                 };
             }
             else
@@ -464,14 +465,16 @@ namespace ScrapyWeb.Business
         {
             using (var context = new ScrapyWebEntities())
             {
+
                 var query = (from app in context.TwitterApplications
                              where app.ApplicationId == ApplicationId
+
                              select app).Take(1);
                 return query.FirstOrDefault<TwitterApplication>();
 
             }
         }
-        # endregion
+        #endregion
 
         public static Search getSearchCriteria()
         {
@@ -592,7 +595,6 @@ namespace ScrapyWeb.Business
             request.Method = "GET";
             request.ContentType = "application/x-www-form-urlencoded";
             return request;
-
         }
 
         #region BACK YARD FB
@@ -627,7 +629,6 @@ namespace ScrapyWeb.Business
             catch (Exception ex)
             {
                 error = ex.Message;
-
             }
         }
 
@@ -693,7 +694,9 @@ namespace ScrapyWeb.Business
                                 // not starting with a digit ex : tanjazzofficiel then page then we use created_time
                                 updated_created_time = Convert.ToString(status["created_time"]);
                             }
+
                             var date = DateTime.Now;
+
                             try
                             {
                                 if (updated_created_time == null)
@@ -1071,6 +1074,7 @@ namespace ScrapyWeb.Business
                 fan_count = Convert.ToInt32(obj["fan_count"]);
             }
         }
+
         #endregion
 
         #region BACK YARD DB FB
@@ -1112,7 +1116,6 @@ namespace ScrapyWeb.Business
             {
                 var query = (from app in context.FBApplications
                              where app.ApplicationId == ApplicationId
-
                              select app).Take(1);
                 return query.FirstOrDefault<FBApplication>();
             }
@@ -1126,7 +1129,6 @@ namespace ScrapyWeb.Business
                                       .ToList();
             }
         }
-
         #endregion
 
         #region FRONT YARD PERSIST
