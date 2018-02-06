@@ -16,7 +16,7 @@ namespace ScrapyWeb.Controllers
             List<TwitterApplication> _appList = new List<TwitterApplication>();
             List<FBApplication> _fbAppList = new List<FBApplication>();
             clBusiness.getTwitterApplications(ref _appList);
-            clBusiness.getFBApplications(ref _fbAppList);
+            clBusiness.getFBApplicationsFromDB(ref _fbAppList);
             ViewBag.FbApplications = _fbAppList;
             return View(_appList);
         }
@@ -26,7 +26,7 @@ namespace ScrapyWeb.Controllers
         {
             if (id > 0)
             {
-                var app = clBusiness.GetApplication(id);
+                var app = clBusiness.GetTwitterApplication(id);
                 return View(app);
             }
 
@@ -37,7 +37,7 @@ namespace ScrapyWeb.Controllers
         public ActionResult AddApplication(TwitterApplication app)
         {
             string error = "";
-            clBusiness.AddAplication(app, ref error);
+            clBusiness.AddTwitterApplication(app, ref error);
             if (string.IsNullOrEmpty(error))
             {
                 return RedirectToAction("Index");
@@ -50,7 +50,7 @@ namespace ScrapyWeb.Controllers
         {
             if (id > 0)
             {
-                var app = clBusiness.GetFBApplication(id);
+                var app = clBusiness.GetFBApplicationFromDB(id);
                 return View(app);
             }
 
@@ -61,7 +61,7 @@ namespace ScrapyWeb.Controllers
         public ActionResult AddFBApplication(FBApplication app)
         {
             string error = "";
-            clBusiness.AddFBAplication(app, ref error);
+            clBusiness.AddFBApplication(app, ref error);
             if (string.IsNullOrEmpty(error))
             {
                 return RedirectToAction("Index");
@@ -83,7 +83,7 @@ namespace ScrapyWeb.Controllers
             @ViewBag.Message = "";
             string Error = string.Empty;
             if (search.SearchUserTimeLine)
-                clBusiness.ReadUserTimelineInTwitter(search, clBusiness.getApplicationDetails(id));
+                clBusiness.ReadUserTimelineInTwitter(search, clBusiness.getTwitterApplicationDetails(id));
             else
             {
                 clBusiness.searchInTwitter(id, search, ref Error);
@@ -115,13 +115,13 @@ namespace ScrapyWeb.Controllers
             string Error = string.Empty;
 
             //
-            var fbApp = clBusiness.GetFbApplication(id);
+            var fbApp = clBusiness.GetFBApplicationFromDB(id);
 
             //
             search.FbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
 
             //
-            clBusiness.getFacebookGroupFeed(search, fbApp, ref Error);
+            clBusiness.getFacebookGroupFeedFromFB(search, fbApp, ref Error);
 
             //
             if (string.IsNullOrEmpty(Error))
@@ -147,7 +147,7 @@ namespace ScrapyWeb.Controllers
         public ActionResult AddFBInfluencer(T_FB_INFLUENCER influencer, int id, String themeid = "", String CallFrom = "")
         {
             // Get from FB
-            var fbApp = clBusiness.GetFbApplication(id);
+            var fbApp = clBusiness.GetFBApplicationFromDB(id);
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
 
             bool status = false;

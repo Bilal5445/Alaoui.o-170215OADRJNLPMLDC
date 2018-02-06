@@ -217,6 +217,26 @@
     <Compile Include="Migrations\201712111752136_FBAccess_CompositeKey.Designer.cs">
       <DependentUpon>201712111752136_FBAccess_CompositeKey.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201801261828379_newCommentsWaiting.cs" />
+    <Compile Include="Migrations\201801261828379_newCommentsWaiting.Designer.cs">
+      <DependentUpon>201801261828379_newCommentsWaiting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801262102126_commentFeedId.cs" />
+    <Compile Include="Migrations\201801262102126_commentFeedId.Designer.cs">
+      <DependentUpon>201801262102126_commentFeedId.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801301226380_autoFBPostComment.cs" />
+    <Compile Include="Migrations\201801301226380_autoFBPostComment.Designer.cs">
+      <DependentUpon>201801301226380_autoFBPostComment.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801301301354_targetEntities.cs" />
+    <Compile Include="Migrations\201801301301354_targetEntities.Designer.cs">
+      <DependentUpon>201801301301354_targetEntities.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801311556219_mailFBPosts.cs" />
+    <Compile Include="Migrations\201801311556219_mailFBPosts.Designer.cs">
+      <DependentUpon>201801311556219_mailFBPosts.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\201802061925311_entryDate.cs" />
     <Compile Include="Migrations\201802061925311_entryDate.Designer.cs">
       <DependentUpon>201802061925311_entryDate.cs</DependentUpon>
@@ -446,6 +466,21 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201712111752136_FBAccess_CompositeKey.resx">
       <DependentUpon>201712111752136_FBAccess_CompositeKey.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801261828379_newCommentsWaiting.resx">
+      <DependentUpon>201801261828379_newCommentsWaiting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801262102126_commentFeedId.resx">
+      <DependentUpon>201801262102126_commentFeedId.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801301226380_autoFBPostComment.resx">
+      <DependentUpon>201801301226380_autoFBPostComment.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801301301354_targetEntities.resx">
+      <DependentUpon>201801301301354_targetEntities.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801311556219_mailFBPosts.resx">
+      <DependentUpon>201801311556219_mailFBPosts.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201802061925311_entryDate.resx">
       <DependentUpon>201802061925311_entryDate.cs</DependentUpon>
