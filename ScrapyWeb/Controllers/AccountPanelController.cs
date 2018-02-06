@@ -103,9 +103,7 @@ namespace ScrapyWeb.Controllers
         {
             ViewBag.AppId = id;
 
-            var view = View(clBusiness.getSearchCriteria());
-
-            return view;
+            return View(clBusiness.getSearchCriteria());
         }
 
         [HttpPost]
@@ -155,7 +153,7 @@ namespace ScrapyWeb.Controllers
 
             try
             {
-                // get data from FB
+                // get influencer (fb page) info from FB
                 influencer = clBusiness.getFBInfluencerInfoFromFB(influencer.url_name, influencer.pro_or_anti, fbApp, fbAccessToken, themeid);
 
                 // Save FB influencer (ie : the public FB page) to DB
@@ -176,14 +174,9 @@ namespace ScrapyWeb.Controllers
 
             // return to main screen
             if (!string.IsNullOrEmpty(CallFrom))
-            {
                 return Json(new { status = status, message = message });
-            }
             else
-            {
-                // return to main screen
                 return RedirectToAction("Index", "Home");
-            }
         }
     }
 }
