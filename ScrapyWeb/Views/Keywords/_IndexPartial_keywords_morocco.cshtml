@@ -13,18 +13,15 @@
     </tr>
     @foreach (var fbKeyword in Model)
     {
-        // using (Html.BeginForm("FetchFBInfluencerPosts", "Data", FormMethod.Post, new { appId = @ViewBag.AppId }))
-        {
-            <tr>
-                <td class="center">@fbKeyword.keyword</td>
-                <td class="number">@fbKeyword.matched_posts_count_ma</td>
-                <td class="number">@fbKeyword.matched_comments_count_ma</td>
-                <td class="number">@fbKeyword.social_stats_likes_ma</td>
-                <td class="number">@fbKeyword.social_stats_comments_ma</td>
-                <td class="number">@fbKeyword.social_stats_shares_ma</td>
-                <td class="number">Last @(Convert.ToUInt32((fbKeyword.date_latest_retrieve - fbKeyword.date_oldest_retrieve).TotalDays)) Days</td>
-                <td class="center"><button type="submit" class="btn btn-primary btn-xs">Refresh</button></td>
-            </tr>
-        }
+        <tr>
+            <td class="center">@fbKeyword.keyword</td>
+            <td class="number">@fbKeyword.matched_posts_count_ma</td>
+            <td class="number">@fbKeyword.matched_comments_count_ma</td>
+            <td class="number">@fbKeyword.social_stats_likes_ma</td>
+            <td class="number">@fbKeyword.social_stats_comments_ma</td>
+            <td class="number">@fbKeyword.social_stats_shares_ma</td>
+            <td class="number">Last @(Convert.ToUInt32((fbKeyword.date_latest_retrieve - fbKeyword.date_oldest_retrieve).TotalDays)) Days</td>
+            <td class="center"><button type="submit" class="btn btn-primary btn-xs">Refresh</button></td>
+        </tr>
     }
 </table>
