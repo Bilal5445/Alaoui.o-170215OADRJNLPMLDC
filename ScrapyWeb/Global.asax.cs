@@ -24,7 +24,6 @@ namespace ScrapyWeb
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             AuthConfig.RegisterAuth();
-            Database.SetInitializer<ScrapyWeb.Models.ScrapyWebEntities>(null);
         }
     }
 }
