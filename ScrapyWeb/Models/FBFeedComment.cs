@@ -21,7 +21,7 @@ namespace ScrapyWeb.Models
         public string Id { get; set; }
         public string message { get; set; }
         public string translated_message { get; set; }
-        public System.DateTime created_time { get; set; }
-        public System.DateTime? EntryDate { get; set; }
+        public DateTime created_time { get; set; }
+        public DateTime? EntryDate { get; set; }
     }
 }
