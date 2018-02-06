@@ -32,5 +32,6 @@ namespace OADRJNLPCommon.Models
         public string message { get; set; }
         public string translated_message { get; set; }
         public DateTime created_time { get; set; }
+        public DateTime? EntryDate { get; set; }
     }
 }

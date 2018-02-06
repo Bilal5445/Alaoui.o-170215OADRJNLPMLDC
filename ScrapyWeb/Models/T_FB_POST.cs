@@ -27,5 +27,6 @@ namespace ScrapyWeb.Models
         public string MailBody { get; set; }
         public int? NoOfTimeMailSend { get; set; }
         public DateTime? LastMailSendOn { get; set; }
+        public DateTime? EntryDate { get; set; }
     }
 }
