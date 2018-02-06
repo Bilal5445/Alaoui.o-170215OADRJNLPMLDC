@@ -3,3 +3,39 @@ USE master; CREATE DATABASE ScrapyWeb
 execute 171129_script_create_db_with_data.sql
 VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
 Update-Database -StartUpProjectName ScrapyWeb
+
+---
+
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration newCommentsWaiting
+Update-Database -StartUpProjectName ScrapyWeb
+
+---
+
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration commentFeedId
+Update-Database -StartUpProjectName ScrapyWeb
+
+---
+
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration autoFBPostComment
+Update-Database -StartUpProjectName ScrapyWeb
+
+---
+
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration targetEntities
+Update-Database -StartUpProjectName ScrapyWeb
+
+---
+
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration mailFBPosts
+Update-Database -StartUpProjectName ScrapyWeb
+
+---
+
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration entryDate
+Update-Database -StartUpProjectName ScrapyWeb
