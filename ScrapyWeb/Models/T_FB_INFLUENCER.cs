@@ -25,7 +25,7 @@ namespace ScrapyWeb.Models
         public string pro_or_anti { get; set; }
         public int fan_count { get; set; }
         public System.DateTime date_last_update { get; set; }
-        public string TargetEntities { get; set; }
         public bool AutoRetrieveFBPostAndComments{ get; set; }
+        public string TargetEntities { get; set; }
     }
 }
