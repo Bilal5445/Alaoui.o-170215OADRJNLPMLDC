@@ -573,7 +573,6 @@ namespace ScrapyWeb.Business
                                     Uri.EscapeDataString(oauth_version)
                             );
 
-
             ServicePointManager.Expect100Continue = false;
             var URL = "";
             if (search.SearchUserTimeLine)
