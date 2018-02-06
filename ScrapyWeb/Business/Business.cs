@@ -149,7 +149,6 @@ namespace ScrapyWeb.Business
                                         Uri.EscapeDataString(oauth_version)
                                 );
 
-
                 ServicePointManager.Expect100Continue = false;
                 var URL = "https://api.twitter.com/1.1/geo/search.json";
 
@@ -160,10 +159,10 @@ namespace ScrapyWeb.Business
                 request.Method = "GET";
                 request.ContentType = "application/x-www-form-urlencoded";
 
-
                 var response = (HttpWebResponse)request.GetResponse();
                 var reader = new StreamReader(response.GetResponseStream());
                 var objText = reader.ReadToEnd();
+
                 try
                 {
                     JObject jObjects = JObject.Parse(objText);
@@ -884,6 +883,7 @@ namespace ScrapyWeb.Business
                             fbComment.message = message;
                             fbComment.created_time = date;
                             fbComment.feedId = feedId;
+                            fbComment.EntryDate = DateTime.Now; // Add entry date on comment
                             fbComments.Add(fbComment);
                         }
                     }
@@ -1227,7 +1227,7 @@ namespace ScrapyWeb.Business
 
             using (var context = new ScrapyWebEntities())
             {
-                foreach(var fbComment in fbComments)
+                foreach (var fbComment in fbComments)
                 {
                     var result = context.FBFeedComments.SingleOrDefault(f => f.Id == fbComment.Id);
                     if (result == null)
