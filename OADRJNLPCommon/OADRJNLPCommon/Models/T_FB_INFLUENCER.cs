@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OADRJNLPCommon.Models
 {
-   public partial class T_FB_INFLUENCER
+    [Table("T_FB_INFLUENCER")]
+    public partial class T_FB_INFLUENCER
     {
         [Key]
         public string id { get; set; }
