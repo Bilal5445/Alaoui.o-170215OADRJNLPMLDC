@@ -10,7 +10,6 @@
 namespace ScrapyWeb.Models
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,6 +19,7 @@ namespace ScrapyWeb.Models
         [Key]
         public string GroupPostId { get; set; }
         public string PostText { get; set; }
-        public System.DateTime UpdatedTime { get; set; }
+        public DateTime UpdatedTime { get; set; }
+        public DateTime? EntryDate { get; set; }
     }
 }
