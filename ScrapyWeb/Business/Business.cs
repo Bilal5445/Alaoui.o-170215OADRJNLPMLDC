@@ -149,7 +149,6 @@ namespace ScrapyWeb.Business
                                         Uri.EscapeDataString(oauth_version)
                                 );
 
-
                 ServicePointManager.Expect100Continue = false;
                 var URL = "https://api.twitter.com/1.1/geo/search.json";
 
@@ -160,10 +159,10 @@ namespace ScrapyWeb.Business
                 request.Method = "GET";
                 request.ContentType = "application/x-www-form-urlencoded";
 
-
                 var response = (HttpWebResponse)request.GetResponse();
                 var reader = new StreamReader(response.GetResponseStream());
                 var objText = reader.ReadToEnd();
+
                 try
                 {
                     JObject jObjects = JObject.Parse(objText);
@@ -787,7 +786,7 @@ namespace ScrapyWeb.Business
                 var posts = new List<T_FB_POST>();
                 foreach (var status in items)
                 {
-                    //
+                    // data from retrieved json
                     var message = status["message"] != null ? Convert.ToString(status["message"]) : String.Empty;
                     var date = DateTime.Parse(Convert.ToString(status["created_time"]));
                     var feedId = Convert.ToString(status["id"]);
@@ -801,7 +800,7 @@ namespace ScrapyWeb.Business
                     post.date_publishing = date;
                     post.likes_count = likes_count;
                     post.comments_count = comments_count;
-                    
+
                     // Add the entry date in table of the posts
                     post.EntryDate = DateTime.Now;
 
@@ -816,46 +815,75 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static void getFacebookGroupFeedCommentFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
+        private static int getFacebookGroupFeedCommentFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
         {
             try
             {
                 //
-                string objText = "";
                 string url = search.FbAccessGroupFeedURL + feedId + "/comments"
-                    + "?key=" + app.FbAppId
+                    + "?limit=100"
+                    + "&key=" + app.FbAppId
                     + "&access_token=" + access_token;
 
+                // ex : url : https://graph.facebook.com/v2.8/106286359953523_193506621231496/comments?key=360921534307030&access_token=360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk
+                // ie : https://graph.facebook.com/v2.8/post_id/comments?
                 HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
                 using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
                 {
                     StreamReader reader = new StreamReader(response.GetResponseStream());
 
-                    objText = reader.ReadToEnd();
-
+                    String objText = reader.ReadToEnd();
                     JObject jObjects = JObject.Parse(objText);
                     JObject Objects = new JObject(jObjects);
-                    JArray items = (JArray)Objects["data"];
+                    JArray jComments = (JArray)Objects["data"];
 
-                    foreach (var status in items)
+                    // if next retrieve and add to items
+                    JValue paginationNext = null;
+                    if (Objects["paging"] != null)
+                        if (Objects["paging"]["next"] != null)
+                            paginationNext = (JValue)Objects["paging"]["next"];
+                    // ex : "next": "https://graph.facebook.com/v2.11/191616720877982_1725409007498738/comments?access_token=EAACEdEose0cBAJG8GcB1zBZA1MwBwFIP4hBi4JZBqSuR9JiotXr9ZCZBDglqr0ZBbZAVOzw8HkwEYDgbHqY1ZCfuVyq1cUJx8ibY6aJxxqxw5CeyoA9yiuG0RQZCSOfFyOXAVAIKzgs6thxyfjk9Ac9DfJTt2yoxtI5q9rWX5bITqk7pb61dE9DjdfhB6VpXb0gZD&pretty=0&limit=25&after=ODQZD"
+                    if (paginationNext != null)
                     {
-                        if (status["message"] != null)
+                        var urlNext = Convert.ToString(paginationNext).Replace("limit=25", "limit=100");
+                        HttpWebRequest requestNext = WebRequest.Create(urlNext) as HttpWebRequest;
+                        using (HttpWebResponse responseNext = requestNext.GetResponse() as HttpWebResponse)
                         {
-                            var feedComment = new FBFeedComment();
+                            StreamReader readerNext = new StreamReader(responseNext.GetResponseStream());
+                            String objTextNext = readerNext.ReadToEnd();
+                            JObject jObjectsNext = JObject.Parse(objTextNext);
+                            JObject ObjectsNext = new JObject(jObjectsNext);
+                            JArray itemsNext = (JArray)ObjectsNext["data"];
 
-                            var message = Convert.ToString(status["message"]);
-                            String created_time = Convert.ToString(status["created_time"]);
-                            var date = DateTime.Parse(created_time);
-
-                            // save FB feed comment to DB
-                            feedComment.Id = Convert.ToString(status["id"]);
-                            feedComment.message = message;
-                            feedComment.created_time = date;
-                            //Add entry date on comment
-                            feedComment.EntryDate = DateTime.Now;
-                            AddFeedCommentToDb(feedComment);
+                            // add to items
+                            for (int i = 0; i < itemsNext.Count; i++)
+                                jComments.Add(itemsNext[i]);
                         }
                     }
+
+                    //
+                    var fbComments = new List<FBFeedComment>();
+                    foreach (var jComment in jComments)
+                    {
+                        if (jComment["message"] != null)
+                        {
+                            var fbComment = new FBFeedComment();
+
+                            var message = Convert.ToString(jComment["message"]);
+                            var date = DateTime.Parse(Convert.ToString(jComment["created_time"]));
+
+                            // save FB feed comment to DB
+                            // MC260118 plus we save as well the correspounding post id to easy join in sql for consolidation later
+                            fbComment.Id = Convert.ToString(jComment["id"]);
+                            fbComment.message = message;
+                            fbComment.created_time = date;
+                            fbComment.feedId = feedId;
+                            fbComment.EntryDate = DateTime.Now; // Add entry date on comment
+                            fbComments.Add(fbComment);
+                        }
+                    }
+                    var retrievedCommentsCount = AddFbCommentsToDb(fbComments);
+                    return retrievedCommentsCount;
                 }
             }
             catch (WebException wex)
@@ -875,56 +903,32 @@ namespace ScrapyWeb.Business
             {
                 Error = ex.Message;
             }
+
+            // if we get here, we have an error
+            return 0;
         }
 
-        public static bool getFacebookFeedManually(Search search, FBApplication app, List<T_FB_POST> posts, ref string Error)
+        public static int getFacebookFeedManually(Search search, FBApplication app, List<T_FB_POST> posts, ref string Error)
         {
-            bool status = false;
             JObject jObject = JObject.Parse(search.FbAccessToken);
             String access_token = (String)jObject["access_token"];
-            String token_type = (String)jObject["token_type"];
 
-            if (posts != null && posts.Count > 0)
+            var retrievedCommentsCount = 0;
+
+            // MC260118 posts are filtered upstream on only posts with new comments
+            foreach (var post in posts)
             {
-                using (var context = new ScrapyWebEntities())
-                {
-                    foreach (var item in posts.Where(c => c.comments_count > 0))
-                    {
-                        FacebookGroupFeed facebookGroupFeed = new FacebookGroupFeed();
-                        facebookGroupFeed.GroupPostId = item.id;
-                        facebookGroupFeed.PostText = item.post_text;
-                        facebookGroupFeed.UpdatedTime = item.date_publishing;
-                        facebookGroupFeed.EntryDate = DateTime.Now;
-                        AddGroupFeedTODb(facebookGroupFeed);
+                // retrieve comments from FB and save them in DB into table FBFeedComment
+                retrievedCommentsCount += getFacebookGroupFeedCommentFromFB(search, access_token, post.id, app, ref Error);
 
-                        try
-                        {
-                            getFacebookGroupFeedCommentFromFB(search, access_token, item.id, app, ref Error);
-                            status = true;
-                        }
-                        catch (Exception e)
-                        {
-                            status = false;
-                        }
-                    }
-
-                    try
-                    {
-                        var group = new FBGroup();
-                        group.FbGroupId = posts.FirstOrDefault().fk_influencer;
-                        group.GroupName = search.GroupId != null ? search.GroupId : posts.FirstOrDefault().fk_influencer;
-                        AddFbGroupTODb(group);
-                        status = true;
-                    }
-                    catch (Exception e)
-                    {
-                        status = false;
-                        Error = e.Message;
-                    }
-                }
+                // clean posts back to no new comments waiting
+                post.newCommentsWaiting = false;
             }
 
-            return status;
+            // save back the posts to the DB with new status of no new comments waiting
+            UpdateFBPostsInDB(posts);
+
+            return retrievedCommentsCount;
         }
 
         public static T_FB_INFLUENCER getFBInfluencerInfoFromFB(String fbInfluencerUrlName, String pro_or_anti, FBApplication app, String fbAccessToken, string themeid = "")
@@ -1140,21 +1144,45 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static void AddFBPostsToDB(List<T_FB_POST> posts)
+        public static void AddFBPostsToDB(List<T_FB_POST> newposts)
         {
-            // posts = posts.Take(15).ToList();
             using (var context = new ScrapyWebEntities())
             {
-                foreach (var post in posts)
+                foreach (var newpost in newposts)
                 {
-                    var result = context.T_FB_POST.SingleOrDefault(f => f.id == post.id);
-                    if (result == null)
+                    // if the post already there, update it
+                    // and if comments count changed, mark for retrieve new comments from FB
+                    var existingPost = context.T_FB_POST.SingleOrDefault(f => f.id == newpost.id);
+                    if (existingPost != null)
                     {
-                        context.T_FB_POST.Add(post);
-                        context.SaveChanges();
+                        existingPost.likes_count = newpost.likes_count;
+                        if (existingPost.comments_count != newpost.comments_count)
+                            existingPost.newCommentsWaiting = true;
+                        existingPost.comments_count = newpost.comments_count;
+                        continue;
                     }
+
+                    // otherwise if not here, insert it
+                    // while marking as well for comments retrving
+                    newpost.newCommentsWaiting = true;
+                    context.T_FB_POST.Add(newpost);
                 }
 
+                // commit once done with all posts
+                context.SaveChanges();
+            }
+        }
+
+        public static void UpdateFBPostsInDB(List<T_FB_POST> postsToUpdate)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                // mark the entity as marked
+                foreach (var newpost in postsToUpdate)
+                    context.Entry(newpost).State = EntityState.Modified;
+
+                // commit once done with all posts
+                context.SaveChanges();
             }
         }
 
@@ -1176,7 +1204,7 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static void AddFeedCommentToDb(FBFeedComment feedComment)
+        private static void AddFeedCommentToDb(FBFeedComment feedComment)
         {
             using (var context = new ScrapyWebEntities())
             {
@@ -1187,6 +1215,27 @@ namespace ScrapyWeb.Business
                     context.SaveChanges();
                 }
             }
+        }
+
+        private static int AddFbCommentsToDb(List<FBFeedComment> fbComments)
+        {
+            int retrievedCommentsCount = 0;
+
+            using (var context = new ScrapyWebEntities())
+            {
+                foreach (var fbComment in fbComments)
+                {
+                    var result = context.FBFeedComments.SingleOrDefault(f => f.Id == fbComment.Id);
+                    if (result == null)
+                    {
+                        context.FBFeedComments.Add(fbComment);
+                        retrievedCommentsCount++;
+                    }
+                }
+                context.SaveChanges();
+            }
+
+            return retrievedCommentsCount;
         }
 
         public static void AddFBInfluencerToDB(T_FB_INFLUENCER influencer)
@@ -1254,17 +1303,14 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static void getFBPostsFromDB(ref List<FacebookGroupFeed> posts, String influencerId)
+        public static List<T_FB_POST> load_FB_POSTs_EFSQL(String influencerId, bool postsWithNewCommentsWaitingOnly)
         {
             using (var context = new ScrapyWebEntities())
             {
-                // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
-                // since I can not use split inside a lambda expression, take the 15 first chars
-                // MC290617 not sure if working everytime
-                posts = context.FacebookGroupFeeds
-                    .Where(x => x.GroupPostId.Substring(0, 15) == influencerId)
-                    .OrderByDescending(x => x.UpdatedTime)
-                    .ToList();
+                if (postsWithNewCommentsWaitingOnly)
+                    return context.T_FB_POST.Where(m => m.fk_influencer == influencerId && m.newCommentsWaiting == true).ToList();
+                else
+                    return context.T_FB_POST.Where(m => m.fk_influencer == influencerId).ToList();
             }
         }
 
@@ -1273,6 +1319,14 @@ namespace ScrapyWeb.Business
             using (var context = new ScrapyWebEntities())
             {
                 influencers = context.T_FB_INFLUENCER.ToList();
+            }
+        }
+
+        public static T_FB_INFLUENCER load_FB_INFLUENCER_EFSQL(String influencerName)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                return context.T_FB_INFLUENCER.FirstOrDefault(m => m.url_name == influencerName);
             }
         }
         #endregion
