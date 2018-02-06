@@ -807,6 +807,9 @@ namespace ScrapyWeb.Business
                     post.likes_count = likes_count;
                     post.comments_count = comments_count;
 
+                    // Add the entry date in table of the posts
+                    post.EntryDate = DateTime.Now;
+
                     // Add themeid in fb posts as the foreign key for the post influencer
                     post.fk_influencer = feedId.Split(new char[] { '_' })[0];
 
