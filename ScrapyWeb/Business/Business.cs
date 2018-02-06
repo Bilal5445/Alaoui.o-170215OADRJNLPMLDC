@@ -20,13 +20,14 @@ namespace ScrapyWeb.Business
 {
     public class clBusiness
     {
+        #region BACK YARD TWITTER
         /// <summary>
         /// Get Twitter Applications from DB for Listing
         /// </summary>
         /// <param name="_appList"></param>
         public static void getTwitterApplications(ref List<TwitterApplication> _appList)
         {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            using (var context = new ScrapyWebEntities())
             {
                 _appList = context.TwitterApplications
                                       .ToList();
@@ -40,10 +41,7 @@ namespace ScrapyWeb.Business
         {
             try
             {
-
-                //Search searchTwitter = getSearchCriteria();
-
-                HttpWebRequest request = (HttpWebRequest)CreateOauthAndRequest(getApplicationDetails(appid), searchTwitter);
+                HttpWebRequest request = (HttpWebRequest)CreateOauthAndRequest(getTwitterApplicationDetails(appid), searchTwitter);
                 var response = (HttpWebResponse)request.GetResponse();
                 var reader = new StreamReader(response.GetResponseStream());
                 var objText = reader.ReadToEnd();
@@ -62,7 +60,7 @@ namespace ScrapyWeb.Business
                         }
                         foreach (var status in Objects["statuses"])
                         {
-                            ScrapyWeb.Models.TweetSet tweet = new ScrapyWeb.Models.TweetSet();
+                            TweetSet tweet = new TweetSet();
 
                             getTweetFromJObj(status, ref tweet);
                             AddTweetToDb(tweet);
@@ -87,7 +85,7 @@ namespace ScrapyWeb.Business
             try
             {
 
-                ScrapyWeb.Models.TwitterApplication app = getApplicationDetails(null);
+                TwitterApplication app = getTwitterApplicationDetails(null);
                 //oauth application keys
                 var oauth_token = app.AccessToken;//Util.getKeyValueFromAppSetting("oauth_token");
                 var oauth_token_secret = app.AccessTokenSecret;// Util.getKeyValueFromAppSetting("oauth_token_secret");
@@ -181,7 +179,7 @@ namespace ScrapyWeb.Business
                         }
                         foreach (var status in Objects["statuses"])
                         {
-                            ScrapyWeb.Models.TweetSet tweet = new ScrapyWeb.Models.TweetSet();
+                            TweetSet tweet = new TweetSet();
 
                             getTweetFromJObj(status, ref tweet);
                             AddTweetToDb(tweet);
@@ -199,23 +197,9 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static Search getSearchCriteria()
-        {
-            return new Search()
-            {
-                Latitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Latitude"), CultureInfo.InvariantCulture.NumberFormat),
-                Longitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Longitude"), CultureInfo.InvariantCulture.NumberFormat),
-                Radius = Convert.ToInt32(Util.getKeyValueFromAppSetting("Radius")),
-                IsRadiusInMiles = Convert.ToBoolean(Util.getKeyValueFromAppSetting("IsRadiusInMile")),
-                URL = Util.getKeyValueFromAppSetting("resource_url"),
-                Count_toSearch = Convert.ToString(Util.getKeyValueFromAppSetting("Count_toSearch")),
-                TimeLineURL = Util.getKeyValueFromAppSetting("TimeLineURL")
-            };
-        }
-
         public static void AddTweetToDb(TweetSet tweet)
         {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            using (var context = new ScrapyWebEntities())
             {
                 var result = context.TweetSets.SingleOrDefault(t => t.Tweet_Id == tweet.Tweet_Id);
                 if (result == null)
@@ -274,32 +258,6 @@ namespace ScrapyWeb.Business
             tweet.Language = Convert.ToString(jobj["lang"]);
             tweet.FollowersCount = Convert.ToInt32(user["followers_count"]);
             tweet.FriendsCouunt = Convert.ToInt32(user["friends_count"]);
-        }
-
-        /// <summary>
-        /// get Application from Config
-        /// </summary>
-        /// <returns></returns>
-        public static TwitterApplication getApplicationDetails(int? id)
-        {
-            if (id == null)
-            {// oauth application keys
-                return new TwitterApplication
-                {
-                    AccessToken = Util.getKeyValueFromAppSetting("oauth_token"),
-                    AccessTokenSecret = Util.getKeyValueFromAppSetting("oauth_token_secret"),
-                    ConsumerKey = Util.getKeyValueFromAppSetting("oauth_consumer_key"),
-                    ConsumerSecret = Util.getKeyValueFromAppSetting("oauth_consumer_secret")
-
-                };
-            }
-            else
-            {
-                return GetApplication(Convert.ToInt32(id));
-
-            }
-
-
         }
 
         public static void ReadUserTimelineInTwitter(Search search, TwitterApplication app)
@@ -368,8 +326,6 @@ namespace ScrapyWeb.Business
                                     Uri.EscapeDataString(oauth_version)
                             );
 
-
-
             ServicePointManager.Expect100Continue = false;
 
             // make the request
@@ -389,7 +345,7 @@ namespace ScrapyWeb.Business
                 JArray jsonDat = JArray.Parse(objText);
                 foreach (var status in jsonDat)
                 {
-                    ScrapyWeb.Models.TweetSet tweet = new ScrapyWeb.Models.TweetSet();
+                    TweetSet tweet = new TweetSet();
 
                     getTweetFromJObj(status, ref tweet);
                     AddTweetToDb(tweet);
@@ -402,6 +358,134 @@ namespace ScrapyWeb.Business
             {
                 //myDiv.InnerHtml = html + twit_error.ToString();
             }
+        }
+
+        /// <summary>
+        /// Add Twitter Application to Database
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="error"></param>
+        public static void AddTwitterApplication(TwitterApplication app, ref string error)
+        {
+            try
+            {
+                using (var context = new ScrapyWebEntities())
+                {
+                    var result = context.TwitterApplications.SingleOrDefault(a => a.ApplicationId == app.ApplicationId);
+                    if (result != null)
+                    {
+                        result.ApplicationName = app.ApplicationName;
+                        result.ConsumerKey = app.ConsumerSecret;
+                        result.ConsumerKey = app.ConsumerKey;
+                        result.AccessTokenSecret = app.AccessTokenSecret;
+                        result.AccessToken = app.AccessToken;
+                        //context.TwitterApplications.Attach(app);
+                        context.Entry(result).State = EntityState.Modified;
+                    }
+                    else
+                    {
+                        context.TwitterApplications.Add(app);
+                    }
+                    context.SaveChanges();
+                    error = "";
+                }
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+            }
+        }
+
+        /// <summary>
+        /// Get Downloaded Tweets from Database
+        /// </summary>
+        /// <param name="_tweetList"></param>
+        public static void getDownloadedTweetSets(ref List<TweetSet> _tweetList)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                _tweetList = context.TweetSets.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get Twitter Id from DB for Since_Id param
+        /// </summary>
+        /// <returns></returns>
+        public static string getSinceIdFromTweetSets()
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                var topTweet = (from tweet in context.TweetSets
+                                orderby tweet.Tweet_Id descending
+                                select tweet).Take(1);
+                var firstTopTweet = topTweet.FirstOrDefault<TweetSet>();
+                if (firstTopTweet == null)
+                    return String.Empty;
+                else
+                    return firstTopTweet.Tweet_Id;
+            }
+        }
+
+        public static string getMaxIdFromTweetSets(string Screen_name)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                var topTweet = (from tweet in context.TweetSets
+                                orderby tweet.Tweet_Id ascending
+                                where tweet.ScreenName == Screen_name
+                                select tweet).Take(1);
+                return topTweet.FirstOrDefault<TweetSet>().Tweet_Id;
+            }
+        }
+
+        /// <summary>
+        /// get Application from Config
+        /// </summary>
+        /// <returns></returns>
+        public static TwitterApplication getTwitterApplicationDetails(int? id)
+        {
+            if (id == null)
+            {
+                // oauth application keys
+                return new TwitterApplication
+                {
+                    AccessToken = Util.getKeyValueFromAppSetting("oauth_token"),
+                    AccessTokenSecret = Util.getKeyValueFromAppSetting("oauth_token_secret"),
+                    ConsumerKey = Util.getKeyValueFromAppSetting("oauth_consumer_key"),
+                    ConsumerSecret = Util.getKeyValueFromAppSetting("oauth_consumer_secret")
+
+                };
+            }
+            else
+                return GetTwitterApplication(Convert.ToInt32(id));
+        }
+
+        public static TwitterApplication GetTwitterApplication(int ApplicationId)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                var query = (from app in context.TwitterApplications
+                             where app.ApplicationId == ApplicationId
+                             select app).Take(1);
+                return query.FirstOrDefault<TwitterApplication>();
+
+            }
+        }
+        # endregion
+
+        public static Search getSearchCriteria()
+        {
+            return new Search()
+            {
+                Latitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Latitude"), CultureInfo.InvariantCulture.NumberFormat),
+                Longitude = Convert.ToDouble(Util.getKeyValueFromAppSetting("Longitude"), CultureInfo.InvariantCulture.NumberFormat),
+                Radius = Convert.ToInt32(Util.getKeyValueFromAppSetting("Radius")),
+                IsRadiusInMiles = Convert.ToBoolean(Util.getKeyValueFromAppSetting("IsRadiusInMile")),
+                URL = Util.getKeyValueFromAppSetting("resource_url"),
+                Count_toSearch = Convert.ToString(Util.getKeyValueFromAppSetting("Count_toSearch")),
+                TimeLineURL = Util.getKeyValueFromAppSetting("TimeLineURL")
+            };
         }
 
         /// <summary>
@@ -513,52 +597,17 @@ namespace ScrapyWeb.Business
 
         }
 
-        /// <summary>
-        /// Add Twitter Application to Database
-        /// </summary>
-        /// <param name="app"></param>
-        /// <param name="error"></param>
-        public static void AddAplication(TwitterApplication app, ref string error)
-        {
-            try
-            {
-                using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-                {
-                    var result = context.TwitterApplications.SingleOrDefault(a => a.ApplicationId == app.ApplicationId);
-                    if (result != null)
-                    {
-                        result.ApplicationName = app.ApplicationName;
-                        result.ConsumerKey = app.ConsumerSecret;
-                        result.ConsumerKey = app.ConsumerKey;
-                        result.AccessTokenSecret = app.AccessTokenSecret;
-                        result.AccessToken = app.AccessToken;
-                        //context.TwitterApplications.Attach(app);
-                        context.Entry(result).State = EntityState.Modified;
-                    }
-                    else
-                    {
-                        context.TwitterApplications.Add(app);
-                    }
-                    context.SaveChanges();
-                    error = "";
-                }
-            }
-            catch (Exception ex)
-            {
-                error = ex.Message;
-            }
-        }
-
+        #region BACK YARD FB
         /// <summary>
         /// Add Facebook Application to Database
         /// </summary>
         /// <param name="app"></param>
         /// <param name="error"></param>
-        public static void AddFBAplication(FBApplication app, ref string error)
+        public static void AddFBApplication(FBApplication app, ref string error)
         {
             try
             {
-                using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+                using (var context = new ScrapyWebEntities())
                 {
                     var result = context.FBApplications.SingleOrDefault(a => a.ApplicationId == app.ApplicationId);
                     if (result != null)
@@ -584,162 +633,6 @@ namespace ScrapyWeb.Business
             }
         }
 
-        /// <summary>
-        /// Get Downloaded Tweets from Database
-        /// </summary>
-        /// <param name="_tweetList"></param>
-        public static void getDownloadedTweetSets(ref List<TweetSet> _tweetList)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                _tweetList = context.TweetSets.ToList();
-            }
-        }
-
-        public static void getDownloadedGroupFeeds(ref List<FacebookGroupFeed> _fbFeedList)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
-                // since I can not use split inside a lambda expression, take the 15 first chars
-                _fbFeedList = context.FacebookGroupFeeds
-                    // .OrderBy(x => x.GroupPostId.Substring(0, 15))
-                    .OrderByDescending(x => x.UpdatedTime)
-                    .ToList();
-            }
-        }
-
-        public static void getFBPostsFromDB(ref List<FacebookGroupFeed> posts, String influencerId)
-        {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-                // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
-                // since I can not use split inside a lambda expression, take the 15 first chars
-                // MC290617 not sure if working everytime
-                posts = context.FacebookGroupFeeds
-                    .Where(x => x.GroupPostId.Substring(0, 15) == influencerId)
-                    .OrderByDescending(x => x.UpdatedTime)
-                    .ToList();
-            }
-        }
-
-        public static void getDownloadedFeedComments(ref List<FBFeedComment> _fbCommentList)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                _fbCommentList = context.FBFeedComments
-                    .OrderByDescending(x => x.created_time)
-                    .ToList();
-            }
-        }
-
-        public static void getDownloadedFBGroups(ref List<FBGroup> _fbGroupList)
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                _fbGroupList = context.FBGroups
-                    .ToList();
-            }
-        }
-
-        /// <summary>
-        /// Get Twitter Id from DB for Since_Id param
-        /// </summary>
-        /// <returns></returns>
-        public static string getSinceIdFromTweetSets()
-        {
-            using (var context = new ScrapyWebEntities())
-            {
-                var topTweet = (from tweet in context.TweetSets
-                                orderby tweet.Tweet_Id descending
-                                select tweet).Take(1);
-                var firstTopTweet = topTweet.FirstOrDefault<TweetSet>();
-                if (firstTopTweet == null)
-                    return String.Empty;
-                else
-                    return firstTopTweet.Tweet_Id;
-            }
-        }
-
-        public static string getMaxIdFromTweetSets(string Screen_name)
-        {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-                var topTweet = (from tweet in context.TweetSets
-                                orderby tweet.Tweet_Id ascending
-                                where tweet.ScreenName == Screen_name
-                                select tweet).Take(1);
-                return topTweet.FirstOrDefault<TweetSet>().Tweet_Id;
-
-            }
-
-        }
-
-        public static TwitterApplication GetApplication(int ApplicationId)
-        {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-
-                var query = (from app in context.TwitterApplications
-                             where app.ApplicationId == ApplicationId
-
-                             select app).Take(1);
-                return query.FirstOrDefault<TwitterApplication>();
-
-            }
-        }
-
-        public static FBApplication GetFBApplication(int ApplicationId)
-        {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-                var query = (from app in context.FBApplications
-                             where app.ApplicationId == ApplicationId
-
-                             select app).Take(1);
-                return query.FirstOrDefault<FBApplication>();
-            }
-        }
-
-        /*public static Models.FBGroup GetFbGroup(int GroupId)
-        {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-                var query = (from app in context.FBGroups
-                             where app.GroupId == GroupId
-
-                             select app).Take(1);
-                return query.FirstOrDefault<FBGroup>();
-            }
-        }*/
-
-        public static FBApplication GetFbApplication(int ApplicationId)
-        {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-
-                var query = (from app in context.FBApplications
-                             where app.ApplicationId == ApplicationId
-
-                             select app).Take(1);
-                return query.FirstOrDefault<FBApplication>();
-
-            }
-        }
-
-        public static void getFBApplications(ref List<FBApplication> _appList)
-        {
-
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
-            {
-
-                _appList = context.FBApplications
-                                      .ToList();
-
-
-            }
-        }
-
         public static String FacebookGetAccessToken(FBApplication app)
         {
             string vals = "";
@@ -757,7 +650,7 @@ namespace ScrapyWeb.Business
             return vals;
         }
 
-        public static void getFacebookGroupFeed(Search search, FBApplication app, ref string Error)
+        public static void getFacebookGroupFeedFromFB(Search search, FBApplication app, ref string Error)
         {
             try
             {
@@ -768,7 +661,8 @@ namespace ScrapyWeb.Business
                 string error = string.Empty;
                 // first get page/group feed (ie: list of posts)
                 string objText = "";
-                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed" + "?key=" + app.FbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+                string url = search.FbAccessGroupFeedURL + search.GroupId + "/feed"
+                    + "?key=" + app.FbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
 
                 HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
                 using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
@@ -805,14 +699,9 @@ namespace ScrapyWeb.Business
                             try
                             {
                                 if (updated_created_time == null)
-                                {
                                     date = DateTime.Parse(updated_created_time);
-                                }
                                 else
-                                {
                                     date = DateTime.Parse(Convert.ToString(status["created_time"]));
-                                }
-
                             }
                             catch (Exception e)
                             {
@@ -864,7 +753,7 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static List<T_FB_POST> getFBInfluencerPostsFromFB(String fbInfluencerUrlName, String fbAppId, String fbAccessToken)
+        public static List<T_FB_POST> RetrieveFBPagePosts(String fbPageUrlName, String fbAppId, String fbAccessToken)
         {
             // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
             JObject jObject = JObject.Parse(fbAccessToken);
@@ -880,7 +769,7 @@ namespace ScrapyWeb.Business
 
             // first get page/group feed (ie: list of posts) with count of like and count of comments
             string objText = "";
-            string url = graphFBApi28Url + fbInfluencerUrlName + "/feed"
+            string url = graphFBApi28Url + fbPageUrlName + "/feed"
                 + "?limit=100"
                 + "&fields=comments.limit(0).summary(true),likes.limit(0).summary(true),message,created_time"
                 + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
@@ -1047,17 +936,6 @@ namespace ScrapyWeb.Business
             return status;
         }
 
-        /*static void getgroupFeedFromJObj(dynamic jobj, ref ScrapyWeb.Models.FacebookGroupFeed feed)
-        {
-            var message = jobj["message"] != null ? Convert.ToString(jobj["message"]) : null;
-
-            var updated_time = Convert.ToString(jobj["updated_time"]);
-
-            var date = DateTime.Parse(updated_time);
-            feed.GroupPostId = Convert.ToString(jobj["id"]);
-            feed.PostText = message;
-        }*/
-
         public static T_FB_INFLUENCER getFBInfluencerInfoFromFB(String fbInfluencerUrlName, String pro_or_anti, FBApplication app, String fbAccessToken, string themeid = "")
         {
             // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
@@ -1127,6 +1005,135 @@ namespace ScrapyWeb.Business
             //
             return fbKeyword;
         }
+        #endregion
+
+        #region BACK YARD BO FB
+        private static void RecursivelyGetFBPosts(JObject Objects, JArray items, int deepLevel)
+        {
+            // if next retrieve and add to items
+            JValue paginationNext = null;
+            if (Objects["paging"] != null) if (Objects["paging"]["next"] != null)
+                    paginationNext = (JValue)Objects["paging"]["next"];
+            if (paginationNext != null && deepLevel <= 10)
+            {
+                var urlNext = Convert.ToString(paginationNext).Replace("limit=25", "limit=100");
+                // urlNext = urlNext.Replace("limit=100&access", "limit=100&order=reverse_chronological&access");
+                urlNext += "&fields=comments.limit(0).summary(true),likes.limit(0).summary(true),message,created_time";
+
+                HttpWebRequest requestNext = WebRequest.Create(urlNext) as HttpWebRequest;
+                using (HttpWebResponse responseNext = requestNext.GetResponse() as HttpWebResponse)
+                {
+                    StreamReader readerNext = new StreamReader(responseNext.GetResponseStream());
+                    String objTextNext = readerNext.ReadToEnd();
+                    JObject jObjectsNext = JObject.Parse(objTextNext);
+                    JObject ObjectsNext = new JObject(jObjectsNext);
+                    JArray itemsNext = (JArray)ObjectsNext["data"];
+
+                    // recursie add ?
+                    RecursivelyGetFBPosts(ObjectsNext, itemsNext, deepLevel + 1);
+
+                    // add to items
+                    for (int i = 0; i < itemsNext.Count; i++)
+                        items.Add(itemsNext[i]);
+                }
+            }
+        }
+
+        private static void getInfluencerFirstInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out String id, out String name)
+        {
+            string objText = "";
+            string idofpage = string.Empty;
+            string nameofpage = string.Empty;
+            string url = graphFBApi28Url + fbInfluencerUrlName + "?key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                objText = reader.ReadToEnd();
+                JObject obj = JObject.Parse(objText);
+
+                // set id, name
+                id = Convert.ToString(obj["id"]);
+                name = Convert.ToString(obj["name"]);
+            }
+        }
+
+        private static void getInfluencerSecondInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out int fan_count)
+        {
+            string objText = "";
+            string url = graphFBApi28Url + fbInfluencerUrlName + "?fields=fan_count" + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                objText = reader.ReadToEnd();
+                JObject obj = JObject.Parse(objText);
+
+                // set fan_count
+                fan_count = Convert.ToInt32(obj["fan_count"]);
+            }
+        }
+        #endregion
+
+        #region BACK YARD DB FB
+        public static void getDownloadedGroupFeedsFromDB(ref List<FacebookGroupFeed> _fbFeedList)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
+                // since I can not use split inside a lambda expression, take the 15 first chars
+                _fbFeedList = context.FacebookGroupFeeds
+                    // .OrderBy(x => x.GroupPostId.Substring(0, 15))
+                    .OrderByDescending(x => x.UpdatedTime)
+                    .ToList();
+            }
+        }
+
+        public static void getDownloadedFeedCommentsFromDB(ref List<FBFeedComment> _fbCommentList)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                _fbCommentList = context.FBFeedComments
+                    .OrderByDescending(x => x.created_time)
+                    .ToList();
+            }
+        }
+
+        public static void getDownloadedFBGroupsFromDB(ref List<FBGroup> _fbGroupList)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                _fbGroupList = context.FBGroups
+                    .ToList();
+            }
+        }
+
+        public static FBApplication GetFBApplicationFromDB(int ApplicationId)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                var query = (from app in context.FBApplications
+                             where app.ApplicationId == ApplicationId
+
+                             select app).Take(1);
+                return query.FirstOrDefault<FBApplication>();
+            }
+        }
+
+        public static void getFBApplicationsFromDB(ref List<FBApplication> _appList)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                _appList = context.FBApplications
+                                      .ToList();
+            }
+        }
+
+        #endregion
 
         #region FRONT YARD PERSIST
         public static void AddGroupFeedTODb(FacebookGroupFeed feed)
@@ -1255,46 +1262,23 @@ namespace ScrapyWeb.Business
         }
         #endregion
 
+        #region BACK YARD DB LOAD
+        public static void getFBPostsFromDB(ref List<FacebookGroupFeed> posts, String influencerId)
+        {
+            using (var context = new ScrapyWebEntities())
+            {
+                // feed_id = 946166772123762_1538159976257769 => group_id = 946166772123762 (first part)
+                // since I can not use split inside a lambda expression, take the 15 first chars
+                // MC290617 not sure if working everytime
+                posts = context.FacebookGroupFeeds
+                    .Where(x => x.GroupPostId.Substring(0, 15) == influencerId)
+                    .OrderByDescending(x => x.UpdatedTime)
+                    .ToList();
+            }
+        }
+        #endregion
+
         #region BACK YARD BO
-        private static void getInfluencerFirstInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out String id, out String name)
-        {
-            string objText = "";
-            string idofpage = string.Empty;
-            string nameofpage = string.Empty;
-            string url = graphFBApi28Url + fbInfluencerUrlName + "?key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
-
-            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-            {
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-
-                objText = reader.ReadToEnd();
-                JObject obj = JObject.Parse(objText);
-
-                // set id, name
-                id = Convert.ToString(obj["id"]);
-                name = Convert.ToString(obj["name"]);
-            }
-        }
-
-        private static void getInfluencerSecondInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out int fan_count)
-        {
-            string objText = "";
-            string url = graphFBApi28Url + fbInfluencerUrlName + "?fields=fan_count" + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
-
-            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-            {
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-
-                objText = reader.ReadToEnd();
-                JObject obj = JObject.Parse(objText);
-
-                // set fan_count
-                fan_count = Convert.ToInt32(obj["fan_count"]);
-            }
-        }
-
         public static void getFBInfluencersFromDB(ref List<T_FB_INFLUENCER> influencers)
         {
             using (var context = new ScrapyWebEntities())

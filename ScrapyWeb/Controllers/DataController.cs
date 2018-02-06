@@ -14,7 +14,7 @@ namespace ScrapyWeb.Controllers
 
             // passing fb app id : we take the first FB app available
             List<FBApplication> _fbAppList = new List<FBApplication>();
-            clBusiness.getFBApplications(ref _fbAppList);
+            clBusiness.getFBApplicationsFromDB(ref _fbAppList);
             ViewBag.FbApplications = _fbAppList;
             ViewBag.AppId = _fbAppList[0].ApplicationId;
 
@@ -36,7 +36,7 @@ namespace ScrapyWeb.Controllers
         public ActionResult FetchFBInfluencerPosts(T_FB_INFLUENCER influencer, int appId = 1, string CallFrom = "")
         {
             // Get FB application
-            var fbApp = clBusiness.GetFbApplication(appId);
+            var fbApp = clBusiness.GetFBApplicationFromDB(appId);
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
             bool status = false;
             string message = string.Empty;
@@ -46,7 +46,7 @@ namespace ScrapyWeb.Controllers
                 influencer.url_name = CallFrom;
 
             // get page posts from FB
-            var posts = clBusiness.getFBInfluencerPostsFromFB(influencer.url_name, fbApp.FbAppId, fbAccessToken);
+            var posts = clBusiness.RetrieveFBPagePosts(influencer.url_name, fbApp.FbAppId, fbAccessToken);
 
             // Save posts to DB
             clBusiness.AddFBPostsToDB(posts);
