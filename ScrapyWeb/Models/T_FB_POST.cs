@@ -23,9 +23,9 @@ namespace ScrapyWeb.Models
         public int likes_count { get; set; }
         public int comments_count { get; set; }
         public DateTime date_publishing { get; set; }
-        public DateTime? EntryDate { get; set; }
         public string MailBody { get; set; }
         public int? NoOfTimeMailSend{get;set;}
         public DateTime? LastMailSendOn { get; set; }
+        public DateTime? EntryDate { get; set; }
     }
 }
