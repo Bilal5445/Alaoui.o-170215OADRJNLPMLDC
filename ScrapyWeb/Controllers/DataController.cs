@@ -35,55 +35,66 @@ namespace ScrapyWeb.Controllers
         [HttpPost]
         public ActionResult FetchFBInfluencerPosts(T_FB_INFLUENCER influencer, int appId = 1, string CallFrom = "")
         {
+            // MC240118 this fct is used by the ScrappyWeb app directely and undirectly by the ArabicTextAnalyzer app.
+            // In second case, influencer is not filled
+
             // Get FB application
             var fbApp = clBusiness.GetFBApplicationFromDB(appId);
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
-            bool status = false;
-            string message = string.Empty;
 
             //
             if (!string.IsNullOrEmpty(CallFrom))
                 influencer.url_name = CallFrom;
 
-            // get page posts from FB
+            // get FB page posts from FB & save them to DB
+            bool status = false;
+            // MC260118 this will retrieve using graph fb api the maximum number of posts (using 10-fold recursivity) from the FB page, with their number of likes and of comments
+            // then this will mark any existing post with changed comments count for comments retrieving
+            // this will also mark any new never-retrived-before post for comments retrieving 
             var posts = clBusiness.RetrieveFBPagePosts(influencer.url_name, fbApp.FbAppId, fbAccessToken);
-
-            // Save posts to DB
             clBusiness.AddFBPostsToDB(posts);
+            status = true;
 
             //
-            if (string.IsNullOrEmpty(CallFrom))
-                return RedirectToAction("Index", "Home");   // we are done with the fb posts and return to main screen
-
-            // retrieve  from FB comments associated with retrieved posts
-            if (posts != null && posts.Count > 0)
+            if (!string.IsNullOrEmpty(CallFrom))
             {
-                string errmsg = string.Empty;
-                Search search = new Search();
-                search.FbAccessToken = fbAccessToken;
+                //
+                string message = string.Empty;
+                int retrievedPostsCount = 0;
+                int retrievedCommentsCount = 0;
 
                 try
                 {
-                    var IsCommentSave = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref errmsg);
-                    if (IsCommentSave == true)
-                    {
-                        status = true;
-                        message = errmsg;
-                    }
-                    else
-                    {
-                        status = false;
-                        message = errmsg;
-                    }
-                }
-                catch (Exception e)
-                {
-                    status = false;
-                    message = e.Message;
-                }
-            }
+                    // MC240118 first we need influencer id to filter on the posts of the page only. We have the name so we get the id from the db (1to1)
+                    influencer = clBusiness.load_FB_INFLUENCER_EFSQL(influencer.url_name);
 
-            return Json(new { status = status, message = message });
+                    // MC220118 comments should be retrieved from FB for posts in DB instead of for posts from FB, because paging in FB
+                    // may not be chronological and thus comments for a recent post may be not be refreshed
+                    // MC260118 we are going to retrieve the comments for the marked posts (newCommentsWaiting true) only : can be existing or new
+                    posts = clBusiness.load_FB_POSTs_EFSQL(influencerId: influencer.id, postsWithNewCommentsWaitingOnly: true);
+                    if (posts.Count > 0)
+                    {
+                        Search search = new Search();
+                        search.FbAccessToken = fbAccessToken;
+
+                        // retrieve from FB the comments associated with retrieved posts
+                        retrievedCommentsCount = clBusiness.getFacebookFeedManually(search, fbApp, posts, ref message);
+                        if (message != String.Empty)
+                            status = false;
+                    }
+
+                    // retrieved Posts Count (limited to only new or with changed commount count)
+                    retrievedPostsCount = posts.FindAll(m => String.IsNullOrEmpty(m.translated_text)).Count;
+                }
+                catch (Exception ex)
+                {
+                    message = ex.Message;
+                }
+
+                return Json(new { status = status, message = message, retrievedPostsCount = retrievedPostsCount, retrievedCommentsCount = retrievedCommentsCount });
+            }
+            else
+                return RedirectToAction("Index", "Home");   // we are done with the fb posts and return to main screen of scrappyweb
         }
     }
 }
