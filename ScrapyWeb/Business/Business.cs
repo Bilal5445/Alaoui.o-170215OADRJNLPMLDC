@@ -27,7 +27,7 @@ namespace ScrapyWeb.Business
         /// <param name="_appList"></param>
         public static void getTwitterApplications(ref List<TwitterApplication> _appList)
         {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            using (var context = new ScrapyWebEntities())
             {
                 _appList = context.TwitterApplications
                                       .ToList();
@@ -60,7 +60,7 @@ namespace ScrapyWeb.Business
                         }
                         foreach (var status in Objects["statuses"])
                         {
-                            ScrapyWeb.Models.TweetSet tweet = new ScrapyWeb.Models.TweetSet();
+                            TweetSet tweet = new TweetSet();
 
                             getTweetFromJObj(status, ref tweet);
                             AddTweetToDb(tweet);
@@ -85,7 +85,7 @@ namespace ScrapyWeb.Business
             try
             {
 
-                ScrapyWeb.Models.TwitterApplication app = getTwitterApplicationDetails(null);
+                TwitterApplication app = getTwitterApplicationDetails(null);
                 //oauth application keys
                 var oauth_token = app.AccessToken;//Util.getKeyValueFromAppSetting("oauth_token");
                 var oauth_token_secret = app.AccessTokenSecret;// Util.getKeyValueFromAppSetting("oauth_token_secret");
@@ -179,7 +179,7 @@ namespace ScrapyWeb.Business
                         }
                         foreach (var status in Objects["statuses"])
                         {
-                            ScrapyWeb.Models.TweetSet tweet = new ScrapyWeb.Models.TweetSet();
+                            TweetSet tweet = new TweetSet();
 
                             getTweetFromJObj(status, ref tweet);
                             AddTweetToDb(tweet);
@@ -199,7 +199,7 @@ namespace ScrapyWeb.Business
 
         public static void AddTweetToDb(TweetSet tweet)
         {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            using (var context = new ScrapyWebEntities())
             {
                 var result = context.TweetSets.SingleOrDefault(t => t.Tweet_Id == tweet.Tweet_Id);
                 if (result == null)
@@ -347,7 +347,7 @@ namespace ScrapyWeb.Business
                 JArray jsonDat = JArray.Parse(objText);
                 foreach (var status in jsonDat)
                 {
-                    ScrapyWeb.Models.TweetSet tweet = new ScrapyWeb.Models.TweetSet();
+                    TweetSet tweet = new TweetSet();
 
                     getTweetFromJObj(status, ref tweet);
                     AddTweetToDb(tweet);
@@ -371,7 +371,7 @@ namespace ScrapyWeb.Business
         {
             try
             {
-                using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+                using (var context = new ScrapyWebEntities())
                 {
                     var result = context.TwitterApplications.SingleOrDefault(a => a.ApplicationId == app.ApplicationId);
                     if (result != null)
@@ -431,7 +431,7 @@ namespace ScrapyWeb.Business
 
         public static string getMaxIdFromTweetSets(string Screen_name)
         {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            using (var context = new ScrapyWebEntities())
             {
                 var topTweet = (from tweet in context.TweetSets
                                 orderby tweet.Tweet_Id ascending
@@ -466,7 +466,7 @@ namespace ScrapyWeb.Business
 
         public static TwitterApplication GetTwitterApplication(int ApplicationId)
         {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            using (var context = new ScrapyWebEntities())
             {
 
                 var query = (from app in context.TwitterApplications
@@ -611,7 +611,7 @@ namespace ScrapyWeb.Business
         {
             try
             {
-                using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+                using (var context = new ScrapyWebEntities())
                 {
                     var result = context.FBApplications.SingleOrDefault(a => a.ApplicationId == app.ApplicationId);
                     if (result != null)
@@ -1123,7 +1123,7 @@ namespace ScrapyWeb.Business
 
         public static void getFBApplicationsFromDB(ref List<FBApplication> _appList)
         {
-            using (var context = new ScrapyWeb.Models.ScrapyWebEntities())
+            using (var context = new ScrapyWebEntities())
             {
                 _appList = context.FBApplications
                                       .ToList();
