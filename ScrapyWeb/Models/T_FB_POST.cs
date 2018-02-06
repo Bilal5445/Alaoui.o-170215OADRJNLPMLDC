@@ -25,7 +25,7 @@ namespace ScrapyWeb.Models
         public DateTime date_publishing { get; set; }
         public bool newCommentsWaiting { get; set; }
         public string MailBody { get; set; }
-        public int? NoOfTimeMailSend{get;set;}
+        public int? NoOfTimeMailSend { get; set; }
         public DateTime? LastMailSendOn { get; set; }
         public DateTime? EntryDate { get; set; }
     }
