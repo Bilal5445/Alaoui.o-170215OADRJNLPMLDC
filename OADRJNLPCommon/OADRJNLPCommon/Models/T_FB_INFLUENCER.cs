@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OADRJNLPCommon.Models
@@ -16,5 +17,11 @@ namespace OADRJNLPCommon.Models
         public string fk_theme { get; set; }
         public bool AutoRetrieveFBPostAndComments { get; set; }
         public string TargetEntities { get; set; }
+    }
+
+    public class LM_CountPerTheme
+    {
+        public String fk_theme { get; set; }
+        public int CountPerTheme { get; set; }
     }
 }
