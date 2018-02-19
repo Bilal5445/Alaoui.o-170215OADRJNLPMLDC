@@ -809,8 +809,9 @@ namespace ScrapyWeb.Business
                     // Add themeid in fb posts as the foreign key for the post influencer
                     post.fk_influencer = feedId.Split(new char[] { '_' })[0];
 
-                    //
-                    posts.Add(post);
+                    // add if not there
+                    if (posts.Find(m=>m.id == post.id) == null)
+                        posts.Add(post);
                 }
 
                 return posts;
