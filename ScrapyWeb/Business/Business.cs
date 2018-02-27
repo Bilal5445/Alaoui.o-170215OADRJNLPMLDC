@@ -768,7 +768,12 @@ namespace ScrapyWeb.Business
             // first get page/group feed (ie: list of posts) with count of like and count of comments
             string url = graphFBApi28Url + fbPageUrlName + "/feed"
                 + "?limit=100"
-                + "&fields=comments.limit(0).summary(true),likes.limit(0).summary(true),message,created_time"
+                + "&fields="
+                    + "comments.limit(0).summary(true),"
+                    + "likes.limit(0).summary(true),"
+                    + "shares,"
+                    + "message,"
+                    + "created_time"
                 + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
 
             HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
@@ -794,6 +799,7 @@ namespace ScrapyWeb.Business
                     var feedId = Convert.ToString(status["id"]);
                     int likes_count = Convert.ToInt32(status["likes"]["summary"]["total_count"]);
                     int comments_count = Convert.ToInt32(status["comments"]["summary"]["total_count"]);
+                    int sharedposts_count = Convert.ToInt32(status["shares"]?["count"] ?? 0);
 
                     // fill fb post
                     var post = new T_FB_POST();
@@ -802,6 +808,7 @@ namespace ScrapyWeb.Business
                     post.date_publishing = date;
                     post.likes_count = likes_count;
                     post.comments_count = comments_count;
+                    post.sharedposts_count = sharedposts_count;
 
                     // Add the entry date in table of the posts
                     post.EntryDate = DateTime.Now;
@@ -1015,8 +1022,12 @@ namespace ScrapyWeb.Business
             if (paginationNext != null && deepLevel <= 10)
             {
                 var urlNext = Convert.ToString(paginationNext).Replace("limit=25", "limit=100");
-                // urlNext = urlNext.Replace("limit=100&access", "limit=100&order=reverse_chronological&access");
-                urlNext += "&fields=comments.limit(0).summary(true),likes.limit(0).summary(true),message,created_time";
+                urlNext += "&fields="
+                    + "comments.limit(0).summary(true),"
+                    + "likes.limit(0).summary(true),"
+                    + "shares,"
+                    + "message, "
+                    + "created_time";
 
                 HttpWebRequest requestNext = WebRequest.Create(urlNext) as HttpWebRequest;
                 using (HttpWebResponse responseNext = requestNext.GetResponse() as HttpWebResponse)
@@ -1249,7 +1260,7 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static void addFBKeywordToSerialization(FB_KEYWORD fbKeyword, String path)
+        /*public static void addFBKeywordToSerialization(FB_KEYWORD fbKeyword, String path)
         {
             //
             List<FB_KEYWORD> fbKeywords = new List<FB_KEYWORD>();
@@ -1293,7 +1304,7 @@ namespace ScrapyWeb.Business
                 serializer.Serialize(writer, fbKeywords);
                 writer.Flush();
             }
-        }
+        }*/
         #endregion
 
         #region BACK YARD DB LOAD
