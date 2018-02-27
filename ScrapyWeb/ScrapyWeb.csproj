@@ -241,6 +241,10 @@
     <Compile Include="Migrations\201802061925311_entryDate.Designer.cs">
       <DependentUpon>201802061925311_entryDate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201802271150131_sharedFBPosts.cs" />
+    <Compile Include="Migrations\201802271150131_sharedFBPosts.Designer.cs">
+      <DependentUpon>201802271150131_sharedFBPosts.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\FacebookGroupFeed.cs">
       <DependentUpon>ScrapyWeb.tt</DependentUpon>
@@ -484,6 +488,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201802061925311_entryDate.resx">
       <DependentUpon>201802061925311_entryDate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201802271150131_sharedFBPosts.resx">
+      <DependentUpon>201802271150131_sharedFBPosts.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

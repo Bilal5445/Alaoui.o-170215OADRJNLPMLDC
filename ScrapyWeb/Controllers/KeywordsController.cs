@@ -36,7 +36,7 @@ namespace ScrapyWeb.Controllers
             return View();
         }
 
-        [HttpPost]
+        /*[HttpPost]
         public ActionResult FetchFBPostsByKeyword(String keyword)
         {
             // get fb keyword info data from FB via Twingly
@@ -49,7 +49,7 @@ namespace ScrapyWeb.Controllers
             //
             // return View();
             return RedirectToAction("Index");
-        }
+        }*/
 
         [HttpPost]
         public ActionResult KeywordsPartialView(int moroccoOnly)

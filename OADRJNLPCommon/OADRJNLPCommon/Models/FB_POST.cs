@@ -15,13 +15,16 @@ namespace OADRJNLPCommon.Models
         public string id { get; set; }
         public string fk_influencer { get; set; }
         public string post_text { get; set; }
+        public string translated_text { get; set; }
         public int likes_count { get; set; }
         public int comments_count { get; set; }
+        public int sharedposts_count { get; set; }
+        public bool newCommentsWaiting { get; set; }
         public DateTime date_publishing { get; set; }
-        public string translated_text { get; set; }
         public string MailBody { get; set; }
         public int? NoOfTimeMailSend { get; set; }
         public DateTime? LastMailSendOn { get; set; }
+        public DateTime? EntryDate { get; set; }
     }
 
     [Table("FBFeedComments")]
