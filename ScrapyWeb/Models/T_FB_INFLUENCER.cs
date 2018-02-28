@@ -27,5 +27,6 @@ namespace ScrapyWeb.Models
         public System.DateTime date_last_update { get; set; }
         public bool AutoRetrieveFBPostAndComments { get; set; }
         public string TargetEntities { get; set; }
+        public string category { get; set; }
     }
 }

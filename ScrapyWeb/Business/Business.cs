@@ -963,9 +963,10 @@ namespace ScrapyWeb.Business
             fbInfluencer.name = name;
 
             // second get influencer fan count
-            int fan_count;
-            getInfluencerSecondInfoFromFB(fbInfluencerUrlName, app.FbAppId, graphFBApi28Url, access_token, token_type, out fan_count);
+            int fan_count; String category;
+            getInfluencerSecondInfoFromFB(fbInfluencerUrlName, app.FbAppId, graphFBApi28Url, access_token, token_type, out fan_count, out category);
             fbInfluencer.fan_count = fan_count;
+            fbInfluencer.category = category;
 
             // date last update
             fbInfluencer.date_last_update = DateTime.Now;
@@ -1069,10 +1070,10 @@ namespace ScrapyWeb.Business
             }
         }
 
-        private static void getInfluencerSecondInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out int fan_count)
+        private static void getInfluencerSecondInfoFromFB(String fbInfluencerUrlName, String fbAppId, String graphFBApi28Url, String access_token, String token_type, out int fan_count, out String category)
         {
             string objText = "";
-            string url = graphFBApi28Url + fbInfluencerUrlName + "?fields=fan_count" + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+            string url = graphFBApi28Url + fbInfluencerUrlName + "?fields=fan_count,category" + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
 
             HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
             using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
@@ -1084,6 +1085,7 @@ namespace ScrapyWeb.Business
 
                 // set fan_count
                 fan_count = Convert.ToInt32(obj["fan_count"]);
+                category = Convert.ToString(obj["category"]);
             }
         }
 
