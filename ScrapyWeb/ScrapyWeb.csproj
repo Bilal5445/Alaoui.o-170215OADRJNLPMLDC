@@ -245,6 +245,10 @@
     <Compile Include="Migrations\201802271150131_sharedFBPosts.Designer.cs">
       <DependentUpon>201802271150131_sharedFBPosts.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201802281614312_pageCategory.cs" />
+    <Compile Include="Migrations\201802281614312_pageCategory.Designer.cs">
+      <DependentUpon>201802281614312_pageCategory.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\FacebookGroupFeed.cs">
       <DependentUpon>ScrapyWeb.tt</DependentUpon>
@@ -491,6 +495,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201802271150131_sharedFBPosts.resx">
       <DependentUpon>201802271150131_sharedFBPosts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201802281614312_pageCategory.resx">
+      <DependentUpon>201802281614312_pageCategory.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
