@@ -25,4 +25,23 @@ namespace OADRJNLPCommon.Models
         public String fk_theme { get; set; }
         public int CountPerTheme { get; set; }
     }
+
+    public class LM_CountPerUser
+    {
+        public String UserID { get; set; }
+        public int CountPerUser { get; set; }
+    }
+
+    public class LM_CountPerKeyword
+    {
+        public String Keyword { get; set; }
+        public int CountPerKeyword { get; set; }
+    }
+
+    public class LM_CountPerKeywordPerTheme
+    {
+        public Guid ID_XTRCTTHEME { get; set; }
+        public String Keyword { get; set; }
+        public int CountPerKeyword { get; set; }
+    }
 }
