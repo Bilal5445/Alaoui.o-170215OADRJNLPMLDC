@@ -36,5 +36,7 @@ namespace OADRJNLPCommon.Models
         public string translated_message { get; set; }
         public DateTime created_time { get; set; }
         public DateTime? EntryDate { get; set; }
+        public int likes_count { get; set; }
+        public int comments_count { get; set; }
     }
 }
