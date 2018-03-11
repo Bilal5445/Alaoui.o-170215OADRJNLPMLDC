@@ -44,4 +44,13 @@ namespace OADRJNLPCommon.Models
         public String Keyword { get; set; }
         public int CountPerKeyword { get; set; }
     }
+
+    public class FBPageToThemeToUserViewModel
+    {
+        public string name { get; set; }    // FB page name
+        public string ThemeName { get; set; }
+        public string CurrentActive { get; set; }
+        public string UserName { get; set; }
+        public bool AutoRetrieveFBPostAndComments { get; set; }
+    }
 }
