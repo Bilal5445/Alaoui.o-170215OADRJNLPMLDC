@@ -24,5 +24,7 @@ namespace ScrapyWeb.Models
         public DateTime created_time { get; set; }
         public string feedId { get; set; }
         public DateTime? EntryDate { get; set; }
+        public int likes_count { get; set; }
+        public int comments_count { get; set; }
     }
 }

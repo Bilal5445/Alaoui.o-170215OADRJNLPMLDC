@@ -83,7 +83,7 @@ namespace ScrapyWeb.Controllers
                             status = false;
                     }
 
-                    // retrieved Posts Count (limited to only new or with changed commount count)
+                    // retrieved Posts Count (limited to only new posts or old posts with changed comments count)
                     retrievedPostsCount = posts.FindAll(m => String.IsNullOrEmpty(m.translated_text)).Count;
                 }
                 catch (Exception ex)

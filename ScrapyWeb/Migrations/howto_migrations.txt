@@ -46,6 +46,14 @@ VS > Tools > NuGet Package Manager > Package Manager Console : Default project :
 Add-Migration sharedFBPosts
 Update-Database -StartUpProjectName ScrapyWeb
 
+---
+
 VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
 Add-Migration pageCategory
+Update-Database -StartUpProjectName ScrapyWeb
+
+---
+
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration commentsLikesCommentsCount
 Update-Database -StartUpProjectName ScrapyWeb

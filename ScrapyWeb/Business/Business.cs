@@ -711,7 +711,7 @@ namespace ScrapyWeb.Business
 
                             // get comments as well
                             var feedId = Convert.ToString(status["id"]);
-                            getFacebookGroupFeedCommentFromFB(search, access_token, feedId, app, ref Error);
+                            getFBPagePostCommentsFromFB(search, access_token, feedId, app, ref Error);
 
                             // save FB feed to DB
                             feed.GroupPostId = feedId;
@@ -774,7 +774,9 @@ namespace ScrapyWeb.Business
                     + "shares,"
                     + "message,"
                     + "created_time"
-                + "&key=" + fbAppId + "&access_token=" + access_token + "&token_type=" + token_type;
+                + "&key=" + fbAppId 
+                + "&access_token=" + access_token 
+                + "&token_type=" + token_type;
 
             HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
             using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
@@ -825,13 +827,18 @@ namespace ScrapyWeb.Business
             }
         }
 
-        private static int getFacebookGroupFeedCommentFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
+        private static int getFBPagePostCommentsFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
         {
             try
             {
                 //
                 string url = search.FbAccessGroupFeedURL + feedId + "/comments"
                     + "?limit=100"
+                    + "&fields="
+                        + "comment_count,"
+                        + "like_count,"
+                        + "message,"
+                        + "created_time"
                     + "&key=" + app.FbAppId
                     + "&access_token=" + access_token;
 
@@ -889,6 +896,8 @@ namespace ScrapyWeb.Business
                             fbComment.created_time = date;
                             fbComment.feedId = feedId;
                             fbComment.EntryDate = DateTime.Now; // Add entry date on comment
+                            fbComment.likes_count = Convert.ToInt32(jComment["like_count"]);
+                            fbComment.comments_count = Convert.ToInt32(jComment["comment_count"]);
                             fbComments.Add(fbComment);
                         }
                     }
@@ -929,7 +938,7 @@ namespace ScrapyWeb.Business
             foreach (var post in posts)
             {
                 // retrieve comments from FB and save them in DB into table FBFeedComment
-                retrievedCommentsCount += getFacebookGroupFeedCommentFromFB(search, access_token, post.id, app, ref Error);
+                retrievedCommentsCount += getFBPagePostCommentsFromFB(search, access_token, post.id, app, ref Error);
 
                 // clean posts back to no new comments waiting
                 post.newCommentsWaiting = false;
@@ -1088,7 +1097,6 @@ namespace ScrapyWeb.Business
                 category = Convert.ToString(obj["category"]);
             }
         }
-
         #endregion
 
         #region BACK YARD DB FB
