@@ -32,6 +32,13 @@ namespace OADRJNLPCommon.Models
         public int CountPerUser { get; set; }
     }
 
+    public class LM_CountPerThemePerUser
+    {
+        public String UserID { get; set; }
+        public Guid ID_XTRCTTHEME { get; set; }
+        public int CountPerThemePerUser { get; set; }
+    }
+
     public class LM_CountPerKeyword
     {
         public String Keyword { get; set; }
