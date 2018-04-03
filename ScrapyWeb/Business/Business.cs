@@ -1029,7 +1029,7 @@ namespace ScrapyWeb.Business
             JValue paginationNext = null;
             if (Objects["paging"] != null) if (Objects["paging"]["next"] != null)
                     paginationNext = (JValue)Objects["paging"]["next"];
-            if (paginationNext != null && deepLevel <= 10)
+            if (paginationNext != null && deepLevel <= /*10*/2)
             {
                 var urlNext = Convert.ToString(paginationNext).Replace("limit=25", "limit=100");
                 urlNext += "&fields="
@@ -1115,12 +1115,12 @@ namespace ScrapyWeb.Business
 
         public static void getDownloadedFeedCommentsFromDB(ref List<FBFeedComment> _fbCommentList)
         {
-            using (var context = new ScrapyWebEntities())
+            /*using (var context = new ScrapyWebEntities())
             {
                 _fbCommentList = context.FBFeedComments
                     .OrderByDescending(x => x.created_time)
                     .ToList();
-            }
+            }*/
         }
 
         public static void getDownloadedFBGroupsFromDB(ref List<FBGroup> _fbGroupList)
@@ -1182,6 +1182,10 @@ namespace ScrapyWeb.Business
                         if (existingPost.comments_count != newpost.comments_count)
                             existingPost.newCommentsWaiting = true;
                         existingPost.comments_count = newpost.comments_count;
+
+                        // update likes count as well
+                        existingPost.likes_count = newpost.likes_count;
+                        
                         continue;
                     }
 
