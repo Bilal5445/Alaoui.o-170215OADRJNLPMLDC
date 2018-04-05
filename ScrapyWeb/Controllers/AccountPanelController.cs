@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Web.Mvc;
 using ScrapyWeb.Business;
 using ScrapyWeb.Models;
+using System.Net;
+using System.IO;
 
 namespace ScrapyWeb.Controllers
 {
@@ -160,6 +162,32 @@ namespace ScrapyWeb.Controllers
                 clBusiness.AddFBInfluencerToDB(influencer);
                 status = true;
                 message = "Influencer created successfully.";
+            }
+            catch (WebException wex)
+            {
+                if (wex.Response != null)
+                {
+                    if (((System.Net.HttpWebResponse)wex.Response).StatusCode == HttpStatusCode.NotFound)
+                        message = HttpStatusCode.NotFound.ToString();
+                    else
+                        using (var errorResponse = (HttpWebResponse)wex.Response)
+                        {
+                            using (var reader = new StreamReader(errorResponse.GetResponseStream()))
+                            {
+                                var jsonerror = reader.ReadToEnd();
+                                /*if (_server != null)
+                                {
+                                    Logging.Write(_server, jsonerror);
+                                    Logging.Write(_server, wex.GetType().Name);
+                                    Logging.Write(_server, wex.Message);
+                                    Logging.Write(_server, wex.StackTrace);
+                                }*/
+                                message = jsonerror;
+                            }
+                        }
+                }
+                else
+                    throw;
             }
             catch (Exception e)
             {

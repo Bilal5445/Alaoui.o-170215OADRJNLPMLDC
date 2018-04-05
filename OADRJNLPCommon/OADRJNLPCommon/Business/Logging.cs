@@ -21,7 +21,14 @@ namespace OADRJNLPCommon.Business
                 message = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss.ffffff") + " : " + Environment.MachineName + ": " + message + "\r\n";
 
                 //
-                File.AppendAllText(pathdata, message);
+                try
+                {
+                    File.AppendAllText(pathdata, message);
+                }
+                catch
+                {
+
+                }
             }
         }
 
