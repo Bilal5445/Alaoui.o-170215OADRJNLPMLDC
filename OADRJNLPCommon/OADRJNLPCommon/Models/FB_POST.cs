@@ -38,5 +38,8 @@ namespace OADRJNLPCommon.Models
         public DateTime? EntryDate { get; set; }
         public int likes_count { get; set; }
         public int comments_count { get; set; }
+        [Column(TypeName = "VARCHAR")]
+        [StringLength(150)]
+        public string parentId { get; set; }
     }
 }

@@ -818,7 +818,7 @@ namespace ScrapyWeb.Business
                     // Add themeid in fb posts as the foreign key for the post influencer
                     post.fk_influencer = feedId.Split(new char[] { '_' })[0];
 
-                    // add if not there
+                    // add if not there in the list being built
                     if (posts.Find(m=>m.id == post.id) == null)
                         posts.Add(post);
                 }
@@ -827,18 +827,21 @@ namespace ScrapyWeb.Business
             }
         }
 
-        private static int getFBPagePostCommentsFromFB(Search search, String access_token, String feedId, FBApplication app, ref string Error)
+        private static int getFBPagePostCommentsFromFB(Search search, String access_token, String postid, FBApplication app, ref string Error)
         {
             try
             {
                 //
-                string url = search.FbAccessGroupFeedURL + feedId + "/comments"
+                string url = search.FbAccessGroupFeedURL + postid + "/comments"
                     + "?limit=100"
                     + "&fields="
                         + "comment_count,"
                         + "like_count,"
                         + "message,"
-                        + "created_time"
+                        + "created_time,"
+                        + "parent"
+                        // + "comments"    // => to get replies on comments as well
+                    + "&filter=stream"
                     + "&key=" + app.FbAppId
                     + "&access_token=" + access_token;
 
@@ -894,10 +897,13 @@ namespace ScrapyWeb.Business
                             fbComment.Id = Convert.ToString(jComment["id"]);
                             fbComment.message = message;
                             fbComment.created_time = date;
-                            fbComment.feedId = feedId;
+                            fbComment.feedId = postid;
                             fbComment.EntryDate = DateTime.Now; // Add entry date on comment
                             fbComment.likes_count = Convert.ToInt32(jComment["like_count"]);
                             fbComment.comments_count = Convert.ToInt32(jComment["comment_count"]);
+                            if (jComment["parent"] != null) {
+                                fbComment.parentId = Convert.ToString(jComment["parent"]["id"]);
+                            }
                             fbComments.Add(fbComment);
                         }
                     }
@@ -1173,18 +1179,18 @@ namespace ScrapyWeb.Business
             {
                 foreach (var newpost in newposts)
                 {
-                    // if the post already there, update it
+                    // if the post already there, update its likes count
                     // and if comments count changed, mark for retrieve new comments from FB
                     var existingPost = context.T_FB_POST.SingleOrDefault(f => f.id == newpost.id);
                     if (existingPost != null)
                     {
+                        // update likes count as well
                         existingPost.likes_count = newpost.likes_count;
+
+                        // and if comments count changed, mark for retrieve new comments from FB
                         if (existingPost.comments_count != newpost.comments_count)
                             existingPost.newCommentsWaiting = true;
                         existingPost.comments_count = newpost.comments_count;
-
-                        // update likes count as well
-                        existingPost.likes_count = newpost.likes_count;
                         
                         continue;
                     }
