@@ -32,7 +32,11 @@ namespace OADRJNLPCommon.Models
     {
         [Key]
         public string Id { get; set; }
+        [Column(TypeName = "NVARCHAR")]
+        [StringLength(849)]
         public string message { get; set; }
+        [Column(TypeName = "NVARCHAR")]
+        [StringLength(849)]
         public string translated_message { get; set; }
         public DateTime created_time { get; set; }
         public DateTime? EntryDate { get; set; }

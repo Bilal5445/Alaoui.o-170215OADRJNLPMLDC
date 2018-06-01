@@ -63,3 +63,28 @@ Update-Database -StartUpProjectName ScrapyWeb
 VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
 Add-Migration commentsParent
 Update-Database -StartUpProjectName ScrapyWeb
+
+UPDATE FBFeedComments SET message = LEFT(message, 4000)
+UPDATE FBFeedComments SET translated_message = LEFT(translated_message, 4000)
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration commentsMsgsSize
+Update-Database -StartUpProjectName ScrapyWeb
+=>ERR => Cannot alter or drop column 'message' because it is enabled for Full-Text Search.
+=> delete full text index (and reconstruct it after)
+
+---
+
+UPDATE FBFeedComments SET message = LEFT(message, 1700)
+UPDATE FBFeedComments SET translated_message = LEFT(translated_message, 1700)
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration commentsMsgsSize1700
+Update-Database -StartUpProjectName ScrapyWeb
+
+
+---
+
+UPDATE FBFeedComments SET message = LEFT(message, 849) WHERE LEN(message) > 849
+UPDATE FBFeedComments SET translated_message = LEFT(translated_message, 849) WHERE LEN(message) > 849
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration commentsMsgsSize849
+Update-Database -StartUpProjectName ScrapyWeb

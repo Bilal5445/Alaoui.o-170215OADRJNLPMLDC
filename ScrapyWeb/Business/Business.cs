@@ -769,6 +769,7 @@ namespace ScrapyWeb.Business
             string url = graphFBApi28Url + fbPageUrlName + "/feed"
                 + "?limit=100"
                 + "&fields="
+                    // + "from,"
                     + "comments.limit(0).summary(true),"
                     + "likes.limit(0).summary(true),"
                     + "shares,"
@@ -802,6 +803,8 @@ namespace ScrapyWeb.Business
                     int likes_count = Convert.ToInt32(status["likes"]["summary"]["total_count"]);
                     int comments_count = Convert.ToInt32(status["comments"]["summary"]["total_count"]);
                     int sharedposts_count = Convert.ToInt32(status["shares"]?["count"] ?? 0);
+                    // String fromid = Convert.ToString(status["from"]?["id"]);
+                    // Console.WriteLine(fromid);
 
                     // fill fb post
                     var post = new T_FB_POST();
@@ -1039,6 +1042,7 @@ namespace ScrapyWeb.Business
             {
                 var urlNext = Convert.ToString(paginationNext).Replace("limit=25", "limit=100");
                 urlNext += "&fields="
+                    // + "from,"
                     + "comments.limit(0).summary(true),"
                     + "likes.limit(0).summary(true),"
                     + "shares,"
