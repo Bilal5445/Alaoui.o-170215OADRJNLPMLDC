@@ -91,6 +91,7 @@
 
 .center {
     text-align: center;
+    text-align: -webkit-center;
 }
 
 .arabic-text {
