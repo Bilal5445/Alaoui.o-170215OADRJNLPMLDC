@@ -203,7 +203,6 @@ namespace ScrapyWeb.Business
                 var result = context.TweetSets.SingleOrDefault(t => t.Tweet_Id == tweet.Tweet_Id);
                 if (result == null)
                 {
-
                     context.TweetSets.Add(tweet);
                     context.SaveChanges();
                 }
