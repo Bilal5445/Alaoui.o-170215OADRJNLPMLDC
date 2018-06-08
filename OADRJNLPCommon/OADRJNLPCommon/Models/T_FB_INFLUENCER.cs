@@ -32,6 +32,13 @@ namespace OADRJNLPCommon.Models
         public int CountPerInfluencer { get; set; }
     }
 
+    public class LM_CountPerNamedInfluencer
+    {
+        public String id { get; set; }
+        public String name { get; set; }
+        public int CountPerInfluencer { get; set; }
+    }
+
     public class LM_CountPerUser
     {
         public String UserID { get; set; }
