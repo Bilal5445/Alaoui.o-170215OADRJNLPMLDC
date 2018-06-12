@@ -12,7 +12,7 @@ namespace OADRJNLPCommon.Business
 {
     public class Business
     {
-        #region FRONT YARD FB
+        #region FRONT YARD FB TWINGLY
         public static FB_KEYWORD getFBKeywordInfoFromFBViaTwingly(String fbKeywordKeyword)
         {
             //
@@ -108,7 +108,7 @@ namespace OADRJNLPCommon.Business
         }
         #endregion
 
-        #region BACK YARD BO
+        #region BACK YARD BO TWINGLY
         private static void getKeywordInfoFromFBViaTwingly(FB_KEYWORD fbKeyword, String twinglyApi15Url, String access_token, bool limitToMorocco = false)
         {
             String url = twinglyApi15Url + "chart" + "?apikey=" + access_token + "&one=\"" + fbKeyword.keyword + "\"";
@@ -306,5 +306,87 @@ namespace OADRJNLPCommon.Business
             }
         }
         #endregion
+
+        /*public void refreshcomments(String postId, String accessToken, String fbAppId, String fbAccessPageUrl)
+        {
+            //
+            string url = fbAccessPageUrl + postId + "/comments"
+                + "?limit=100"
+                + "&fields="
+                    + "comment_count,"
+                    + "like_count,"
+                    + "message,"
+                    + "created_time,"
+                    + "parent"
+                + "&filter=stream"
+                + "&key=" + fbAppId
+                + "&access_token=" + accessToken;
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                String objText = reader.ReadToEnd();
+                JObject jObjects = JObject.Parse(objText);
+                JObject Objects = new JObject(jObjects);
+                JArray jComments = (JArray)Objects["data"];
+
+                // if next retrieve and add to items
+                JValue paginationNext = null;
+                if (Objects["paging"] != null)
+                    if (Objects["paging"]["next"] != null)
+                        paginationNext = (JValue)Objects["paging"]["next"];
+                // ex : "next": "https://graph.facebook.com/v2.11/191616720877982_1725409007498738/comments?access_token=EAACEdEose0cBAJG8GcB1zBZA1MwBwFIP4hBi4JZBqSuR9JiotXr9ZCZBDglqr0ZBbZAVOzw8HkwEYDgbHqY1ZCfuVyq1cUJx8ibY6aJxxqxw5CeyoA9yiuG0RQZCSOfFyOXAVAIKzgs6thxyfjk9Ac9DfJTt2yoxtI5q9rWX5bITqk7pb61dE9DjdfhB6VpXb0gZD&pretty=0&limit=25&after=ODQZD"
+                if (paginationNext != null)
+                {
+                    var urlNext = Convert.ToString(paginationNext).Replace("limit=25", "limit=100");
+                    HttpWebRequest requestNext = WebRequest.Create(urlNext) as HttpWebRequest;
+                    using (HttpWebResponse responseNext = requestNext.GetResponse() as HttpWebResponse)
+                    {
+                        StreamReader readerNext = new StreamReader(responseNext.GetResponseStream());
+                        String objTextNext = readerNext.ReadToEnd();
+                        JObject jObjectsNext = JObject.Parse(objTextNext);
+                        JObject ObjectsNext = new JObject(jObjectsNext);
+                        JArray itemsNext = (JArray)ObjectsNext["data"];
+
+                        // add to items
+                        for (int i = 0; i < itemsNext.Count; i++)
+                            jComments.Add(itemsNext[i]);
+                    }
+                }
+
+                // create the comments in memory
+                var fbComments = new List<FBFeedComment>();
+                foreach (var jComment in jComments)
+                {
+                    if (jComment["message"] != null)
+                    {
+                        var fbComment = new FBFeedComment();
+
+                        var message = Convert.ToString(jComment["message"]);
+                        var date = DateTime.Parse(Convert.ToString(jComment["created_time"]));
+
+                        // save FB feed comment to DB
+                        // MC260118 plus we save as well the correspounding post id to easy join in sql for consolidation later
+                        fbComment.Id = Convert.ToString(jComment["id"]);
+                        fbComment.message = message;
+                        fbComment.created_time = date;
+                        fbComment.feedId = postId;
+                        fbComment.EntryDate = DateTime.Now; // Add entry date on comment
+                        fbComment.likes_count = Convert.ToInt32(jComment["like_count"]);
+                        fbComment.comments_count = Convert.ToInt32(jComment["comment_count"]);
+                        if (jComment["parent"] != null)
+                        {
+                            fbComment.parentId = Convert.ToString(jComment["parent"]["id"]);
+                        }
+                        fbComments.Add(fbComment);
+                    }
+                }
+
+                // add into DB
+                var retrievedCommentsCount = AddFbCommentsToDb(fbComments);
+                return retrievedCommentsCount;
+            }
+        }*/
     }
 }
