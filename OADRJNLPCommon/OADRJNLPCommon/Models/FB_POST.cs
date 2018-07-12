@@ -25,6 +25,10 @@ namespace OADRJNLPCommon.Models
         public int? NoOfTimeMailSend { get; set; }
         public DateTime? LastMailSendOn { get; set; }
         public DateTime? EntryDate { get; set; }
+
+        [Column(TypeName = "VARCHAR")]
+        [StringLength(150)]
+        public string from_id { get; set; }
     }
 
     [Table("FBFeedComments")]

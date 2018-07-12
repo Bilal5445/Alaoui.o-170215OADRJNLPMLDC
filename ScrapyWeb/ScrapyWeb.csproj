@@ -269,6 +269,10 @@
     <Compile Include="Migrations\201806071821182_commentsMsgsSize849.Designer.cs">
       <DependentUpon>201806071821182_commentsMsgsSize849.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807121711098_postFromId.cs" />
+    <Compile Include="Migrations\201807121711098_postFromId.Designer.cs">
+      <DependentUpon>201807121711098_postFromId.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\FacebookGroupFeed.cs">
       <DependentUpon>ScrapyWeb.tt</DependentUpon>
@@ -533,6 +537,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806071821182_commentsMsgsSize849.resx">
       <DependentUpon>201806071821182_commentsMsgsSize849.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807121711098_postFromId.resx">
+      <DependentUpon>201807121711098_postFromId.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

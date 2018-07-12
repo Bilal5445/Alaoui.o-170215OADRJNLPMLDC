@@ -3,6 +3,7 @@ using ScrapyWeb.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 
@@ -131,6 +132,53 @@ namespace ScrapyWeb.Controllers
             }
             else
                 return RedirectToAction("Index", "Home");   // we are done with the fb posts and return to main screen of scrappyweb
+        }
+
+        [HttpPost]
+        public ActionResult FetchPost(string postsId, int appId = 1)
+        {
+            // Get FB application
+            var fbApp = clBusiness.GetFBApplicationFromDB(appId);
+            var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
+
+            // get post
+            var refreshedPost = clBusiness.RetrieveFBPost(fbApp.FbAppId, postsId, fbAccessToken);
+
+            // update post
+            using (var context = new ScrapyWebEntities())
+            {
+                // if the post already there, update its likes count
+                // and if comments count changed, mark for retrieve new comments from FB
+                var existingPost = context.T_FB_POST.SingleOrDefault(f => f.id == refreshedPost.id);
+                if (existingPost != null)
+                {
+                    // update likes count as well
+                    existingPost.likes_count = refreshedPost.likes_count;
+
+                    // and if comments count changed, mark for retrieve new comments from FB
+                    // TMP if (existingPost.comments_count != refreshedPost.comments_count)
+                    // TMP existingPost.newCommentsWaiting = true;
+                    existingPost.comments_count = refreshedPost.comments_count;
+
+                    //
+                    existingPost.sharedposts_count = refreshedPost.sharedposts_count;
+                    existingPost.fk_influencer = refreshedPost.fk_influencer;
+                    existingPost.from_id = refreshedPost.from_id;
+                }
+                else
+                {
+                    // otherwise if not here, insert it
+                    // while marking as well for comments retrving
+                    // TMP refreshedPost.newCommentsWaiting = true;
+                    context.T_FB_POST.Add(refreshedPost);
+                }
+
+                // commit once done with all posts
+                context.SaveChanges();
+            }
+
+            //
+            return Json(new { status = true });
         }
     }
 }
