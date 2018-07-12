@@ -273,6 +273,10 @@
     <Compile Include="Migrations\201807121711098_postFromId.Designer.cs">
       <DependentUpon>201807121711098_postFromId.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807121849201_fbUser.cs" />
+    <Compile Include="Migrations\201807121849201_fbUser.Designer.cs">
+      <DependentUpon>201807121849201_fbUser.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\FacebookGroupFeed.cs">
       <DependentUpon>ScrapyWeb.tt</DependentUpon>
@@ -314,6 +318,7 @@
     <Compile Include="Models\T_FB_POST.cs">
       <DependentUpon>ScrapyWeb.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\T_FB_USER.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -540,6 +545,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807121711098_postFromId.resx">
       <DependentUpon>201807121711098_postFromId.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807121849201_fbUser.resx">
+      <DependentUpon>201807121849201_fbUser.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

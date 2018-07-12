@@ -142,10 +142,12 @@ namespace ScrapyWeb.Controllers
             var fbAccessToken = clBusiness.FacebookGetAccessToken(fbApp);
 
             // get post
-            var refreshedPost = clBusiness.RetrieveFBPost(fbApp.FbAppId, postsId, fbAccessToken);
+            T_FB_USER fbUser;
+            var refreshedPost = clBusiness.RetrieveFBPost(fbApp.FbAppId, postsId, fbAccessToken, out fbUser);
 
             // update post
-            using (var context = new ScrapyWebEntities())
+            clBusiness.AddFBPostToDB(refreshedPost);
+            /*using (var context = new ScrapyWebEntities())
             {
                 // if the post already there, update its likes count
                 // and if comments count changed, mark for retrieve new comments from FB
@@ -174,6 +176,13 @@ namespace ScrapyWeb.Controllers
                 }
 
                 // commit once done with all posts
+                context.SaveChanges();
+            }*/
+
+            // save user
+            using (var context = new ScrapyWebEntities())
+            {
+                context.T_FB_USER.Add(fbUser);
                 context.SaveChanges();
             }
 
