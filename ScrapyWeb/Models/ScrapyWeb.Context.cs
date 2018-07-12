@@ -33,5 +33,6 @@ namespace ScrapyWeb.Models
         public DbSet<FBFeedComment> FBFeedComments { get; set; }
         public DbSet<T_FB_INFLUENCER> T_FB_INFLUENCER { get; set; }
         public DbSet<T_FB_POST> T_FB_POST { get; set; }
+        public DbSet<T_FB_USER> T_FB_USER { get; set; }
     }
 }

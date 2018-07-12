@@ -828,7 +828,7 @@ namespace ScrapyWeb.Business
             }
         }
 
-        public static T_FB_POST RetrieveFBPost(String fbAppId, String postId, String fbAccessToken)
+        public static T_FB_POST RetrieveFBPost(String fbAppId, String postId, String fbAccessToken, out T_FB_USER fbUser)
         {
             //
             var post = new T_FB_POST();
@@ -874,6 +874,14 @@ namespace ScrapyWeb.Business
                 var feedId = Convert.ToString(jObjects["id"]);
                 int sharedposts_count = Convert.ToInt32(jObjects["shares"]["count"]);
                 var fromId = Convert.ToString(jObjects["from"]["id"]);
+                var fromName = Convert.ToString(jObjects["from"]["name"]);
+
+                //
+                fbUser = new T_FB_USER
+                {
+                    from_id = fromId,
+                    name = fromName
+                };
 
                 // fill fb post
                 post.id = feedId;
@@ -1302,6 +1310,42 @@ namespace ScrapyWeb.Business
                     // while marking as well for comments retrving
                     newpost.newCommentsWaiting = true;
                     context.T_FB_POST.Add(newpost);
+                }
+
+                // commit once done with all posts
+                context.SaveChanges();
+            }
+        }
+
+        public static void AddFBPostToDB(T_FB_POST refreshedPost)
+        {
+            // update post
+            using (var context = new ScrapyWebEntities())
+            {
+                // if the post already there, update its likes count
+                // and if comments count changed, mark for retrieve new comments from FB
+                var existingPost = context.T_FB_POST.SingleOrDefault(f => f.id == refreshedPost.id);
+                if (existingPost != null)
+                {
+                    // update likes count as well
+                    existingPost.likes_count = refreshedPost.likes_count;
+
+                    // and if comments count changed, mark for retrieve new comments from FB
+                    // TMP if (existingPost.comments_count != refreshedPost.comments_count)
+                    // TMP existingPost.newCommentsWaiting = true;
+                    existingPost.comments_count = refreshedPost.comments_count;
+
+                    //
+                    existingPost.sharedposts_count = refreshedPost.sharedposts_count;
+                    existingPost.fk_influencer = refreshedPost.fk_influencer;
+                    existingPost.from_id = refreshedPost.from_id;
+                }
+                else
+                {
+                    // otherwise if not here, insert it
+                    // while marking as well for comments retrving
+                    // TMP refreshedPost.newCommentsWaiting = true;
+                    context.T_FB_POST.Add(refreshedPost);
                 }
 
                 // commit once done with all posts

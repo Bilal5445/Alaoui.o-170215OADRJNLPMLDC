@@ -107,3 +107,9 @@ VS > Tools > NuGet Package Manager > Package Manager Console : Default project :
 Add-Migration postFromId
 Update-Database -StartUpProjectName ScrapyWeb
 
+---
+
+create T_FB_USER.cs (WARNING ; dot not work with model dmbs dircetly, otherwise it will change all modesl in code)
+VS > Tools > NuGet Package Manager > Package Manager Console : Default project : ScrapyWeb
+Add-Migration fbUser
+Update-Database -StartUpProjectName ScrapyWeb
