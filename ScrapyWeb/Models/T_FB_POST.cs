@@ -12,6 +12,7 @@ namespace ScrapyWeb.Models
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     public partial class T_FB_POST
     {
@@ -29,5 +30,9 @@ namespace ScrapyWeb.Models
         public int? NoOfTimeMailSend { get; set; }
         public DateTime? LastMailSendOn { get; set; }
         public DateTime? EntryDate { get; set; }
+
+        [Column(TypeName = "VARCHAR")]
+        [StringLength(150)]
+        public string from_id { get; set; }
     }
 }

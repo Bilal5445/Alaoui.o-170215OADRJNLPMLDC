@@ -762,7 +762,6 @@ namespace ScrapyWeb.Business
 
             //
             var graphFBApi28Url = Util.getKeyValueFromAppSetting("FbGroupFeed");
-            Util.getKeyValueFromAppSetting("FbTokenURL");
 
             // first get page/group feed (ie: list of posts) with count of like and count of comments
             string url = graphFBApi28Url + fbPageUrlName + "/feed"
@@ -774,8 +773,8 @@ namespace ScrapyWeb.Business
                     + "shares,"
                     + "message,"
                     + "created_time"
-                + "&key=" + fbAppId 
-                + "&access_token=" + access_token 
+                + "&key=" + fbAppId
+                + "&access_token=" + access_token
                 + "&token_type=" + token_type;
 
             HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
@@ -821,12 +820,112 @@ namespace ScrapyWeb.Business
                     post.fk_influencer = feedId.Split(new char[] { '_' })[0];
 
                     // add if not there in the list being built
-                    if (posts.Find(m=>m.id == post.id) == null)
+                    if (posts.Find(m => m.id == post.id) == null)
                         posts.Add(post);
                 }
 
                 return posts;
             }
+        }
+
+        public static T_FB_POST RetrieveFBPost(String fbAppId, String postId, String fbAccessToken)
+        {
+            //
+            var post = new T_FB_POST();
+
+            // parse json token : eg : {"access_token":"360921534307030|ykMyj0iA9WcteYKnC_fNdYe-PEk","token_type":"bearer"}
+            JObject jObject = JObject.Parse(fbAccessToken);
+            String access_token = (String)jObject["access_token"];
+            String token_type = (String)jObject["token_type"];
+
+            //
+            var graphFBApi28Url = Util.getKeyValueFromAppSetting("FbGroupFeed");
+
+            // first get page/group feed (ie: list of posts) with count of like and count of comments
+            string url = graphFBApi28Url + postId
+                + "?fields="
+                    + "id,"
+                    + "created_time,"
+                    + "from,"
+                    + "picture,"
+                    + "icon,"
+                    + "link,"
+                    + "message,"
+                    + "object_id,"
+                    + "parent_id,"
+                    + "shares,"
+                    + "type"
+                + "&key=" + fbAppId
+                + "&access_token=" + access_token
+                + "&token_type=" + token_type;
+
+            //
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                string objText = reader.ReadToEnd();
+                JObject jObjects = JObject.Parse(objText);
+
+                // data from retrieved json
+                var message = jObjects["message"] != null ? Convert.ToString(jObjects["message"]) : String.Empty;
+                var date = DateTime.Parse(Convert.ToString(jObjects["created_time"]));
+                var feedId = Convert.ToString(jObjects["id"]);
+                int sharedposts_count = Convert.ToInt32(jObjects["shares"]["count"]);
+                var fromId = Convert.ToString(jObjects["from"]["id"]);
+
+                // fill fb post
+                post.id = feedId;
+                post.post_text = message;
+                post.date_publishing = date;
+                post.sharedposts_count = sharedposts_count;
+                post.from_id = fromId;
+
+                // Add the entry date in table of the posts
+                post.EntryDate = DateTime.Now;
+
+                // Add themeid in fb posts as the foreign key for the post influencer
+                post.fk_influencer = feedId.Split(new char[] { '_' })[0];
+            }
+
+            // comments count
+            url = graphFBApi28Url + postId
+                + "/comments?limit=0&summary=1"
+                + "&key=" + fbAppId
+                + "&access_token=" + access_token
+                + "&token_type=" + token_type;
+            request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                string objText = reader.ReadToEnd();
+                JObject jObjects = JObject.Parse(objText);
+
+                int comments_count = Convert.ToInt32(jObjects["summary"]["total_count"]);
+                post.comments_count = comments_count;
+            }
+
+            // likes count
+            url = graphFBApi28Url + postId
+                + "/likes?limit=0&summary=1"
+                + "&key=" + fbAppId
+                + "&access_token=" + access_token
+                + "&token_type=" + token_type;
+            request = WebRequest.Create(url) as HttpWebRequest;
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                string objText = reader.ReadToEnd();
+                JObject jObjects = JObject.Parse(objText);
+
+                int likes_count = Convert.ToInt32(jObjects["summary"]["total_count"]);
+                post.likes_count = likes_count;
+            }
+
+            return post;
         }
 
         private static int getFBPagePostCommentsFromFB(Search search, String access_token, String postid, FBApplication app, ref string Error)
@@ -842,7 +941,7 @@ namespace ScrapyWeb.Business
                         + "message,"
                         + "created_time,"
                         + "parent"
-                        // + "comments"    // => to get replies on comments as well
+                    // + "comments"    // => to get replies on comments as well
                     + "&filter=stream"
                     + "&key=" + app.FbAppId
                     + "&access_token=" + access_token;
@@ -903,7 +1002,8 @@ namespace ScrapyWeb.Business
                             fbComment.EntryDate = DateTime.Now; // Add entry date on comment
                             fbComment.likes_count = Convert.ToInt32(jComment["like_count"]);
                             fbComment.comments_count = Convert.ToInt32(jComment["comment_count"]);
-                            if (jComment["parent"] != null) {
+                            if (jComment["parent"] != null)
+                            {
                                 fbComment.parentId = Convert.ToString(jComment["parent"]["id"]);
                             }
                             fbComments.Add(fbComment);
@@ -1194,7 +1294,7 @@ namespace ScrapyWeb.Business
                         if (existingPost.comments_count != newpost.comments_count)
                             existingPost.newCommentsWaiting = true;
                         existingPost.comments_count = newpost.comments_count;
-                        
+
                         continue;
                     }
 
